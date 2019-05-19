@@ -114,8 +114,8 @@ dmypy.json
 .pyre/
 
 # Certificados gerados
-.crt
-.key
+client-2048.crt
+client-2048.key
 
 # Coisas
 Hush.py
