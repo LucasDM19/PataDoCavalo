@@ -112,3 +112,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Certificados gerados
+.crt
+.key
+
+# Coisas
+Hush.py
