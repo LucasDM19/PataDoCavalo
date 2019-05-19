@@ -17,7 +17,12 @@ class BasicTest(TestCase):
          self.assertEqual( retorno.code, 200 )
       except urllib.error.HTTPError:
          print("ruim")
-         
+   def testLogon(self):
+      from RestAPI import *
+      from Hush import *
+      u, s, a = usuarioAPI, senhaAPI, APIKey
+      api = BetfairAPI(usuario=u, senha=s, api_key=a)
+      print("Session Token=",api.sessionToken)
 if __name__ == "__main__":
    unittest.main
 
