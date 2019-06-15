@@ -23,7 +23,7 @@ class Malhado():
    """
    Obtem a lista de partidas que comecarao nos proximos trinta minutos.
    """
-   def obtemListaDeCorridas(self, horas=12, minutos=0):
+   def obtemListaDeCorridas(self, horas=24, minutos=0):
       import datetime
       now = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')
       future = (datetime.datetime.now() + datetime.timedelta(hours=horas, minutes=minutos)).strftime('%Y-%m-%dT%H:%M:%SZ')
@@ -37,8 +37,18 @@ class Malhado():
    As partidas relevantes sao apenas aquelas do GB. Todo o resto sera ignorado.
    """
    def filtraPartidasInglesas(self, pais="GB"):
-      #print( [self.corridas[idx] for idx in range(len(self.corridas)) if self.corridas[idx]["event"]["countryCode"] == pais] )
       self.corridas = [self.corridas[idx] for idx in range(len(self.corridas)) if self.corridas[idx]["event"]["countryCode"] == pais]
+
+   """
+   O mercado que interessa e o mais simples. O Win.
+   """
+   def obtemListaCavalosWinInglaterra(self, horas=24, minutos=0):
+      import datetime
+      now = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')
+      future = (datetime.datetime.now() + datetime.timedelta(hours=horas, minutes=minutos)).strftime('%Y-%m-%dT%H:%M:%SZ')
+      filtro=('{"filter":{"eventTypeIds":["' + self.horseRacingID + '"],"marketCountries":["GB"],"marketTypeCodes":["WIN"],'\
+                '"marketStartTime":{"from":"' + now + '", "to":"' + future + '"}},"sort":"FIRST_TO_START","maxResults":"1","marketProjection":["RUNNER_METADATA"]}, "id": 1}')
+      self.corridasWin = api.obtemTodosMercadosDasPartidas(json_req=filtro)
 
 if __name__ == "__main__":
    print("Vai, malhado!")
@@ -49,11 +59,13 @@ if __name__ == "__main__":
    #corridaCavalosID = bot.obtemIdDoEsporte(eventTypeName="Horse Racing")
    print("ID=", bot.horseRacingID)
    bot.obtemListaDeCorridas()
-   bot.filtraPartidasInglesas(pais="AU")
-   print( bot.corridas )
+   bot.filtraPartidasInglesas()
+   bot.obtemListaCavalosWinInglaterra(horas=96)
+   #print( bot.corridasWin )
+
+   for idx in range(len(bot.corridas)):
+      print( "Partida# ",idx,": ID=",bot.corridas[idx]["event"]["id"], ", Nome=", bot.corridas[idx]["event"]["name"], ", timezone=",bot.corridas[idx]["event"]["timezone"], ", openDate=", bot.corridas[idx]["event"]["openDate"], ", marketCount=", bot.corridas[idx]["marketCount"] ) 
    
-   #for idx in range(len(bot.corridas)):
-   #   print( "Partida# ",idx,": ID=",bot.jPartidas[idx]["event"]["id"], ", Nome=", bot.jPartidas[idx]["event"]["name"], ", timezone=",bot.jPartidas[idx]["event"]["timezone"], ", openDate=", bot.jPartidas[idx]["event"]["openDate"], ", marketCount=", bot.jPartidas[idx]["marketCount"] ) 
-      
-   
+   for idx in range(len(bot.corridasWin)):
+      print( "Market# ", idx, " ID=", bot.corridasWin[idx]['marketId'], ", melhor=", bot.corridasWin[idx]['runners'][0]['runnerName'] )
    
