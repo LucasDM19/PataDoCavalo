@@ -47,7 +47,8 @@ class Malhado():
       now = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')
       future = (datetime.datetime.now() + datetime.timedelta(hours=horas, minutes=minutos)).strftime('%Y-%m-%dT%H:%M:%SZ')
       filtro=('{"filter":{"eventTypeIds":["' + self.horseRacingID + '"],"marketCountries":["GB"],"marketTypeCodes":["WIN"],'\
-                '"marketStartTime":{"from":"' + now + '", "to":"' + future + '"}},"sort":"FIRST_TO_START","maxResults":"1","marketProjection":["RUNNER_METADATA"]}, "id": 1}')
+                '"marketStartTime":{"from":"' + now + '", "to":"' + future + '"}},"sort":"FIRST_TO_START","maxResults":"5",\
+                "marketProjection":["RUNNER_DESCRIPTION","EVENT"]}, "id": 1}')
       self.corridasWin = api.obtemTodosMercadosDasPartidas(json_req=filtro)
 
 if __name__ == "__main__":
@@ -61,11 +62,11 @@ if __name__ == "__main__":
    bot.obtemListaDeCorridas()
    bot.filtraPartidasInglesas()
    bot.obtemListaCavalosWinInglaterra(horas=96)
-   #print( bot.corridasWin )
+   print( bot.corridasWin )
 
    for idx in range(len(bot.corridas)):
       print( "Partida# ",idx,": ID=",bot.corridas[idx]["event"]["id"], ", Nome=", bot.corridas[idx]["event"]["name"], ", timezone=",bot.corridas[idx]["event"]["timezone"], ", openDate=", bot.corridas[idx]["event"]["openDate"], ", marketCount=", bot.corridas[idx]["marketCount"] ) 
    
    for idx in range(len(bot.corridasWin)):
-      print( "Market# ", idx, " ID=", bot.corridasWin[idx]['marketId'], ", melhor=", bot.corridasWin[idx]['runners'][0]['runnerName'] )
+      print( "Market# ", idx, " ID=", bot.corridasWin[idx]['marketId'], "Market Name=", bot.corridasWin[idx]['marketName'],", melhor=", bot.corridasWin[idx]['runners'][0]['runnerName'], "selecionId=", bot.corridasWin[idx]['runners'][0]['selectionId'] )
    
