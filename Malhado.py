@@ -60,16 +60,18 @@ class Malhado():
    """
    Pesquisando os preços da corrida em questão.
    """
-   def obtemOddsDaCorrida(self, idEvento):
-      filtro= '{ "marketIds": [' + idEvento + '], "priceProjection": { "priceData": ["EX_BEST_OFFERS"], "virtualise": "true" } }'
+   def obtemOddsDaCorrida(self, idMercado):
+      filtro= '{ "marketIds": [' + idMercado + '], "priceProjection": { "priceData": ["EX_BEST_OFFERS"], "virtualise": "true" } }'
       odds = api.obtemOddsDosMercados(json_req=filtro)
-      melhoresOdds = { mercados[odds[idxRun]["runners"][idxSel]["selectionId"]]  :  odds[idxRun]["runners"][idxSel]["ex"]["availableToBack"][0]["price"]  for idxRun in range(len(odds))  for idxSel in range(len(odds[idxRun]["runners"])) if len(odds[idxRun]["runners"][idxSel]["ex"]["availableToBack"]) >= 1 }
+      #print("Odds=", odds )
+      #melhoresOdds = { odds[odds[idxRun]["runners"][idxSel]["selectionId"]]  :  odds[idxRun]["runners"][idxSel]["ex"]["availableToBack"][0]["price"]  for idxRun in range(len(odds))  for idxSel in range(len(odds[idxRun]["runners"])) if len(odds[idxRun]["runners"][idxSel]["ex"]["availableToBack"]) >= 1 }
+      melhoresOdds = odds
       
       try:
-         self.OddsCorrida[idEvento] = melhoresOdds
+         self.OddsCorrida[idMercado] = melhoresOdds
       except AttributeError:
          self.OddsCorrida = {}
-         self.OddsCorrida[idEvento] = melhoresOdds
+         self.OddsCorrida[idMercado] = melhoresOdds
       
       
 if __name__ == "__main__":
@@ -80,31 +82,33 @@ if __name__ == "__main__":
    bot = Malhado(api )
    #corridaCavalosID = bot.obtemIdDoEsporte(eventTypeName="Horse Racing")
    print("ID=", bot.horseRacingID)
-   bot.obtemListaDeCorridas()
-   #bot.obtemListaCavalosWinInglaterra(horas=96)
-   #print( bot.corridasWin )
+   #bot.obtemListaDeCorridas()
+   bot.obtemListaCavalosWinInglaterra(horas=96)
 
    #for idx in range(len(bot.corridas)):
    #   print( "Partida# ",idx,": ID=",bot.corridas[idx]["event"]["id"], ", Nome=", bot.corridas[idx]["event"]["name"], ", timezone=",bot.corridas[idx]["event"]["timezone"], ", openDate=", bot.corridas[idx]["event"]["openDate"], ", marketCount=", bot.corridas[idx]["marketCount"] ) 
    
    #df = "2019-06-22T12:45:00.000Z"
-   proxima_corrida = bot.corridas[0]["event"]["openDate"]   # Apenas a próxima corrida
-   idEvento = bot.corridas[0]["event"]["id"] # ID do evento. Usarei depois
+   proxima_corrida = bot.corridasWin[0]["event"]["openDate"]   # Apenas a próxima corrida
+   #idEvento = bot.corridasWin[0]["event"]["id"] # ID do evento. Usarei depois
+   idMercado = bot.corridasWin[0]['marketId']
    print("Proxima corrida=", proxima_corrida)
    data_futura = datetime.strptime(proxima_corrida, '%Y-%m-%dT%H:%M:%S.%fZ')
    data_futura_1h = data_futura - timedelta(hours=1, minutes=0)   # Uma hora antes do jogo
    delta = data_futura - datetime.now()
    print("Sleep secs : {0}".format(delta.seconds))
-   sleep(delta.seconds)
+   #sleep(delta.seconds)
    print("Acordei! Agora sao->", datetime.now())
    
    # Obter o bendito marketId
-   bot.obtemListaMercadosDoEvento(idEvento)
+   #bot.obtemListaMercadosDoEvento(idEvento)
+   #bot.obtemListaCavalosWinInglaterra(horas=96)
+   #print("Evento=", bot.corridas[0], "Json=", bot.corridasWin[0] )
    #idMercado = bot.corridasWin[idx]['marketId']
    
    # Agora obtenho as odds da corrida acima (pelo ID)
-   bot.obtemOddsDaCorrida(idEvento)
-   print("Odds=", bot.OddsCorrida[idEvento] )
+   bot.obtemOddsDaCorrida(idMercado)
+   print("Odds=", bot.OddsCorrida[idMercado][0]["runners"][0]['ex']['availableToBack'][0]['price'] )
    
    #for idx in range(len(bot.corridasWin)):
    #   print( "Market# ", idx, " ID=", bot.corridasWin[idx]['marketId'], "Market Name=", bot.corridasWin[idx]['marketName'],", melhor=", bot.corridasWin[idx]['runners'][0]['runnerName'], "selecionId=", bot.corridasWin[idx]['runners'][0]['selectionId'] )
