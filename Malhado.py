@@ -82,7 +82,6 @@ if __name__ == "__main__":
    bot = Malhado(api )
    #corridaCavalosID = bot.obtemIdDoEsporte(eventTypeName="Horse Racing")
    print("ID=", bot.horseRacingID)
-   #bot.obtemListaDeCorridas()
    bot.obtemListaCavalosWinInglaterra(horas=96)
 
    #for idx in range(len(bot.corridas)):
@@ -90,21 +89,14 @@ if __name__ == "__main__":
    
    #df = "2019-06-22T12:45:00.000Z"
    proxima_corrida = bot.corridasWin[0]["event"]["openDate"]   # Apenas a próxima corrida
-   #idEvento = bot.corridasWin[0]["event"]["id"] # ID do evento. Usarei depois
    idMercado = bot.corridasWin[0]['marketId']
    print("Proxima corrida=", proxima_corrida)
    data_futura = datetime.strptime(proxima_corrida, '%Y-%m-%dT%H:%M:%S.%fZ')
    data_futura_1h = data_futura - timedelta(hours=1, minutes=0)   # Uma hora antes do jogo
    delta = data_futura - datetime.now()
    print("Sleep secs : {0}".format(delta.seconds))
-   #sleep(delta.seconds)
+   sleep(delta.seconds)
    print("Acordei! Agora sao->", datetime.now())
-   
-   # Obter o bendito marketId
-   #bot.obtemListaMercadosDoEvento(idEvento)
-   #bot.obtemListaCavalosWinInglaterra(horas=96)
-   #print("Evento=", bot.corridas[0], "Json=", bot.corridasWin[0] )
-   #idMercado = bot.corridasWin[idx]['marketId']
    
    # Agora obtenho as odds da corrida acima (pelo ID)
    bot.obtemOddsDaCorrida(idMercado)
