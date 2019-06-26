@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from RestAPI import *
 from Hush import *
 from datetime import datetime
@@ -46,7 +47,31 @@ class Malhado():
                 '"marketStartTime":{"from":"' + now + '", "to":"' + future + '"}},"sort":"FIRST_TO_START","maxResults":"5",\
                 "marketProjection":["RUNNER_DESCRIPTION","EVENT"]}, "id": 1}')
       self.corridasWin = api.obtemTodosMercadosDasPartidas(json_req=filtro)
-
+   
+   """
+   """
+   def obtemListaMercadosDoEvento(self, idEvento):
+      filtro =('{"filter":{"eventIds":["' + idEvento + '"],"marketCountries":["GB"],"marketTypeCodes":["WIN"]},'\
+                ' "sort":"FIRST_TO_START","maxResults":"5",\
+                "marketProjection":["RUNNER_DESCRIPTION","EVENT"]}')
+      mercados = api.obtemTodosMercadosDasPartidas(json_req=filtro)
+      print("Mer=", mercados)
+   
+   """
+   Pesquisando os preços da corrida em questão.
+   """
+   def obtemOddsDaCorrida(self, idEvento):
+      filtro= '{ "marketIds": [' + idEvento + '], "priceProjection": { "priceData": ["EX_BEST_OFFERS"], "virtualise": "true" } }'
+      odds = api.obtemOddsDosMercados(json_req=filtro)
+      melhoresOdds = { mercados[odds[idxRun]["runners"][idxSel]["selectionId"]]  :  odds[idxRun]["runners"][idxSel]["ex"]["availableToBack"][0]["price"]  for idxRun in range(len(odds))  for idxSel in range(len(odds[idxRun]["runners"])) if len(odds[idxRun]["runners"][idxSel]["ex"]["availableToBack"]) >= 1 }
+      
+      try:
+         self.OddsCorrida[idEvento] = melhoresOdds
+      except AttributeError:
+         self.OddsCorrida = {}
+         self.OddsCorrida[idEvento] = melhoresOdds
+      
+      
 if __name__ == "__main__":
    print("Vai, malhado!")
    
@@ -63,13 +88,23 @@ if __name__ == "__main__":
    #   print( "Partida# ",idx,": ID=",bot.corridas[idx]["event"]["id"], ", Nome=", bot.corridas[idx]["event"]["name"], ", timezone=",bot.corridas[idx]["event"]["timezone"], ", openDate=", bot.corridas[idx]["event"]["openDate"], ", marketCount=", bot.corridas[idx]["marketCount"] ) 
    
    #df = "2019-06-22T12:45:00.000Z"
-   proxima_corrida = bot.corridas[0]["event"]["openDate"]
+   proxima_corrida = bot.corridas[0]["event"]["openDate"]   # Apenas a próxima corrida
+   idEvento = bot.corridas[0]["event"]["id"] # ID do evento. Usarei depois
    print("Proxima corrida=", proxima_corrida)
    data_futura = datetime.strptime(proxima_corrida, '%Y-%m-%dT%H:%M:%S.%fZ')
+   data_futura_1h = data_futura - timedelta(hours=1, minutes=0)   # Uma hora antes do jogo
    delta = data_futura - datetime.now()
    print("Sleep secs : {0}".format(delta.seconds))
    sleep(delta.seconds)
-   print("Acordei!")
+   print("Acordei! Agora sao->", datetime.now())
+   
+   # Obter o bendito marketId
+   bot.obtemListaMercadosDoEvento(idEvento)
+   #idMercado = bot.corridasWin[idx]['marketId']
+   
+   # Agora obtenho as odds da corrida acima (pelo ID)
+   bot.obtemOddsDaCorrida(idEvento)
+   print("Odds=", bot.OddsCorrida[idEvento] )
    
    #for idx in range(len(bot.corridasWin)):
    #   print( "Market# ", idx, " ID=", bot.corridasWin[idx]['marketId'], "Market Name=", bot.corridasWin[idx]['marketName'],", melhor=", bot.corridasWin[idx]['runners'][0]['runnerName'], "selecionId=", bot.corridasWin[idx]['runners'][0]['selectionId'] )
