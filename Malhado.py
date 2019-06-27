@@ -85,9 +85,10 @@ if __name__ == "__main__":
    print("Proxima corrida=", proxima_corrida)
    data_futura = datetime.strptime(proxima_corrida, '%Y-%m-%dT%H:%M:%S.%fZ')
    data_futura_1h = data_futura - timedelta(hours=1, minutes=0)   # Uma hora antes do jogo
-   delta = data_futura - datetime.now()
+   data_fuso_londres = data_futura_1h - timedelta(hours=3, minutes=0) # Três horas de fuso horário
+   delta = data_fuso_londres - datetime.now()
    print("Sleep secs : {0}".format(delta.seconds))
-   sleep(delta.seconds)
+   sleep(delta.seconds) # Não pode ser negativo!
    print("Acordei! Agora sao->", datetime.now())
    
    # Agora obtenho as odds da corrida acima (pelo ID)
