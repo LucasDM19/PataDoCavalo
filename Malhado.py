@@ -97,7 +97,7 @@ if __name__ == "__main__":
    nomeCavalo = [bot.corridasWin[0]['runners'][idxRunner]["runnerName"] for idxRunner in range(len(bot.corridasWin[0]['runners'])) if bot.corridasWin[0]['runners'][idxRunner]["selectionId"]==selectionId][0]
    odds_back = bot.OddsCorrida[idMercado][0]["runners"][0]['ex']['availableToBack'][0]['price']
    stack_lay = 20.0
-   stack_back = round(stack_lay/odds_back,2)   # Retorno equilibrado com Lay
+   stack_back = round(stack_lay/(odds_back-1),2)   # Retorno equilibrado com Lay
    print("{0} - Cavalo {1}, Lay com odds de {2} e stack de {3}, na corrida {4} ".format(datetime.now(), nomeCavalo, odds_back, stack_back, nomeEvento))
    
    # Agora é hora das duas apostas
