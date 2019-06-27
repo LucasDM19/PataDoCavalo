@@ -72,7 +72,24 @@ class Malhado():
       except AttributeError:
          self.OddsCorrida = {}
          self.OddsCorrida[idMercado] = melhoresOdds
+   
+   """
+   Aposta Back (favor) de uma determinada seleção.
+   """   
+   def apostaBack(self, idMercado, selectionId, odds_back, stack_back):
+      filtro = '{"marketId":"' + idMercado + '","instructions":'\
+               '[{"selectionId":"' + str(selectionId) + '","handicap":"0","side":"BACK","orderType":"LIMIT","limitOrder":{"size":"'+stack_back+'","price":"'+odds_back+'","persistenceType":"LAPSE"}}],"customerRef":"test1919191919"}'
+      api.aposta(json_req=filtro)
       
+   """
+   Aposta Lay (contra) uma determinada seleção, com Starter Price. 
+   """
+   def apostaLaySP(self, idMercado, selectionId, stack_lay):
+      filtro = '{"marketId": "' + idMercado + '",'\
+               '"instructions": [ { "selectionId": "' + str(selectionId) + '", "handicap": "0", "side": "BACK", "orderType": "MARKET_ON_CLOSE", "marketOnCloseOrder": '\
+               '{ "liability": "' + stack_lay + '" } } ]}'
+      api.aposta(json_req=filtro)
+   
       
 if __name__ == "__main__":
    print("Vai, malhado!")
@@ -90,6 +107,7 @@ if __name__ == "__main__":
    #df = "2019-06-22T12:45:00.000Z"
    proxima_corrida = bot.corridasWin[0]["event"]["openDate"]   # Apenas a próxima corrida
    idMercado = bot.corridasWin[0]['marketId']
+   nomeEvento = bot.corridasWin[0]['event']['name']
    print("Proxima corrida=", proxima_corrida)
    data_futura = datetime.strptime(proxima_corrida, '%Y-%m-%dT%H:%M:%S.%fZ')
    data_futura_1h = data_futura - timedelta(hours=1, minutes=0)   # Uma hora antes do jogo
@@ -100,7 +118,17 @@ if __name__ == "__main__":
    
    # Agora obtenho as odds da corrida acima (pelo ID)
    bot.obtemOddsDaCorrida(idMercado)
-   print("Odds=", bot.OddsCorrida[idMercado][0]["runners"][0]['ex']['availableToBack'][0]['price'] )
+   selectionId = bot.OddsCorrida[idMercado][0]["runners"][0]['selectionId']
+   print("Selecion=", selectionId)
+   nomeCavalo = [bot.corridasWin[0]['runners'][idxRunner]["runnerName"] for idxRunner in range(len(bot.corridasWin[0]['runners'])) if bot.corridasWin[0]['runners'][idxRunner]["selectionId"]==selectionId][0]
+   odds_back = bot.OddsCorrida[idMercado][0]["runners"][0]['ex']['availableToBack'][0]['price']
+   stack_lay = 20.0
+   stack_back = round(stack_lay/odds_back,2)   # Retorno equilibrado com Lay
+   print("{0} - Cavalo {1}, Lay com odds de {2} e stack de {3}, na corrida {4} ".format(datetime.now(), nomeCavalo, odds_back, stack_back, nomeEvento))
+   
+   # Agora é hora das duas apostas
+   bot.apostaBack(idMercado, selectionId, odds_back, stack_back)
+   bot.apostaLaySP(idMercado, selectionId, stack_lay)
    
    #for idx in range(len(bot.corridasWin)):
    #   print( "Market# ", idx, " ID=", bot.corridasWin[idx]['marketId'], "Market Name=", bot.corridasWin[idx]['marketName'],", melhor=", bot.corridasWin[idx]['runners'][0]['runnerName'], "selecionId=", bot.corridasWin[idx]['runners'][0]['selectionId'] )
