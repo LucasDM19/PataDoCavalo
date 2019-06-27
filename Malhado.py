@@ -78,7 +78,8 @@ class Malhado():
    """   
    def apostaBack(self, idMercado, selectionId, odds_back, stack_back):
       filtro = '{"marketId":"' + idMercado + '","instructions":'\
-               '[{"selectionId":"' + str(selectionId) + '","handicap":"0","side":"BACK","orderType":"LIMIT","limitOrder":{"size":"'+stack_back+'","price":"'+odds_back+'","persistenceType":"LAPSE"}}],"customerRef":"test1919191919"}'
+               '[{"selectionId":"' + str(selectionId) + '","handicap":"0","side":"BACK","orderType":"LIMIT","limitOrder":'\
+               '{"size":"' + str(stack_back) + '","price":"'+ str(odds_back) +'","persistenceType":"LAPSE"}}],"customerRef":"test1919191919"}'
       api.aposta(json_req=filtro)
       
    """
@@ -86,8 +87,8 @@ class Malhado():
    """
    def apostaLaySP(self, idMercado, selectionId, stack_lay):
       filtro = '{"marketId": "' + idMercado + '",'\
-               '"instructions": [ { "selectionId": "' + str(selectionId) + '", "handicap": "0", "side": "BACK", "orderType": "MARKET_ON_CLOSE", "marketOnCloseOrder": '\
-               '{ "liability": "' + stack_lay + '" } } ]}'
+               '"instructions": [ { "selectionId": "' + str(selectionId) + '", "handicap": "0", "side": "LAY", "orderType": "MARKET_ON_CLOSE", "marketOnCloseOrder": '\
+               '{ "liability": "' + str(stack_lay) + '" } } ]}'
       api.aposta(json_req=filtro)
    
       
@@ -113,13 +114,13 @@ if __name__ == "__main__":
    data_futura_1h = data_futura - timedelta(hours=1, minutes=0)   # Uma hora antes do jogo
    delta = data_futura - datetime.now()
    print("Sleep secs : {0}".format(delta.seconds))
-   sleep(delta.seconds)
+   #sleep(delta.seconds)
    print("Acordei! Agora sao->", datetime.now())
    
    # Agora obtenho as odds da corrida acima (pelo ID)
    bot.obtemOddsDaCorrida(idMercado)
    selectionId = bot.OddsCorrida[idMercado][0]["runners"][0]['selectionId']
-   print("Selecion=", selectionId)
+   #print("Selecion=", selectionId)
    nomeCavalo = [bot.corridasWin[0]['runners'][idxRunner]["runnerName"] for idxRunner in range(len(bot.corridasWin[0]['runners'])) if bot.corridasWin[0]['runners'][idxRunner]["selectionId"]==selectionId][0]
    odds_back = bot.OddsCorrida[idMercado][0]["runners"][0]['ex']['availableToBack'][0]['price']
    stack_lay = 20.0
