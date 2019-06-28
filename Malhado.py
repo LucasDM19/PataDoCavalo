@@ -77,32 +77,37 @@ if __name__ == "__main__":
    u, s, a = usuarioAPI, senhaAPI, APIKey
    api = BetfairAPI(usuario=u, senha=s, api_key=a)
    bot = Malhado(api )
-   bot.obtemListaCavalosWinInglaterra(horas=96)
+   bot.obtemListaCavalosWinInglaterra(horas=24)
+   #sorted(bot.corridasWin, key = lambda i: i["event"]["openDate"])   # Não ajudou muito
 
-   proxima_corrida = bot.corridasWin[0]["event"]["openDate"]   # Apenas a próxima corrida
-   idMercado = bot.corridasWin[0]['marketId']
-   nomeEvento = bot.corridasWin[0]['event']['name']
-   print("Proxima corrida=", proxima_corrida)
-   data_futura = datetime.strptime(proxima_corrida, '%Y-%m-%dT%H:%M:%S.%fZ')
-   data_futura_1h = data_futura - timedelta(hours=1, minutes=0)   # Uma hora antes do jogo
-   data_fuso_londres = data_futura_1h - timedelta(hours=3, minutes=0) # Três horas de fuso horário
-   delta = data_fuso_londres - datetime.now()
-   print("Sleep secs : {0}".format(delta.seconds))
-   sleep(delta.seconds) # Não pode ser negativo!
-   print("Acordei! Agora sao->", datetime.now())
-   
-   # Agora obtenho as odds da corrida acima (pelo ID)
-   bot.obtemOddsDaCorrida(idMercado)
-   selectionId = bot.OddsCorrida[idMercado][0]["runners"][0]['selectionId']
-   #print("Selecion=", selectionId)
-   nomeCavalo = [bot.corridasWin[0]['runners'][idxRunner]["runnerName"] for idxRunner in range(len(bot.corridasWin[0]['runners'])) if bot.corridasWin[0]['runners'][idxRunner]["selectionId"]==selectionId][0]
-   odds_back = bot.OddsCorrida[idMercado][0]["runners"][0]['ex']['availableToBack'][0]['price']
-   stack_lay = 20.0
-   stack_back = round(stack_lay/(odds_back-1),2)   # Retorno equilibrado com Lay
-   print("{0} - Cavalo {1}, Lay com odds de {2} e stack de {3}, na corrida {4} ".format(datetime.now(), nomeCavalo, odds_back, stack_back, nomeEvento))
-   
-   # Agora é hora das duas apostas
-   dados_aposta_back = bot.apostaBack(idMercado, selectionId, odds_back, stack_back)
-   dados_aposta_lay = bot.apostaLaySP(idMercado, selectionId, stack_lay)
+   for idx_corrida in range(len(bot.corridasWin)):   # Para cada próxima corrida
+      proxima_corrida = bot.corridasWin[idx_corrida]["event"]["openDate"]   # Apenas a próxima corrida
+      idMercado = bot.corridasWin[idx_corrida]['marketId']
+      nomeEvento = bot.corridasWin[idx_corrida]['event']['name']
+      print("Proxima corrida=", proxima_corrida, ", Mkt=", idMercado)
+      data_futura = datetime.strptime(proxima_corrida, '%Y-%m-%dT%H:%M:%S.%fZ')
+      data_futura_1h = data_futura - timedelta(hours=1, minutes=0)   # Uma hora antes do jogo
+      data_fuso_londres = data_futura_1h - timedelta(hours=3, minutes=0) # Três horas de fuso horário
+      delta = data_fuso_londres - datetime.now()
+      if( delta.seconds <= 0 ): # Não tem Delorean
+         print("Delta {0} negativo!".format(delta))
+         continue   # Próxima corrida
+      print("Aguardarei {0} segundos. Até a data {1}".format(delta.seconds, data_fuso_londres))
+      sleep(delta.seconds)
+      print("Acordei! Agora sao->", datetime.now())
+      
+      # Agora obtenho as odds da corrida acima (pelo ID)
+      bot.obtemOddsDaCorrida(idMercado)
+      selectionId = bot.OddsCorrida[idMercado][0]["runners"][0]['selectionId']
+      #print("Selecion=", selectionId)
+      nomeCavalo = [bot.corridasWin[idx_corrida]['runners'][idxRunner]["runnerName"] for idxRunner in range(len(bot.corridasWin[idx_corrida]['runners'])) if bot.corridasWin[idx_corrida]['runners'][idxRunner]["selectionId"]==selectionId][0]
+      odds_back = bot.OddsCorrida[idMercado][0]["runners"][0]['ex']['availableToBack'][0]['price']
+      stack_lay = 20.0
+      stack_back = round(stack_lay/(odds_back-1),2)   # Retorno equilibrado com Lay
+      print("{0} - Cavalo {1}, Lay com odds de {2} e stack de {3}, na corrida {4} ".format(datetime.now(), nomeCavalo, odds_back, stack_back, nomeEvento))
+      
+      # Agora é hora das duas apostas
+      dados_aposta_back = bot.apostaBack(idMercado, selectionId, odds_back, stack_back)
+      dados_aposta_lay = bot.apostaLaySP(idMercado, selectionId, stack_lay)
    
    
