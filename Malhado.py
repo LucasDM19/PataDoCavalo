@@ -32,8 +32,8 @@ class Malhado():
       now = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')
       future = (datetime.datetime.now() + datetime.timedelta(hours=horas, minutes=minutos)).strftime('%Y-%m-%dT%H:%M:%SZ')
       filtro=('{"filter":{"eventTypeIds":["' + self.horseRacingID + '"],"marketCountries":["GB"],"marketTypeCodes":["WIN"],'\
-                '"marketStartTime":{"from":"' + now + '", "to":"' + future + '"}},"sort":"FIRST_TO_START","maxResults":"5",\
-                "marketProjection":["RUNNER_DESCRIPTION","EVENT"]}, "id": 1}')
+                '"marketStartTime":{"from":"' + now + '", "to":"' + future + '"}},"sort":"FIRST_TO_START","maxResults":"50",\
+                "marketProjection":["RUNNER_DESCRIPTION","EVENT","MARKET_START_TIME"]}, "id": 1}')
       self.corridasWin = api.obtemTodosMercadosDasPartidas(json_req=filtro)
       
    """
@@ -78,10 +78,9 @@ if __name__ == "__main__":
    api = BetfairAPI(usuario=u, senha=s, api_key=a)
    bot = Malhado(api )
    bot.obtemListaCavalosWinInglaterra(horas=24)
-   #sorted(bot.corridasWin, key = lambda i: i["event"]["openDate"])   # Não ajudou muito
 
    for idx_corrida in range(len(bot.corridasWin)):   # Para cada próxima corrida
-      proxima_corrida = bot.corridasWin[idx_corrida]["event"]["openDate"]   # Apenas a próxima corrida
+      proxima_corrida = bot.corridasWin[idx_corrida]["marketStartTime"]   # Apenas a próxima corrida
       idMercado = bot.corridasWin[idx_corrida]['marketId']
       nomeEvento = bot.corridasWin[idx_corrida]['event']['name']
       print("Proxima corrida=", proxima_corrida, ", Mkt=", idMercado)
@@ -89,6 +88,7 @@ if __name__ == "__main__":
       data_futura_1h = data_futura - timedelta(hours=1, minutes=0)   # Uma hora antes do jogo
       data_fuso_londres = data_futura_1h - timedelta(hours=3, minutes=0) # Três horas de fuso horário
       delta = data_fuso_londres - datetime.now()
+      #print("Delta=", delta)
       if( delta.seconds <= 0 ): # Não tem Delorean
          print("Delta {0} negativo!".format(delta))
          continue   # Próxima corrida
