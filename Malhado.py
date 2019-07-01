@@ -102,6 +102,9 @@ if __name__ == "__main__":
       #print("Selecion=", selectionId)
       nomeCavalo = [bot.corridasWin[idx_corrida]['runners'][idxRunner]["runnerName"] for idxRunner in range(len(bot.corridasWin[idx_corrida]['runners'])) if bot.corridasWin[idx_corrida]['runners'][idxRunner]["selectionId"]==selectionId][0]
       odds_back = bot.OddsCorrida[idMercado][0]["runners"][0]['ex']['availableToBack'][0]['price']
+      if( odds_back < 2.0 ):
+         print("Odds baixa demais!!", odds_back)
+         continue   # Pulo por conta das odds
       stack_lay = 20.0
       stack_back = round(stack_lay/(odds_back-1),2)   # Retorno equilibrado com Lay
       print("{0} - Cavalo {1}, Lay com odds de {2} e stack de {3}, na corrida {4} ".format(datetime.now(), nomeCavalo, odds_back, stack_back, nomeEvento))
