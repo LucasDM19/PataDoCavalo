@@ -77,7 +77,7 @@ if __name__ == "__main__":
    u, s, a = usuarioAPI, senhaAPI, APIKey
    api = BetfairAPI(usuario=u, senha=s, api_key=a)
    bot = Malhado(api )
-   bot.obtemListaCavalosWinInglaterra(horas=24)
+   bot.obtemListaCavalosWinInglaterra(horas=24+4)
 
    for idx_corrida in range(len(bot.corridasWin)):   # Para cada próxima corrida
       proxima_corrida = bot.corridasWin[idx_corrida]["marketStartTime"]   # Apenas a próxima corrida
@@ -99,10 +99,9 @@ if __name__ == "__main__":
       # Agora obtenho as odds da corrida acima (pelo ID)
       bot.obtemOddsDaCorrida(idMercado)
       selectionId = bot.OddsCorrida[idMercado][0]["runners"][0]['selectionId']
-      #print("Selecion=", selectionId)
       nomeCavalo = [bot.corridasWin[idx_corrida]['runners'][idxRunner]["runnerName"] for idxRunner in range(len(bot.corridasWin[idx_corrida]['runners'])) if bot.corridasWin[idx_corrida]['runners'][idxRunner]["selectionId"]==selectionId][0]
       odds_back = bot.OddsCorrida[idMercado][0]["runners"][0]['ex']['availableToBack'][0]['price']
-      if( odds_back < 2.0 ):
+      if( odds_back < 1.5 ):
          print("Odds baixa demais!!", odds_back)
          continue   # Pulo por conta das odds
       stack_lay = 20.0
