@@ -89,8 +89,8 @@ if __name__ == "__main__":
       data_fuso_londres = data_futura_1h - timedelta(hours=3, minutes=0) # Três horas de fuso horário
       delta = data_fuso_londres - datetime.now()
       #print("Delta=", delta)
-      if( delta.seconds <= 0 ): # Não tem Delorean
-         print("Delta {0} negativo!".format(delta))
+      if( data_fuso_londres < datetime.now() ): # Não tem Delorean
+         print("Delta {0} negativo! Corrida Já foi".format(delta))
          continue   # Próxima corrida
       print("Aguardarei {0} segundos. Até a data {1}".format(delta.seconds, data_fuso_londres))
       sleep(delta.seconds)
