@@ -101,11 +101,15 @@ if __name__ == "__main__":
       selectionId = bot.OddsCorrida[idMercado][0]["runners"][0]['selectionId']
       nomeCavalo = [bot.corridasWin[idx_corrida]['runners'][idxRunner]["runnerName"] for idxRunner in range(len(bot.corridasWin[idx_corrida]['runners'])) if bot.corridasWin[idx_corrida]['runners'][idxRunner]["selectionId"]==selectionId][0]
       odds_back = bot.OddsCorrida[idMercado][0]["runners"][0]['ex']['availableToBack'][0]['price']
+      stack_back_disp = bot.OddsCorrida[idMercado][0]["runners"][0]['ex']['availableToBack'][0]['size'] # Quantidade disponível para apostar
       if( odds_back < 1.5 ):
          print("Odds baixa demais!!", odds_back)
          continue   # Pulo por conta das odds
       stack_lay = 20.0
       stack_back = round(stack_lay/(odds_back-1),2)   # Retorno equilibrado com Lay
+      if( stack_back > stack_back_disp ): 
+         print("Sem liquidez no mercado! Tem {0} e é necessário {1}".format(stack_back_disp, stack_back) )
+         continue   # Pulo por conta da aposta não ser correspondida de um lado
       print("{0} - Cavalo {1}, Lay com odds de {2} e stack de {3}, na corrida {4} ".format(datetime.now(), nomeCavalo, odds_back, stack_back, nomeEvento))
       
       # Agora é hora das duas apostas
