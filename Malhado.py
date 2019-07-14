@@ -56,7 +56,8 @@ class Malhado():
    def apostaBack(self, idMercado, selectionId, odds_back, stack_back):
       filtro = '{"marketId":"' + idMercado + '","instructions":'\
                '[{"selectionId":"' + str(selectionId) + '","handicap":"0","side":"BACK","orderType":"LIMIT","limitOrder":'\
-               '{"size":"' + str(stack_back) + '","price":"'+ str(odds_back) +'","persistenceType":"LAPSE"}}],"customerRef":"test1919191919"}'
+               '{"size":"' + str(stack_back) + '","price":"'+ str(odds_back) +'","persistenceType":"LAPSE" '\
+               ',"timeInForce":"FILL_OR_KILL","minFillSize":"'+ str(stack_back) +'"}}],"customerRef":"test1919191919"}'
       dados_aposta = api.aposta(json_req=filtro)
       return dados_aposta
       
