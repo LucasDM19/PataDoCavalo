@@ -115,6 +115,8 @@ if __name__ == "__main__":
       
       # Agora é hora das duas apostas
       dados_aposta_back = bot.apostaBack(idMercado, selectionId, odds_back, stack_back)
+      print("Aposta Back->", dados_aposta_back)
       dados_aposta_lay = bot.apostaLaySP(idMercado, selectionId, stack_lay)
+      print("Aposta Lay ->", dados_aposta_lay)
    
    
