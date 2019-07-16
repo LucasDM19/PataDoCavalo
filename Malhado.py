@@ -99,7 +99,11 @@ if __name__ == "__main__":
       
       # Agora obtenho as odds da corrida acima (pelo ID)
       bot.obtemOddsDaCorrida(idMercado)
-      selectionId = bot.OddsCorrida[idMercado][0]["runners"][0]['selectionId']
+      try:
+         selectionId = bot.OddsCorrida[idMercado][0]["runners"][0]['selectionId']
+      except IndexError:   # Sem SelectionId, sai fora
+         print("Sem SelectionId ou sem Odds")
+         continue
       nomeCavalo = [bot.corridasWin[idx_corrida]['runners'][idxRunner]["runnerName"] for idxRunner in range(len(bot.corridasWin[idx_corrida]['runners'])) if bot.corridasWin[idx_corrida]['runners'][idxRunner]["selectionId"]==selectionId][0]
       odds_back = bot.OddsCorrida[idMercado][0]["runners"][0]['ex']['availableToBack'][0]['price']
       stack_back_disp = bot.OddsCorrida[idMercado][0]["runners"][0]['ex']['availableToBack'][0]['size'] # Quantidade disponível para apostar
@@ -116,6 +120,9 @@ if __name__ == "__main__":
       # Agora é hora das duas apostas
       dados_aposta_back = bot.apostaBack(idMercado, selectionId, odds_back, stack_back)
       print("Aposta Back->", dados_aposta_back)
+      if( dados_aposta_back['status'] != 'SUCCESS' ):
+         print("Deu ruim na aposta Back")
+         continue
       dados_aposta_lay = bot.apostaLaySP(idMercado, selectionId, stack_lay)
       print("Aposta Lay ->", dados_aposta_lay)
    
