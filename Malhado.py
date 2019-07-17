@@ -120,8 +120,8 @@ if __name__ == "__main__":
       # Agora é hora das duas apostas
       dados_aposta_back = bot.apostaBack(idMercado, selectionId, odds_back, stack_back)
       print("Aposta Back->", dados_aposta_back)
-      if( dados_aposta_back['status'] != 'SUCCESS' ):
-         print("Deu ruim na aposta Back")
+      if( dados_aposta_back['instructionReports'][0]['orderStatus'] == 'EXPIRED' ):   # 'EXECUTION_COMPLETE' é quando foi OK
+         print("Aposta Back não foi correspondida")
          continue
       dados_aposta_lay = bot.apostaLaySP(idMercado, selectionId, stack_lay)
       print("Aposta Lay ->", dados_aposta_lay)
