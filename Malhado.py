@@ -101,6 +101,9 @@ if __name__ == "__main__":
       bot.obtemOddsDaCorrida(idMercado)
       try:
          selectionId = bot.OddsCorrida[idMercado][0]["runners"][0]['selectionId']
+      except KeyError: # Sem SelectionId, sai fora
+         print("Sem SelectionId ou sem Odds")
+         continue
       except IndexError:   # Sem SelectionId, sai fora
          print("Sem SelectionId ou sem Odds")
          continue
