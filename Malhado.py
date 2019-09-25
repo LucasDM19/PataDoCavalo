@@ -113,6 +113,9 @@ if __name__ == "__main__":
       if( odds_back < 1.5 ):
          print("Odds baixa demais!!", odds_back)
          continue   # Pulo por conta das odds
+      if( odds_back > 2.8 ):
+         print("Odds alta demais!", odds_back)
+         continue   # Pulo por conta de odd sem lucro
       stack_lay = 20.0
       stack_back = round(stack_lay/(odds_back-1),2)   # Retorno equilibrado com Lay
       if( stack_back > stack_back_disp ): 
