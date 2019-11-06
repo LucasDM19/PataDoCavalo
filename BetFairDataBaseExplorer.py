@@ -19,9 +19,11 @@ c.execute(""" SELECT
      AND odds.RaceId = races.RaceId
      AND odds.RunnerId = runners.RunnerId
      AND runners.BSP <> -1
-   ORDER BY races.RaceId, odds.PublishedTime ASC """)
-rows = c.fetchall()
-for row in rows:
+   ORDER BY races.RaceId, odds.PublishedTime ASC """)         
+while True: 
+   row = c.fetchone()
+   if row == None: break  # Acabou o sqlite
+            
    race_id, market_time, inplay_timestamp, market_name, market_venue, runner_id, nome_cavalo, win_lose, bsp, odd, data = row
    if( race_id not in lista_corridas ): 
       lista_corridas[race_id] = {}
