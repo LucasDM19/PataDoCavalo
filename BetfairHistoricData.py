@@ -67,3 +67,9 @@ for arquivo in listdir(caminho):
             #print(linha)
         conn.commit()
         #print(inplay_timestamp)
+
+# Quando acaba tudo, cria os indices
+c.execute("CREATE INDEX idx_races_RaceId ON races ( RaceId ASC )")
+c.execute("CREATE INDEX idx_runners_RaceId ON runners ( RaceId )")
+c.execute("CREATE INDEX idx_odds_RaceId ON odds ( RaceId ASC )")
+c.execute("CREATE INDEX idx_odds_RunnerId ON odds ( RunnerId )")

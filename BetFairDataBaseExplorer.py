@@ -43,9 +43,9 @@ for row in rows:
          apostei = True
          soma_pl += pl
          total_partidas += 1
-         #print(race_id, ", PL=", pl, ", Total PL=", soma_pl, " partidas=", total_partidas)
-         if( race_id in ["1.159620525", "1.157891258", "1.159688325", "1.153171146", "1.155132765", "1.153722792", "1.158983876" ] ):
-            print("aqui:", lista_corridas[race_id], "favorito:", favorito, ", BSP=", bsp_favorito, bsp, ", raceId=", race_id, ", PL=", pl, ", Total PL=", soma_pl, " partidas=", total_partidas, "stack back", stack_back, ", W/L=", win_lose)
+         print(race_id, ", PL=", pl, ", Total PL=", soma_pl, " partidas=", total_partidas, ", odd=", odd_favorito, ", BSP=", bsp_favorito )
+         #if( race_id in ["1.159620525", "1.157891258", "1.159688325", "1.153171146", "1.155132765", "1.153722792", "1.158983876" ] ):
+            #print("aqui:", lista_corridas[race_id], "favorito:", favorito, ", BSP=", bsp_favorito, bsp, ", raceId=", race_id, ", PL=", pl, ", Total PL=", soma_pl, " partidas=", total_partidas, "stack back", stack_back, ", W/L=", win_lose)
       #print("Perdeu!", datetime.strptime(data, '%Y-%m-%d %H:%M:%S'), ", ", uma_hora_antes)
       
    #print(row)
