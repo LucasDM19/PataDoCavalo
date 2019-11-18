@@ -30,7 +30,7 @@ while True:
       lista_corridas[race_id] = {}
       lista_bsp[race_id] = {}
       apostei = False
-   uma_hora_antes = datetime.strptime(inplay_timestamp, '%Y-%m-%d %H:%M:%S') - timedelta(hours=1, minutes=0) # Horario para avaliar odds
+   uma_hora_antes = datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z')) - timedelta(hours=1, minutes=0) # Horario para avaliar odds
    if( datetime.strptime(data, '%Y-%m-%d %H:%M:%S') <= uma_hora_antes ): # Ainda tem mais de uma hora
       lista_corridas[race_id][nome_cavalo] = odd #Atualiza as odds dessa corrida
       lista_bsp[race_id][nome_cavalo] = bsp # Sabendo o BSP do cavalo
@@ -49,7 +49,7 @@ while True:
          #print(race_id, ", PL=", pl, ", Total PL=", soma_pl, " partidas=", total_partidas, ", odd=", odd_favorito, ", BSP=", bsp_favorito )
          #if( race_id in ["1.159620525", "1.157891258", "1.159688325", "1.153171146", "1.155132765", "1.153722792", "1.158983876" ] ):
          if( race_id in ["1.160035126", ] ):
-            print("aqui:", lista_corridas[race_id], "favorito:", favorito, ", BSP=", bsp_favorito, bsp, ", raceId=", race_id, ", PL=", pl, ", Total PL=", soma_pl, " partidas=", total_partidas, "stack back", stack_back, ", W/L=", win_lose)
+            print("aqui:", lista_corridas[race_id], "favorito:", favorito,  ", odd=", odd_favorito ,", BSP=", bsp_favorito, bsp, ", raceId=", race_id, ", PL=", pl, ", Total PL=", soma_pl, " partidas=", total_partidas, "stack back", stack_back, ", W/L=", win_lose)
       #print("Perdeu!", datetime.strptime(data, '%Y-%m-%d %H:%M:%S'), ", ", uma_hora_antes)
       
    #print(row)
