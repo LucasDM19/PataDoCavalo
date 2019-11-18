@@ -30,7 +30,7 @@ while True:
       lista_corridas[race_id] = {}
       lista_bsp[race_id] = {}
       apostei = False
-   uma_hora_antes = datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z')) - timedelta(hours=1, minutes=0) # Horario para avaliar odds
+   uma_hora_antes = datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') - timedelta(hours=1, minutes=0) # Horario para avaliar odds
    if( datetime.strptime(data, '%Y-%m-%d %H:%M:%S') <= uma_hora_antes ): # Ainda tem mais de uma hora
       lista_corridas[race_id][nome_cavalo] = odd #Atualiza as odds dessa corrida
       lista_bsp[race_id][nome_cavalo] = bsp # Sabendo o BSP do cavalo
