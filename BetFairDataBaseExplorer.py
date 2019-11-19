@@ -5,6 +5,7 @@ lista_corridas = {} # Cada corrida tem uma lista de cavalos
 lista_bsp = {} # Para saber qual eh o BSP correspondente
 stack_lay = 20.0 # valor base - responsabilidade lay
 soma_pl = 0.0 # O total que pingaria na conta
+soma_stack = 0.0 # Quanto foi apostado no total
 total_partidas = 0 # Quantas corridas tiveram
 apostei = False # Ativa apenas quando chegaria a hora
 
@@ -20,7 +21,8 @@ c.execute(""" SELECT
      AND odds.RunnerId = runners.RunnerId
      AND runners.BSP <> -1
      AND runners.WinLose <> -1
-   ORDER BY races.RaceId, odds.PublishedTime ASC """)         
+   ORDER BY races.RaceId, odds.PublishedTime ASC """)      
+print("Inicio do processamento")   
 while True: 
    row = c.fetchone()
    if row == None: break  # Acabou o sqlite
@@ -40,17 +42,21 @@ while True:
       stack_back = round(stack_lay/(odd_favorito-1),2)
       if( win_lose == 0 ): pl = (-1*stack_back) + stack_lay/(bsp_favorito-1)
       if( win_lose == 1 ): pl = stack_back/(odd_favorito-1) + (-1*stack_lay)
+      sbl = stack_back + stack_lay
       #print(row)
    else: # Ja apostou
       if(not apostei):
+         if( odd_favorito < 1.5 ): continue  # Pula
+         if( odd_favorito > 2.8 ): continue  # Pula
          apostei = True
          soma_pl += pl
+         soma_stack += sbl
          total_partidas += 1
          #print(race_id, ", PL=", pl, ", Total PL=", soma_pl, " partidas=", total_partidas, ", odd=", odd_favorito, ", BSP=", bsp_favorito )
-         #if( race_id in ["1.159620525", "1.157891258", "1.159688325", "1.153171146", "1.155132765", "1.153722792", "1.158983876" ] ):
-         if( race_id in ["1.160035126", ] ):
-            print("aqui:", lista_corridas[race_id], "favorito:", favorito,  ", odd=", odd_favorito ,", BSP=", bsp_favorito, bsp, ", raceId=", race_id, ", PL=", pl, ", Total PL=", soma_pl, " partidas=", total_partidas, "stack back", stack_back, ", W/L=", win_lose)
+         #if( race_id in ["1.160035126", ] ):
+            #print("aqui:", lista_corridas[race_id], "favorito:", favorito,  ", odd=", odd_favorito ,", BSP=", bsp_favorito, bsp, ", raceId=", race_id, ", PL=", pl, ", Total PL=", soma_pl, " partidas=", total_partidas, "stack back", stack_back, ", W/L=", win_lose)
       #print("Perdeu!", datetime.strptime(data, '%Y-%m-%d %H:%M:%S'), ", ", uma_hora_antes)
       
    #print(row)
-   
+lucro_medio = round( (100.0*soma_pl/soma_stack) ,4)
+print( "Total de partidas=", total_partidas, ", lucro total=", soma_pl, ", stake total=", soma_stack, ", lucro medio=", lucro_medio )
