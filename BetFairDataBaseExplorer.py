@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 lista_corridas = {} # Cada corrida tem uma lista de cavalos
 lista_bsp = {} # Para saber qual eh o BSP correspondente
 stack_lay = 20.0 # valor base - responsabilidade lay
+comissao = 0.065 # 0.0650 - BetFair
 soma_pl = 0.0 # O total que pingaria na conta
 soma_stack = 0.0 # Quanto foi apostado no total
 total_partidas = 0 # Quantas corridas tiveram
@@ -42,6 +43,7 @@ while True:
       stack_back = round(stack_lay/(odd_favorito-1),2)
       if( win_lose == 0 ): pl = (-1*stack_back) + stack_lay/(bsp_favorito-1)
       if( win_lose == 1 ): pl = stack_back/(odd_favorito-1) + (-1*stack_lay)
+      if( pl > 0 ): pl = pl*(1-comissao)   # Desconta comissao
       sbl = stack_back + stack_lay
       #print(row)
    else: # Ja apostou
