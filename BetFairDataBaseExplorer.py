@@ -5,6 +5,7 @@ lista_corridas = {} # Cada corrida tem uma lista de cavalos
 lista_bsp = {} # Para saber qual eh o BSP correspondente
 stack_lay = 20.0 # valor base - responsabilidade lay
 comissao = 0.065 # 0.0650 - BetFair
+minutos_antecedencia = 60   # Quanto tempo antes da corrida iniciar
 soma_pl = 0.0 # O total que pingaria na conta
 soma_stack = 0.0 # Quanto foi apostado no total
 total_partidas = 0 # Quantas corridas tiveram
@@ -33,7 +34,7 @@ while True:
       lista_corridas[race_id] = {}
       lista_bsp[race_id] = {}
       apostei = False
-   uma_hora_antes = datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') - timedelta(hours=1, minutes=0) # Horario para avaliar odds
+   uma_hora_antes = datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') - timedelta(hours=0, minutes=minutos_antecedencia) # Horario para avaliar odds
    if( datetime.strptime(data, '%Y-%m-%d %H:%M:%S') <= uma_hora_antes ): # Ainda tem mais de uma hora
       lista_corridas[race_id][nome_cavalo] = odd #Atualiza as odds dessa corrida
       lista_bsp[race_id][nome_cavalo] = bsp # Sabendo o BSP do cavalo
