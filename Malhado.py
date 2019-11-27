@@ -86,7 +86,7 @@ if __name__ == "__main__":
       nomeEvento = bot.corridasWin[idx_corrida]['event']['name']
       print("Proxima corrida=", proxima_corrida, ", Mkt=", idMercado)
       data_futura = datetime.strptime(proxima_corrida, '%Y-%m-%dT%H:%M:%S.%fZ')
-      data_futura_1h = data_futura - timedelta(hours=1, minutes=0)   # Uma hora antes do jogo
+      data_futura_1h = data_futura - timedelta(hours=2, minutes=0)   # Duas horas antes da corrida tem mais lucro
       data_fuso_londres = data_futura_1h - timedelta(hours=3, minutes=0) # Três horas de fuso horário
       delta = data_fuso_londres - datetime.now()
       #print("Delta=", delta)
