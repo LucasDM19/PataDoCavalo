@@ -6,6 +6,7 @@ class MeioAmbiente():
       self._agentes = [AgenteApostadorCavalo() for agente in range(qtd_agentes)]
       self._afogados = []   # Quem perder todo o patrimonio
       self._geracoes = 0   # Contabiliza as eras
+      self._corridas = 0   # Contabiliza as corridas
       
    def recebeAtualizacao(self, odd, minuto, winLose):
       [agente.decide(odd, minuto, winLose) for agente in self._agentes]
@@ -15,12 +16,15 @@ class MeioAmbiente():
       melhor_retorno = max([agente.lucro_medio for agente in self._agentes])
       #melhorAgente = "<>".join( [str(agente) for agente in self._agentes if agente.patrimonio == melhor_patrimonio] )
       melhorAgente = "<>".join( [str(agente) for agente in self._agentes if agente.lucro_medio == melhor_retorno] )
-      if( self._geracoes % 500 == 0 ):
-         print("Geracao#", self._geracoes, " Vivos:", len(self._agentes), ", afogados=", len(self._afogados), ", Champs=", melhorAgente )
+      #if( self._geracoes % 500 == 0 ): print("Geracao#", self._geracoes, " Vivos:", len(self._agentes), ", afogados=", len(self._afogados), ", Champs=", melhorAgente )
       self._geracoes += 1
       
    def notificaNovaCorrida(self):
       [agente.novaCorrida() for agente in self._agentes]
+      melhor_retorno = max([agente.lucro_medio for agente in self._agentes])
+      melhorAgente = "<>".join( [str(agente) for agente in self._agentes if agente.lucro_medio == melhor_retorno] )
+      print("Corrida#", self._corridas, " Vivos:", len(self._agentes), ", afogados=", len(self._afogados), ", Champs=", melhorAgente )
+      self._corridas += 1
       
    def __str__ (self):
       return "#".join( [str(agente) for agente in self._agentes] )
@@ -50,26 +54,26 @@ class AgenteApostadorCavalo():
       self.jaAposteiLay = False
    
    def decide(self, odd, minuto, winLose):
-      if( odd >= self.odd_back_min and odd <= self.odd_back_max and minuto <= self.minutos_back ):   # Bora apostar back
-         if( self.jaAposteiBack == True ): return False   # Sem aposta
+      if( (odd >= self.odd_back_min) and (odd <= self.odd_back_max) and (minuto <= self.minutos_back) and (self.jaAposteiBack == False) ) :   # Bora apostar back
+         print("Aposta back", self.jaAposteiBack)
          stack_lay = 20.0
          self.stack_back = round(stack_lay/(odd-1),2)
          if( winLose == 0 ): pl = (-1*self.stack_back)
          else: pl = self.stack_back/(odd-1)
          self.somaStack += self.stack_back
          self.patrimonio += pl
-         self.jaAposteiBack == True
+         self.jaAposteiBack = True
          self.idade += 1   # Envelhece
          return True
-      if( minuto <= self.minutos_lay ):   # Bora apostar lay
-         if( self.jaAposteiLay == True ): return False   # Sem aposta
+      if( (minuto <= self.minutos_lay) and (self.jaAposteiLay == False) ):   # Bora apostar lay
+         print("Aposta lay", self.jaAposteiLay)
          stack_lay = 20.0
          #stack_back = round(stack_lay/(odd-1),2)
          if( winLose == 0 ): pl = stack_lay/(odd-1)
          else: pl = (-1*stack_lay)
          self.somaStack += stack_lay
          self.patrimonio += pl
-         self.jaAposteiLay == True
+         self.jaAposteiLay = True
          self.idade += 1   # Envelhece
          return True
       # Atualizando os valores - rendimento!
