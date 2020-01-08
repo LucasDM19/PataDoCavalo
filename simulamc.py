@@ -1,19 +1,25 @@
 import random
 
 class MeioAmbiente():
-   def __init__(self, qtd_agentes=10, geracoes=10000):
+   def __init__(self, qtd_agentes=10):
       #print("No terceiro dia, surge!")
       self._agentes = [AgenteApostadorCavalo() for agente in range(qtd_agentes)]
+      self._afogados = []   # Quem perder todo o patrimonio
       
    def recebeAtualizacao(self, odd, minuto, winLose):
       [agente.decide(odd, minuto, winLose) for agente in self._agentes]
+      [self._afogados.append(agente) for agente in self._agentes if agente.estouVivo() == False]   # Quem se afogou sai
+      self._agentes =  [agente for agente in self._agentes if agente.estouVivo() == True]    # Sobreviventes
+      print("Vivos:", len(self._agentes), ", afogados=", len(self._afogados) )
+      
+   def notificaNovaCorrida(self):
+      [agente.novaCorrida() for agente in self._agentes]
       
    def __str__ (self):
       return "#".join( [str(agente) for agente in self._agentes] )
       
 class AgenteApostadorCavalo():
    def __init__(self):
-      #print("Surge o pacato cidadao")
       self.iniciaMindset()
       
    def iniciaMindset(self):
@@ -43,6 +49,7 @@ class AgenteApostadorCavalo():
          else: pl = self.stack_back/(odd-1)
          self.patrimonio += pl
          self.jaAposteiBack == True
+         self.idade += 1   # Envelhece
          return True
       if( odd <= self.odd_max and minuto <= self.minutos_max ):
          if( self.jaAposteiLay == True ): return False   # Sem aposta
@@ -52,6 +59,7 @@ class AgenteApostadorCavalo():
          else: pl = (-1*stack_lay)
          self.patrimonio += pl
          self.jaAposteiLay == True
+         self.idade += 1   # Envelhece
          return True
       return False
       
@@ -61,5 +69,5 @@ class AgenteApostadorCavalo():
 if( __name__ == '__main__' ):
    print("Rodo pela linha de comando!")
    mundo = MeioAmbiente(qtd_agentes=5)
-   mundo.recebeAtualizacao(odd=2.1, minuto=10, winLose=0)
+   [mundo.recebeAtualizacao(odd=2.1, minuto=10, winLose=1) for geracoes in range(50)]
    print(mundo)

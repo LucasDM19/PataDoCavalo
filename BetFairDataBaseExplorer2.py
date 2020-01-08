@@ -1,5 +1,6 @@
 import sqlite3
 from datetime import datetime, timedelta
+from simulamc import MeioAmbiente, AgenteApostadorCavalo
 
 lista_corridas = {} # Cada corrida tem uma lista de cavalos
 lista_bsp = {} # Para saber qual eh o BSP correspondente
@@ -25,6 +26,7 @@ c.execute(""" SELECT
      AND runners.WinLose <> -1
    ORDER BY races.RaceId, odds.PublishedTime ASC """)      
 print("Inicio do processamento")   
+mundo = MeioAmbiente(qtd_agentes=5000)   # Crio mundo
 while True: 
    row = c.fetchone()
    if row == None: break  # Acabou o sqlite
@@ -34,6 +36,7 @@ while True:
       lista_corridas[race_id] = {}
       lista_bsp[race_id] = {}
       apostei = False
+      mundo.notificaNovaCorrida()   # Se preparem para apostar
    uma_hora_antes = datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') - timedelta(hours=0, minutes=minutos_antecedencia) # Horario para avaliar odds
    delta = datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') - datetime.strptime(data, '%Y-%m-%d %H:%M:%S')
    qtd_min = ((delta.seconds) // 60)
@@ -54,6 +57,7 @@ while True:
    #"aqui:", lista_corridas[race_id],
    #print("favorito:", favorito,  ", odd=", odd_favorito ,", BSP=", bsp_favorito, bsp, ", raceId=", race_id, ", PL=", pl, ", Total PL=", soma_pl, " partidas=", total_partidas, "stack back", stack_back, ", W/L=", win_lose, 'Minutos=', ((delta.seconds) // 60) )
    print(odd_favorito , race_id, pl, qtd_min )
+   mundo.recebeAtualizacao(odd=odd_favorito, minuto=qtd_min, winLose=win_lose)
       #print(row)
    #else: # Ja apostou
    #   if(not apostei):
