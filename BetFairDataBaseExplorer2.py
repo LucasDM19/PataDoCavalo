@@ -26,9 +26,10 @@ c.execute(""" SELECT
      AND runners.WinLose <> -1
    ORDER BY races.RaceId, odds.PublishedTime ASC """)      
 print("Inicio do processamento")   
-mundo = MeioAmbiente(qtd_agentes=0)   # Crio mundo
+mundo = MeioAmbiente(qtd_agentes=50)   # Crio mundo
 benchmark = AgenteApostadorCavalo()
-benchmark.defineAtributos(nome="BENCH", odd_back_min=1.5, odd_back_max=2.8, minutos_lay=0, minutos_back=90  )
+#benchmark.defineAtributos(nome="BENCH", odd_back_min=1.5, odd_back_max=2.8, minutos_lay=0, minutos_back=90  )   # O que tem hoje
+#benchmark.defineAtributos(nome="HCX5CHGNCB", odd_back_min=6.69, odd_back_max=1.45, minutos_back=482, minutos_lay=36  )  # Faz apenas lay faltando meia hora
 mundo._agentes.append( benchmark )
 while True: 
    row = c.fetchone()
