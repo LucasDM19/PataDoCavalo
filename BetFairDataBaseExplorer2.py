@@ -28,6 +28,7 @@ c.execute(""" SELECT
 print("Inicio do processamento")   
 mundo = MeioAmbiente(qtd_agentes=1)   # Crio mundo
 benchmark = AgenteApostadorCavalo()
+benchmark.nome = "BENCH"
 benchmark.odd_back_min = 1.5
 benchmark.odd_back_max = 2.8
 benchmark.minutos_lay = 0

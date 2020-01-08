@@ -1,4 +1,4 @@
-import random
+import random, string
 
 class MeioAmbiente():
    def __init__(self, qtd_agentes=1000):
@@ -34,6 +34,7 @@ class AgenteApostadorCavalo():
       self.iniciaMindset()
       
    def iniciaMindset(self):
+      self.nome = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))   # Uma cadeia de letras e numeros de tamanho 10
       self.odd_back_min = random.uniform(0.0, 9.9)
       self.odd_back_max = random.uniform(0.0, 9.9)
       self.minutos_lay = random.randrange(-9, 999)
@@ -55,7 +56,7 @@ class AgenteApostadorCavalo():
    
    def decide(self, odd, minuto, winLose):
       if( (odd >= self.odd_back_min) and (odd <= self.odd_back_max) and (minuto <= self.minutos_back) and (self.jaAposteiBack == False) ) :   # Bora apostar back
-         print("Aposta back", self.jaAposteiBack)
+         print(self.nome, "Aposta back", self.jaAposteiBack)
          stack_lay = 20.0
          self.stack_back = round(stack_lay/(odd-1),2)
          if( winLose == 0 ): pl = (-1*self.stack_back)
@@ -66,7 +67,7 @@ class AgenteApostadorCavalo():
          self.idade += 1   # Envelhece
          return True
       if( (minuto <= self.minutos_lay) and (self.jaAposteiLay == False) ):   # Bora apostar lay
-         print("Aposta lay", self.jaAposteiLay)
+         print(self.nome, "Aposta lay", self.jaAposteiLay)
          stack_lay = 20.0
          #stack_back = round(stack_lay/(odd-1),2)
          if( winLose == 0 ): pl = stack_lay/(odd-1)
@@ -81,7 +82,7 @@ class AgenteApostadorCavalo():
       return False
       
    def __str__ (self):
-      return "Odd Back min=" + str(self.odd_back_min) + ", Odd Back max=" + str(self.odd_back_max) + ", Min. Back=" + str(self.minutos_back) + ", Min. Lay=" + str(self.minutos_lay) + ", Retorno=" + str(self.lucro_medio) + ", idade=" + str(self.idade)
+      return "Nome="+self.nome+", Odd Back min=" + str(self.odd_back_min) + ", Odd Back max=" + str(self.odd_back_max) + ", Min. Back=" + str(self.minutos_back) + ", Min. Lay=" + str(self.minutos_lay) + ", Retorno=" + str(self.lucro_medio) + ", idade=" + str(self.idade)
 
 if( __name__ == '__main__' ):
    print("Rodo pela linha de comando!")
