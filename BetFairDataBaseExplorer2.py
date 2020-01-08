@@ -26,7 +26,7 @@ c.execute(""" SELECT
      AND runners.WinLose <> -1
    ORDER BY races.RaceId, odds.PublishedTime ASC """)      
 print("Inicio do processamento")   
-mundo = MeioAmbiente(qtd_agentes=1)   # Crio mundo
+mundo = MeioAmbiente(qtd_agentes=100)   # Crio mundo
 benchmark = AgenteApostadorCavalo()
 benchmark.nome = "BENCH"
 benchmark.odd_back_min = 1.5
