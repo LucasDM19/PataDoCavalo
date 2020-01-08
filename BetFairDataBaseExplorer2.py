@@ -56,7 +56,7 @@ while True:
    sbl = stack_back + stack_lay
    #"aqui:", lista_corridas[race_id],
    #print("favorito:", favorito,  ", odd=", odd_favorito ,", BSP=", bsp_favorito, bsp, ", raceId=", race_id, ", PL=", pl, ", Total PL=", soma_pl, " partidas=", total_partidas, "stack back", stack_back, ", W/L=", win_lose, 'Minutos=', ((delta.seconds) // 60) )
-   print(odd_favorito , race_id, pl, qtd_min )
+   #print(odd_favorito , race_id, pl, qtd_min ) #Gerar arquivo
    mundo.recebeAtualizacao(odd=odd_favorito, minuto=qtd_min, winLose=win_lose)
       #print(row)
    #else: # Ja apostou

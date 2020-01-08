@@ -10,7 +10,9 @@ class MeioAmbiente():
       [agente.decide(odd, minuto, winLose) for agente in self._agentes]
       [self._afogados.append(agente) for agente in self._agentes if agente.estouVivo() == False]   # Quem se afogou sai
       self._agentes =  [agente for agente in self._agentes if agente.estouVivo() == True]    # Sobreviventes
-      print("Vivos:", len(self._agentes), ", afogados=", len(self._afogados) )
+      melhor_patrimonio = max([agente.patrimonio for agente in self._agentes])
+      melhorAgente = "<>".join( [str(agente) for agente in self._agentes if agente.patrimonio == melhor_patrimonio] )
+      print("Vivos:", len(self._agentes), ", afogados=", len(self._afogados), ", Champs=", melhorAgente )
       
    def notificaNovaCorrida(self):
       [agente.novaCorrida() for agente in self._agentes]
@@ -64,7 +66,7 @@ class AgenteApostadorCavalo():
       return False
       
    def __str__ (self):
-      return "Odd min=" + str(self.odd_min) + ", Odd max=" + str(self.odd_max) + ", Min. min=" + str(self.minutos_min) + ", Min. max=" + str(self.minutos_max) + ", Patrimonio=" + str(self.patrimonio)
+      return "Odd min=" + str(self.odd_min) + ", Odd max=" + str(self.odd_max) + ", Min. min=" + str(self.minutos_min) + ", Min. max=" + str(self.minutos_max) + ", Patrimonio=" + str(self.patrimonio) + ", idade=" + str(self.idade)
 
 if( __name__ == '__main__' ):
    print("Rodo pela linha de comando!")
