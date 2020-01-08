@@ -37,7 +37,7 @@ class AgenteApostadorCavalo():
       self.nome = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))   # Uma cadeia de letras e numeros de tamanho 10
       self.odd_back_min = random.uniform(2.0, 9.9)
       self.odd_back_max = random.uniform(0.0, 9.9)
-      self.minutos_lay = random.randrange(-9, 999)
+      self.minutos_lay = random.randrange(0, 120)
       self.minutos_back = random.randrange(-9, 999)
       self.patrimonio = 1000.0   # Mil doletas
       self.somaStack = 0.0 # Capital de giro
@@ -62,11 +62,13 @@ class AgenteApostadorCavalo():
       self.jaAposteiLay = False
    
    def decide(self, odd, minuto, winLose):
+      comissao = 0.065
       if( (odd >= self.odd_back_min) and (odd <= self.odd_back_max) and (minuto <= self.minutos_back) and (self.jaAposteiBack == False) ) :   # Bora apostar back
          stack_lay = 20.0
          self.stack_back = round(stack_lay/(odd-1),2)
          if( winLose == 0 ): pl = (-1*self.stack_back)
          else: pl = self.stack_back/(odd-1)
+         if( pl > 0 ): pl = pl*(1-comissao)
          #print(self.nome, "Aposta back com odd=",odd, ", minuto=", minuto, ", W/L=",winLose, ", retorno=", pl, ", StackBack=", self.stack_back)
          self.somaStack += self.stack_back
          self.patrimonio += pl
@@ -78,6 +80,7 @@ class AgenteApostadorCavalo():
          #stack_back = round(stack_lay/(odd-1),2)
          if( winLose == 0 ): pl = stack_lay/(odd-1)
          else: pl = (-1*stack_lay)
+         if( pl > 0 ): pl = pl*(1-comissao)
          #print(self.nome, "Aposta lay com odd=", odd, ", minuto=", minuto, ", W/L=",winLose, ", retorno=", pl)
          self.somaStack += stack_lay
          self.patrimonio += pl
