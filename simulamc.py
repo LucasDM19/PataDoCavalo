@@ -45,6 +45,13 @@ class AgenteApostadorCavalo():
       self.idade = 0 # Um bebezito
       self.jaAposteiBack = False
       self.jaAposteiLay = False
+   
+   def defineAtributos(self, nome, odd_back_min, odd_back_max, minutos_lay, minutos_back  ):
+      self.nome = nome
+      self.odd_back_min = odd_back_min
+      self.odd_back_max = odd_back_max
+      self.minutos_lay = minutos_lay
+      self.minutos_back = minutos_back
       
    def estouVivo(self):
       if( self.patrimonio <= 0 ): return False
