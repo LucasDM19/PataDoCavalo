@@ -28,10 +28,10 @@ c.execute(""" SELECT
 print("Inicio do processamento")   
 mundo = MeioAmbiente(qtd_agentes=500)   # Crio mundo
 benchmark = AgenteApostadorCavalo()
-benchmark.odd_min = 1.5
-benchmark.odd_max = 2.8
-benchmark.minutos_min = 0
-benchmark.minutos_max = 90
+benchmark.odd_back_min = 1.5
+benchmark.odd_back_max = 2.8
+benchmark.minutos_lay = 0
+benchmark.minutos_back = 90
 mundo._agentes.append( benchmark )
 while True: 
    row = c.fetchone()
