@@ -43,7 +43,7 @@ class AgenteApostadorCavalo():
       self.jaAposteiLay = False
    
    def decide(self, odd, minuto, winLose):
-      if( odd >= self.odd_min and minuto >= self.minutos_min ):   # Bora apostar back
+      if( odd >= self.odd_min and minuto <= self.minutos_max ):   # Bora apostar back
          if( self.jaAposteiBack == True ): return False   # Sem aposta
          stack_lay = 20.0
          self.stack_back = round(stack_lay/(odd-1),2)
@@ -53,7 +53,7 @@ class AgenteApostadorCavalo():
          self.jaAposteiBack == True
          self.idade += 1   # Envelhece
          return True
-      if( odd <= self.odd_max and minuto <= self.minutos_max ):
+      if( odd <= self.odd_max and minuto >= self.minutos_min ):
          if( self.jaAposteiLay == True ): return False   # Sem aposta
          stack_lay = 20.0
          #stack_back = round(stack_lay/(odd-1),2)

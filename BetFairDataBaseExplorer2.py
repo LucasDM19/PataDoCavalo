@@ -26,7 +26,13 @@ c.execute(""" SELECT
      AND runners.WinLose <> -1
    ORDER BY races.RaceId, odds.PublishedTime ASC """)      
 print("Inicio do processamento")   
-mundo = MeioAmbiente(qtd_agentes=5000)   # Crio mundo
+mundo = MeioAmbiente(qtd_agentes=500)   # Crio mundo
+benchmark = AgenteApostadorCavalo()
+benchmark.odd_min = 1.5
+benchmark.odd_max = 2.8
+benchmark.minutos_min = 0
+benchmark.minutos_max = 90
+mundo._agentes.append( benchmark )
 while True: 
    row = c.fetchone()
    if row == None: break  # Acabou o sqlite
