@@ -92,7 +92,7 @@ class AgenteApostadorCavalo():
       return False
       
    def __str__ (self):
-      return "Nome="+self.nome+", Odd Back min=" + str(self.odd_back_min) + ", Odd Back max=" + str(self.odd_back_max) + ", Min. Back=" + str(self.minutos_back) + ", Min. Lay=" + str(self.minutos_lay) + ", Retorno=" + str(self.lucro_medio) + ", idade=" + str(self.idade)
+      return "Nome="+self.nome+", Odd Back min=" + str(round(self.odd_back_min,2)) + ", Odd Back max=" + str(round(self.odd_back_max,2)) + ", Min. Back=" + str(round(self.minutos_back,2)) + ", Min. Lay=" + str(self.minutos_lay) + ", Retorno=" + str(round(self.lucro_medio,3)) + ", idade=" + str(self.idade)
 
 if( __name__ == '__main__' ):
    print("Rodo pela linha de comando!")
