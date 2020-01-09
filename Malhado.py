@@ -70,6 +70,17 @@ class Malhado():
                '{ "liability": "' + str(stack_lay) + '" } } ]}'
       dados_aposta = api.aposta(json_req=filtro)
       return dados_aposta
+      
+   """
+   Aposta Lay (contra) uma determinada seleção. 
+   """
+   def apostaLay(self, idMercado, selectionId, odds_lay, stack_lay):
+      filtro = '{"marketId":"' + idMercado + '","instructions":'\
+               '[{"selectionId":"' + str(selectionId) + '","handicap":"0","side":"BACK","orderType":"LIMIT","limitOrder":'\
+               '{"size":"' + str(stack_lay) + '","price":"'+ str(odds_lay) +'","persistenceType":"LAPSE" '\
+               ',"timeInForce":"FILL_OR_KILL","minFillSize":"'+ str(stack_lay) +'"}}],"customerRef":"test1919191919"}'
+      dados_aposta = api.aposta(json_req=filtro)
+      return dados_aposta
    
       
 if __name__ == "__main__":
@@ -86,7 +97,7 @@ if __name__ == "__main__":
       nomeEvento = bot.corridasWin[idx_corrida]['event']['name']
       print("Proxima corrida=", proxima_corrida, ", Mkt=", idMercado)
       data_futura = datetime.strptime(proxima_corrida, '%Y-%m-%dT%H:%M:%S.%fZ')
-      data_futura_1h = data_futura - timedelta(hours=2, minutes=0)   # Duas horas antes da corrida tem mais lucro
+      data_futura_1h = data_futura - timedelta(minutes=73)   # 73 minutos antes tem mais esquema
       data_fuso_londres = data_futura_1h - timedelta(hours=3, minutes=0) # Três horas de fuso horário
       delta = data_fuso_londres - datetime.now()
       #print("Delta=", delta)
@@ -110,26 +121,29 @@ if __name__ == "__main__":
       nomeCavalo = [bot.corridasWin[idx_corrida]['runners'][idxRunner]["runnerName"] for idxRunner in range(len(bot.corridasWin[idx_corrida]['runners'])) if bot.corridasWin[idx_corrida]['runners'][idxRunner]["selectionId"]==selectionId][0]
       odds_back = bot.OddsCorrida[idMercado][0]["runners"][0]['ex']['availableToBack'][0]['price']
       stack_back_disp = bot.OddsCorrida[idMercado][0]["runners"][0]['ex']['availableToBack'][0]['size'] # Quantidade disponível para apostar
-      if( odds_back < 1.5 ):
-         print("Odds baixa demais!!", odds_back)
-         continue   # Pulo por conta das odds
-      if( odds_back > 2.8 ):
-         print("Odds alta demais!", odds_back)
-         continue   # Pulo por conta de odd sem lucro
+      #if( odds_back < 1.5 ):
+      #   print("Odds baixa demais!!", odds_back)
+      #   continue   # Pulo por conta das odds
+      #if( odds_back > 2.8 ):
+      #   print("Odds alta demais!", odds_back)
+      #   continue   # Pulo por conta de odd sem lucro
       stack_lay = 20.0
       stack_back = round(stack_lay/(odds_back-1),2)   # Retorno equilibrado com Lay
-      if( stack_back > stack_back_disp ): 
-         print("Sem liquidez no mercado! Tem {0} e é necessário {1}".format(stack_back_disp, stack_back) )
-         continue   # Pulo por conta da aposta não ser correspondida de um lado
-      print("{0} - Cavalo {1}, Lay com odds de {2} e stack de {3}, na corrida {4} ".format(datetime.now(), nomeCavalo, odds_back, stack_back, nomeEvento))
+      #if( stack_back > stack_back_disp ): 
+      #   print("Sem liquidez no mercado! Tem {0} e é necessário {1}".format(stack_back_disp, stack_back) )
+      #   continue   # Pulo por conta da aposta não ser correspondida de um lado
+      #print("{0} - Cavalo {1}, Lay com odds de {2} e stack de {3}, na corrida {4} ".format(datetime.now(), nomeCavalo, odds_back, stack_back, nomeEvento))
       
       # Agora é hora das duas apostas
-      dados_aposta_back = bot.apostaBack(idMercado, selectionId, odds_back, stack_back)
-      print("Aposta Back->", dados_aposta_back)
-      if( dados_aposta_back['instructionReports'][0]['orderStatus'] == 'EXPIRED' ):   # 'EXECUTION_COMPLETE' é quando foi OK
-         print("Aposta Back não foi correspondida")
-         continue
-      dados_aposta_lay = bot.apostaLaySP(idMercado, selectionId, stack_lay)
+      #dados_aposta_back = bot.apostaBack(idMercado, selectionId, odds_back, stack_back)
+      #print("Aposta Back->", dados_aposta_back)
+      #if( dados_aposta_back['instructionReports'][0]['orderStatus'] == 'EXPIRED' ):   # 'EXECUTION_COMPLETE' é quando foi OK
+      #   print("Aposta Back não foi correspondida")
+      #   continue
+      #dados_aposta_lay = bot.apostaLaySP(idMercado, selectionId, stack_lay)
+      
+      #Farei apenas uma aposta - Lay
+      dados_aposta_lay = bot.apostaLay(idMercado, selectionId, odds_lay, stack_lay)
       print("Aposta Lay ->", dados_aposta_lay)
    
    
