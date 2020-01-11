@@ -120,6 +120,7 @@ if __name__ == "__main__":
          continue
       nomeCavalo = [bot.corridasWin[idx_corrida]['runners'][idxRunner]["runnerName"] for idxRunner in range(len(bot.corridasWin[idx_corrida]['runners'])) if bot.corridasWin[idx_corrida]['runners'][idxRunner]["selectionId"]==selectionId][0]
       odds_back = bot.OddsCorrida[idMercado][0]["runners"][0]['ex']['availableToBack'][0]['price']
+      odds_lay = bot.OddsCorrida[idMercado][0]["runners"][0]['ex']['availableToLay'][0]['price']
       stack_back_disp = bot.OddsCorrida[idMercado][0]["runners"][0]['ex']['availableToBack'][0]['size'] # Quantidade disponível para apostar
       #if( odds_back < 1.5 ):
       #   print("Odds baixa demais!!", odds_back)

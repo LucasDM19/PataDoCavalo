@@ -81,7 +81,7 @@ class AgenteApostadorCavalo():
          if( winLose == 0 ): pl = stack_lay/(odd-1)
          else: pl = (-1*stack_lay)
          if( pl > 0 ): pl = pl*(1-comissao)
-         #print(self.nome, "Aposta lay com odd=", odd, ", minuto=", minuto, ", W/L=",winLose, ", retorno=", pl)
+         print(self.nome, "Aposta lay com odd=", odd, ", minuto=", minuto, ", W/L=",winLose, ", retorno=", pl, ", stack=", stack_lay)
          self.somaStack += stack_lay
          self.patrimonio += pl
          self.jaAposteiLay = True
