@@ -76,7 +76,7 @@ class Malhado():
    """
    def apostaLay(self, idMercado, selectionId, odds_lay, stack_lay):
       filtro = '{"marketId":"' + idMercado + '","instructions":'\
-               '[{"selectionId":"' + str(selectionId) + '","handicap":"0","side":"BACK","orderType":"LIMIT","limitOrder":'\
+               '[{"selectionId":"' + str(selectionId) + '","handicap":"0","side":"LAY","orderType":"LIMIT","limitOrder":'\
                '{"size":"' + str(stack_lay) + '","price":"'+ str(odds_lay) +'","persistenceType":"LAPSE" '\
                ',"timeInForce":"FILL_OR_KILL","minFillSize":"'+ str(stack_lay) +'"}}],"customerRef":"test1919191919"}'
       dados_aposta = api.aposta(json_req=filtro)
