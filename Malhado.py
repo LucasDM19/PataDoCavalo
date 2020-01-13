@@ -110,8 +110,9 @@ if __name__ == "__main__":
       
       # Agora obtenho as odds da corrida acima (pelo ID)
       bot.obtemOddsDaCorrida(idMercado)
+      idx_cavalo = 0   # 0 - primeiro, 1 segundo, etc
       try:
-         selectionId = bot.OddsCorrida[idMercado][0]["runners"][0]['selectionId']
+         selectionId = bot.OddsCorrida[idMercado][0]["runners"][idx_cavalo]['selectionId']
       except KeyError: # Sem SelectionId, sai fora
          print("Sem SelectionId ou sem Odds")
          continue
@@ -119,9 +120,9 @@ if __name__ == "__main__":
          print("Sem SelectionId ou sem Odds")
          continue
       nomeCavalo = [bot.corridasWin[idx_corrida]['runners'][idxRunner]["runnerName"] for idxRunner in range(len(bot.corridasWin[idx_corrida]['runners'])) if bot.corridasWin[idx_corrida]['runners'][idxRunner]["selectionId"]==selectionId][0]
-      odds_back = bot.OddsCorrida[idMercado][0]["runners"][0]['ex']['availableToBack'][0]['price']
-      odds_lay = bot.OddsCorrida[idMercado][0]["runners"][0]['ex']['availableToLay'][0]['price']
-      stack_back_disp = bot.OddsCorrida[idMercado][0]["runners"][0]['ex']['availableToBack'][0]['size'] # Quantidade disponível para apostar
+      odds_back = bot.OddsCorrida[idMercado][0]["runners"][idx_cavalo]['ex']['availableToBack'][0]['price']
+      odds_lay = bot.OddsCorrida[idMercado][0]["runners"][idx_cavalo]['ex']['availableToLay'][0]['price']
+      stack_back_disp = bot.OddsCorrida[idMercado][0]["runners"][idx_cavalo]['ex']['availableToBack'][0]['size'] # Quantidade disponível para apostar
       #if( odds_back < 1.5 ):
       #   print("Odds baixa demais!!", odds_back)
       #   continue   # Pulo por conta das odds
@@ -129,22 +130,23 @@ if __name__ == "__main__":
       #   print("Odds alta demais!", odds_back)
       #   continue   # Pulo por conta de odd sem lucro
       stack_lay = 20.0
-      stack_back = round(stack_lay/(odds_back-1),2)   # Retorno equilibrado com Lay
+      #stack_back = round(stack_lay/(odds_back-1),2)   # Retorno equilibrado com Lay
+      stack_back = stack_lay # Farei pois sim
       #if( stack_back > stack_back_disp ): 
       #   print("Sem liquidez no mercado! Tem {0} e é necessário {1}".format(stack_back_disp, stack_back) )
       #   continue   # Pulo por conta da aposta não ser correspondida de um lado
       #print("{0} - Cavalo {1}, Lay com odds de {2} e stack de {3}, na corrida {4} ".format(datetime.now(), nomeCavalo, odds_back, stack_back, nomeEvento))
       
       # Agora é hora das duas apostas
-      #dados_aposta_back = bot.apostaBack(idMercado, selectionId, odds_back, stack_back)
-      #print("Aposta Back->", dados_aposta_back)
+      dados_aposta_back = bot.apostaBack(idMercado, selectionId, odds_back, stack_back)
+      print("Aposta Back->", dados_aposta_back)
       #if( dados_aposta_back['instructionReports'][0]['orderStatus'] == 'EXPIRED' ):   # 'EXECUTION_COMPLETE' é quando foi OK
       #   print("Aposta Back não foi correspondida")
       #   continue
       #dados_aposta_lay = bot.apostaLaySP(idMercado, selectionId, stack_lay)
       
       #Farei apenas uma aposta - Lay
-      dados_aposta_lay = bot.apostaLay(idMercado, selectionId, odds_lay, stack_lay)
-      print("Aposta Lay ->", dados_aposta_lay)
+      #dados_aposta_lay = bot.apostaLay(idMercado, selectionId, odds_lay, stack_lay)
+      #print("Aposta Lay ->", dados_aposta_lay)
    
    
