@@ -120,7 +120,11 @@ if __name__ == "__main__":
          print("Sem SelectionId ou sem Odds")
          continue
       nomeCavalo = [bot.corridasWin[idx_corrida]['runners'][idxRunner]["runnerName"] for idxRunner in range(len(bot.corridasWin[idx_corrida]['runners'])) if bot.corridasWin[idx_corrida]['runners'][idxRunner]["selectionId"]==selectionId][0]
-      odds_back = bot.OddsCorrida[idMercado][0]["runners"][idx_cavalo]['ex']['availableToBack'][0]['price']
+      try:
+         odds_back = bot.OddsCorrida[idMercado][0]["runners"][idx_cavalo]['ex']['availableToBack'][0]['price']
+      except IndexError:   # Sem SelectionId, sai fora
+         print("Sem Odds Back")
+         continue
       odds_lay = bot.OddsCorrida[idMercado][0]["runners"][idx_cavalo]['ex']['availableToLay'][0]['price']
       stack_back_disp = bot.OddsCorrida[idMercado][0]["runners"][idx_cavalo]['ex']['availableToBack'][0]['size'] # Quantidade disponível para apostar
       #if( odds_back < 1.5 ):
