@@ -97,7 +97,7 @@ if __name__ == "__main__":
       nomeEvento = bot.corridasWin[idx_corrida]['event']['name']
       print("Proxima corrida=", proxima_corrida, ", Mkt=", idMercado)
       data_futura = datetime.strptime(proxima_corrida, '%Y-%m-%dT%H:%M:%S.%fZ')
-      data_futura_1h = data_futura - timedelta(minutes=60)   # 60 minutos antes eu tenho mais dados (confiaveis)
+      data_futura_1h = data_futura - timedelta(minutes=73)   # 60 minutos antes eu tenho mais dados (confiaveis)
       data_fuso_londres = data_futura_1h - timedelta(hours=3, minutes=0) # Três horas de fuso horário
       delta = data_fuso_londres - datetime.now()
       #print("Delta=", delta)
@@ -133,7 +133,7 @@ if __name__ == "__main__":
       #if( odds_back > 2.8 ):
       #   print("Odds alta demais!", odds_back)
       #   continue   # Pulo por conta de odd sem lucro
-      stack_lay = 20.0
+      stack_lay = 5.0 # O saldo esta baixo
       #stack_back = round(stack_lay/(odds_back-1),2)   # Retorno equilibrado com Lay
       stack_back = stack_lay # Farei pois sim
       #if( stack_back > stack_back_disp ): 
@@ -142,15 +142,15 @@ if __name__ == "__main__":
       #print("{0} - Cavalo {1}, Lay com odds de {2} e stack de {3}, na corrida {4} ".format(datetime.now(), nomeCavalo, odds_back, stack_back, nomeEvento))
       
       # Agora é hora das duas apostas
-      dados_aposta_back = bot.apostaBack(idMercado, selectionId, odds_back, stack_back)
-      print("Aposta Back->", dados_aposta_back)
+      #dados_aposta_back = bot.apostaBack(idMercado, selectionId, odds_back, stack_back)
+      #print("Aposta Back->", dados_aposta_back)
       #if( dados_aposta_back['instructionReports'][0]['orderStatus'] == 'EXPIRED' ):   # 'EXECUTION_COMPLETE' é quando foi OK
       #   print("Aposta Back não foi correspondida")
       #   continue
       #dados_aposta_lay = bot.apostaLaySP(idMercado, selectionId, stack_lay)
       
       #Farei apenas uma aposta - Lay
-      #dados_aposta_lay = bot.apostaLay(idMercado, selectionId, odds_lay, stack_lay)
-      #print("Aposta Lay ->", dados_aposta_lay)
+      dados_aposta_lay = bot.apostaLay(idMercado, selectionId, odds_lay, stack_lay)
+      print("Aposta Lay ->", dados_aposta_lay)
    
    
