@@ -37,6 +37,8 @@ class AgenteApostadorCavalo():
       self.nome = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))   # Uma cadeia de letras e numeros de tamanho 10
       self.odd_back_min = random.uniform(2.0, 9.9)
       self.odd_back_max = random.uniform(0.0, 9.9)
+      self.odd_lay_min = random.uniform(2.0, 9.9)
+      self.odd_lay_max = random.uniform(0.0, 9.9)
       self.minutos_lay = random.randrange(0, 120)
       self.minutos_back = random.randrange(-9, 999)
       self.patrimonio = 1000.0   # Mil doletas
@@ -46,10 +48,12 @@ class AgenteApostadorCavalo():
       self.jaAposteiBack = False
       self.jaAposteiLay = False
    
-   def defineAtributos(self, nome, odd_back_min, odd_back_max, minutos_lay, minutos_back  ):
+   def defineAtributos(self, nome, odd_back_min, odd_back_max, odd_lay_min, odd_lay_max, minutos_lay, minutos_back  ):
       self.nome = nome
       self.odd_back_min = odd_back_min
       self.odd_back_max = odd_back_max
+      self.odd_lay_min = odd_lay_min
+      self.odd_lay_max = odd_lay_max
       self.minutos_lay = minutos_lay
       self.minutos_back = minutos_back
       
@@ -81,7 +85,7 @@ class AgenteApostadorCavalo():
          if( winLose == 0 ): pl = +1*stack_lay
          else: pl = (-1*(stack_lay*(odd-1)))
          if( pl > 0 ): pl = pl*(1-comissao)
-         print(self.nome, "Aposta lay com odd=", odd, ", minuto=", minuto, ", W/L=",winLose, ", retorno=", round(pl,2), ", stack=", stack_lay)
+         #print(self.nome, "Aposta lay com odd=", odd, ", minuto=", minuto, ", W/L=",winLose, ", retorno=", round(pl,2), ", stack=", stack_lay)
          self.somaStack += stack_lay
          self.patrimonio += pl
          self.jaAposteiLay = True
@@ -92,7 +96,7 @@ class AgenteApostadorCavalo():
       return False
       
    def __str__ (self):
-      return "Nome="+self.nome+", Odd Back min=" + str(round(self.odd_back_min,2)) + ", Odd Back max=" + str(round(self.odd_back_max,2)) + ", Min. Back=" + str(round(self.minutos_back,2)) + ", Min. Lay=" + str(self.minutos_lay) + ", Retorno=" + str(round(self.lucro_medio,3)) + ", idade=" + str(self.idade)
+      return "Nome="+self.nome+", OddBack min=" + str(round(self.odd_back_min,2)) + ", OddBack max=" + str(round(self.odd_back_max,2)) + ", Min. Back=" + str(round(self.minutos_back,2)) + ", OddLay min=" + str(round(self.odd_lay_min,2)) + ", OddLay max=" + str(round(self.odd_lay_max,2)) + ", Min. Lay=" + str(self.minutos_lay) + ", Retorno=" + str(round(self.lucro_medio,3)) + ", idade=" + str(self.idade)
 
 if( __name__ == '__main__' ):
    print("Rodo pela linha de comando!")

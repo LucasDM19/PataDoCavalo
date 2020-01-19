@@ -26,11 +26,11 @@ c.execute(""" SELECT
      AND runners.WinLose <> -1
    ORDER BY races.RaceId, odds.PublishedTime ASC """)      
 print("Inicio do processamento")   
-mundo = MeioAmbiente(qtd_agentes=0)   # Crio mundo
+mundo = MeioAmbiente(qtd_agentes=50)   # Crio mundo
 benchmark = AgenteApostadorCavalo()
 #benchmark.defineAtributos(nome="BENCH", odd_back_min=1.5, odd_back_max=2.8, minutos_lay=0, minutos_back=90  )   # O que tem hoje
-benchmark.defineAtributos(nome="HCX5CHGNCB", odd_back_min=6.69, odd_back_max=1.45, minutos_back=482, minutos_lay=73  )  # Faz apenas lay faltando meia hora
-mundo._agentes.append( benchmark )
+#benchmark.defineAtributos(nome="HCX5CHGNCB", odd_back_min=6.69, odd_back_max=1.45, minutos_back=482, minutos_lay=73  )  # Faz apenas lay faltando meia hora
+#mundo._agentes.append( benchmark )
 while True: 
    row = c.fetchone()
    if row == None: break  # Acabou o sqlite
@@ -78,5 +78,7 @@ while True:
       #print("Perdeu!", datetime.strptime(data, '%Y-%m-%d %H:%M:%S'), ", ", uma_hora_antes)
       
    #print(row)
+   
+print("Mundo=", mundo) 
 lucro_medio = round( (100.0*soma_pl/soma_stack) ,4)
 print( "Total de partidas=", total_partidas, ", lucro total=", soma_pl, ", stake total=", soma_stack, ", lucro medio=", lucro_medio )
