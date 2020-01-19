@@ -27,7 +27,14 @@ class MeioAmbiente():
       self._corridas += 1
       
    def __str__ (self):
-      return "#".join( [str(agente) for agente in self._agentes] )
+      desc = "Era "+ self._geracoes
+      lista_agentes = [agente for agente in self._agentes if agente.estouVivo() == True]
+      while( len(lista_agentes) != 0 ):
+         melhor_retorno = max([agente.lucro_medio for agente in lista_agentes])
+         melhorAgente = "<>".join( [str(agente) for agente in lista_agentes if agente.lucro_medio == melhor_retorno] )
+         desc += melhorAgente + "#"
+         lista_agentes = [agente for agente in lista_agentes if agente.lucro_medio != melhor_retorno]
+      return desc
       
 class AgenteApostadorCavalo():
    def __init__(self):
@@ -79,7 +86,7 @@ class AgenteApostadorCavalo():
          self.jaAposteiBack = True
          self.idade += 1   # Envelhece
          return True
-      if( (minuto <= self.minutos_lay) and (self.jaAposteiLay == False) ):   # Bora apostar lay
+      if( (odd >= self.odd_lay_min) and (odd <= self.odd_lay_max) and (minuto <= self.minutos_lay) and (self.jaAposteiLay == False) ):   # Bora apostar lay
          stack_lay = 20.0
          #stack_back = round(stack_lay/(odd-1),2)
          if( winLose == 0 ): pl = +1*stack_lay
