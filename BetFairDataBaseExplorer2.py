@@ -58,27 +58,8 @@ while True:
    if( win_lose == 1 ): pl = stack_back/(odd_favorito-1) + (-1*stack_lay)
    if( pl > 0 ): pl = pl*(1-comissao)   # Desconta comissao
    sbl = stack_back + stack_lay
-   #"aqui:", lista_corridas[race_id],
-   #print("favorito:", favorito,  ", odd=", odd_favorito ,", BSP=", bsp_favorito, bsp, ", raceId=", race_id, ", PL=", pl, ", Total PL=", soma_pl, " partidas=", total_partidas, "stack back", stack_back, ", W/L=", win_lose, 'Minutos=', ((delta.seconds) // 60) )
-   #print(odd_favorito , race_id, pl, qtd_min ) #Gerar arquivo
    mundo.recebeAtualizacao(odd=odd_favorito, minuto=qtd_min, winLose=win_lose)
-      #print(row)
-   #else: # Ja apostou
-   #   if(not apostei):
-   #      if( odd_favorito < 1.5 ): continue  # Pula
-   #      if( odd_favorito > 2.8 ): continue  # Pula
-   #      apostei = True
-   #      soma_pl += pl
-   #      soma_stack += sbl
-   #      total_partidas += 1
-   
-      #print(race_id, ", PL=", pl, ", Total PL=", soma_pl, " partidas=", total_partidas, ", odd=", odd_favorito, ", BSP=", bsp_favorito )
-         #if( race_id in ["1.160035126", ] ):
-            #print("aqui:", lista_corridas[race_id], "favorito:", favorito,  ", odd=", odd_favorito ,", BSP=", bsp_favorito, bsp, ", raceId=", race_id, ", PL=", pl, ", Total PL=", soma_pl, " partidas=", total_partidas, "stack back", stack_back, ", W/L=", win_lose)
-      #print("Perdeu!", datetime.strptime(data, '%Y-%m-%d %H:%M:%S'), ", ", uma_hora_antes)
-      
-   #print(row)
    
 print("Mundo=", mundo) 
-lucro_medio = round( (100.0*soma_pl/soma_stack) ,4)
-print( "Total de partidas=", total_partidas, ", lucro total=", soma_pl, ", stake total=", soma_stack, ", lucro medio=", lucro_medio )
+#lucro_medio = round( (100.0*soma_pl/soma_stack) ,4)
+#print( "Total de partidas=", total_partidas, ", lucro total=", soma_pl, ", stake total=", soma_stack, ", lucro medio=", lucro_medio )
