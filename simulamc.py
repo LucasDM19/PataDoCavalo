@@ -27,7 +27,7 @@ class MeioAmbiente():
       self._corridas += 1
       
    def __str__ (self):
-      desc = "Era "+ self._geracoes
+      desc = "Era "+ str(self._geracoes)
       lista_agentes = [agente for agente in self._agentes if agente.estouVivo() == True]
       while( len(lista_agentes) != 0 ):
          melhor_retorno = max([agente.lucro_medio for agente in lista_agentes])
