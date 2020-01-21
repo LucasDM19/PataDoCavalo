@@ -6,7 +6,7 @@ import json
 from shutil import copyfile
 import sqlite3
 
-conn = sqlite3.connect('bf_gb_win_2009.db')
+conn = sqlite3.connect('bf_gb_win_teste.db')
 c = conn.cursor()
 
 c.execute('create table if not exists odds (RunnerId, RaceId, LastTradedPrice, PublishedTime)')
@@ -49,23 +49,19 @@ def insere_bz2_sqlite(arquivo_bz2, arquivo):
       conn.commit()
 
 def processa_bz2(arquivo_bz2, arquivo):
-   #caminho_destino_bz2 = 'D:\\Users\\lucas\\Documents\\Malhado_Arquivos_Temp\\output'
    with bz2.open(arquivo_bz2, "rt") as bz_file:
       try:
          obj=json.loads( next(bz_file)  )
          marketType=obj['mc'][0]['marketDefinition']['marketType']
          countryCode=obj['mc'][0]['marketDefinition']['countryCode']
          if marketType=='WIN' and countryCode=='GB':
-               #copyfile(arquivo_bz2, caminho_destino_bz2 +'\\'+arquivo)
+               #copyfile(arquivo_bz2, caminho_destino_bz2 +'\\'+arquivo) #Copiar fisicamente em algum lugar
                insere_bz2_sqlite(arquivo_bz2, arquivo)
       except json.decoder.JSONDecodeError:
          pass
       
-#caminhos_or= ['D:\\Users\\lucas\\Downloads\\data_Betfair\\' ,]
-max_niveis=500000  # Controle recursividade
-nivel = 0
-achou=False
-while( (nivel <= max_niveis) and (achou==False) ):
+#Verificando recursivamente os diretorios. Para quando encontra um arquivo.
+while( len(caminhos_or) > 0 ):
    caminho = caminhos_or.pop()
    for pasta in listdir(caminho):
       if(path.isfile(caminho+'\\'+pasta)):
@@ -74,4 +70,24 @@ while( (nivel <= max_niveis) and (achou==False) ):
       if(path.isdir(caminho+'\\'+pasta)):
          #print("dir=", caminho + '\\'+pasta)
          caminhos_or.append(caminho + '\\'+pasta)
-         nivel += 1
+print("Carga completa")
+
+# Eliminar duplicatas
+for nome_tabela in ['races', 'runners', 'odds', 'afs']: # Todas as tabelas do BD
+   c.execute("DROP TABLE IF EXISTS temp_table")
+   c.execute("CREATE TABLE temp_table as SELECT DISTINCT * FROM " + nome_tabela)
+   c.execute("DELETE FROM " + nome_tabela)
+   c.execute("INSERT INTO " + nome_tabela + " SELECT * FROM temp_table")
+   conn.commit() # Agora sim grava tudo
+print("Duplicatas removidas")
+   
+# Quando acaba tudo, cria (ou recria) os indices
+c.execute("DROP INDEX IF EXISTS idx_races_RaceId")
+c.execute("CREATE INDEX idx_races_RaceId ON races ( RaceId ASC )")
+c.execute("DROP INDEX IF EXISTS idx_runners_RaceId")
+c.execute("CREATE INDEX idx_runners_RaceId ON runners ( RaceId )")
+c.execute("DROP INDEX IF EXISTS idx_odds_RaceId")
+c.execute("CREATE INDEX idx_odds_RaceId ON odds ( RaceId ASC )")
+c.execute("DROP INDEX IF EXISTS idx_odds_RunnerId")
+c.execute("CREATE INDEX idx_odds_RunnerId ON odds ( RunnerId )")
+conn.commit() # Agora sim grava tudo
