@@ -1,3 +1,4 @@
+from Hush import caminhos_or, caminho_destino_bz2
 from os import listdir
 from os import path
 import bz2
@@ -48,19 +49,19 @@ def insere_bz2_sqlite(arquivo_bz2, arquivo):
       conn.commit()
 
 def processa_bz2(arquivo_bz2, arquivo):
-   caminho_destino = 'D:\\Users\\lucas\\Documents\\Malhado_Arquivos_Temp\\output'
+   #caminho_destino_bz2 = 'D:\\Users\\lucas\\Documents\\Malhado_Arquivos_Temp\\output'
    with bz2.open(arquivo_bz2, "rt") as bz_file:
       try:
          obj=json.loads( next(bz_file)  )
          marketType=obj['mc'][0]['marketDefinition']['marketType']
          countryCode=obj['mc'][0]['marketDefinition']['countryCode']
          if marketType=='WIN' and countryCode=='GB':
-               #copyfile(arquivo_bz2, caminho_destino+'\\'+arquivo)
+               #copyfile(arquivo_bz2, caminho_destino_bz2 +'\\'+arquivo)
                insere_bz2_sqlite(arquivo_bz2, arquivo)
       except json.decoder.JSONDecodeError:
          pass
       
-caminhos_or= ['D:\\Users\\lucas\\Downloads\\data_Betfair\\' ,]
+#caminhos_or= ['D:\\Users\\lucas\\Downloads\\data_Betfair\\' ,]
 max_niveis=500000  # Controle recursividade
 nivel = 0
 achou=False
@@ -74,5 +75,3 @@ while( (nivel <= max_niveis) and (achou==False) ):
          #print("dir=", caminho + '\\'+pasta)
          caminhos_or.append(caminho + '\\'+pasta)
          nivel += 1
-
-   
