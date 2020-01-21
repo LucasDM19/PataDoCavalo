@@ -5,32 +5,27 @@ import json
 from shutil import copyfile
 import sqlite3
 
-conn = sqlite3.connect('D:\\Python\\Codes\\PataDoCavalo\\bf_gb_win.db')
+conn = sqlite3.connect('D:\\Python\\Codes\\PataDoCavalo\\bf_gb_win_2009.db')
 c = conn.cursor()
 
-c.execute('create table if not exists odds (c1, c2, c3, c4)')
-c.execute('create table if not exists races (c1, c2, c3, c4, c5)')
-c.execute('create table if not exists afs (c1, c2, c3, c4)')
-c.execute('create table if not exists runners (c1, c2, c3, c4, c5)')
+c.execute('create table if not exists odds (RunnerId, RaceId, LastTradedPrice, PublishedTime)')
+c.execute('create table if not exists races (RaceId, MarketTime, InplayTimestamp, MarketName, MarketVenue)')
+c.execute('create table if not exists afs (RunnerId, RaceId, AdjustmentFactor, PublishedTime)')
+c.execute('create table if not exists runners (RunnerId, RaceId, RunnerName, WinLose, BSP)')
 
 def insere_bz2_sqlite(arquivo_bz2, arquivo):
    with bz2.open(arquivo_bz2, "rt") as bz_file:
-
       md=json.loads( next(bz_file)  )['mc'][0]['marketDefinition']
-
       race_id=arquivo.replace('.bz2','')
-
       inplay_timestamp=0
 
       for linha in bz_file:
          obj=json.loads( linha  )
-
          race_id=obj['mc'][0]['id']
          time=obj['pt']/1000.0
          if 'rc' in obj['mc'][0]:
              for odd in obj['mc'][0]['rc']:
                  c.execute("insert or replace into  odds values (?,?,?,datetime(?,'unixepoch'))", [odd['id'], race_id, odd['ltp'], time ])
-
          
          if 'marketDefinition' in obj['mc'][0]:
              md=obj['mc'][0]['marketDefinition']                
@@ -49,14 +44,8 @@ def insere_bz2_sqlite(arquivo_bz2, arquivo):
              if md['status']=='CLOSED':
                  for runner in md['runners']:
                      c.execute("insert or replace into runners values (?,?,?,?,?)", [runner['id'], race_id, runner['name'],1 if runner['status']=='WINNER' else (0 if runner['status']=='LOSER' else -1), runner['bsp'] if 'bsp' in runner else -1 ])
-                                        
-                 #print(obj['mc'][0]['marketDefinition'])
-             #if 'bsp' in obj['mc'][0]['marketDefinition']['runners'][0]:
-             #    print(obj['mc'][0]['marketDefinition']['runners'][0])
-         #print(linha)
+
       conn.commit()
-      #print(inplay_timestamp)
-      
 
 def processa_bz2(arquivo_bz2, arquivo):
    caminho_destino = 'D:\\Users\\lucas\\Documents\\Malhado_Arquivos_Temp\\output'

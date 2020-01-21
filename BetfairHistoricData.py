@@ -4,7 +4,7 @@ import json
 from shutil import copyfile
 import sqlite3
 
-conn = sqlite3.connect('bf_gb_win_novo.db')
+conn = sqlite3.connect('bf_gb_win_2019.db')
 c = conn.cursor()
 
 def separa_win():
@@ -19,8 +19,6 @@ def separa_win():
                 countryCode=obj['mc'][0]['marketDefinition']['countryCode']
                 if marketType=='WIN' and countryCode=='GB':
                         copyfile(arquivo_bz2, caminho_destino+'\\'+arquivo)
-
-
 
 caminho='C:\\t\\gbwin2'
 for arquivo in listdir(caminho):
