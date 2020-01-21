@@ -60,7 +60,6 @@ def processa_bz2(arquivo_bz2, arquivo):
       except json.decoder.JSONDecodeError:
          pass
       
-
 caminhos_or= ['D:\\Users\\lucas\\Downloads\\data_Betfair\\' ,]
 max_niveis=500000  # Controle recursividade
 nivel = 0
@@ -69,7 +68,6 @@ while( (nivel <= max_niveis) and (achou==False) ):
    caminho = caminhos_or.pop()
    for pasta in listdir(caminho):
       if(path.isfile(caminho+'\\'+pasta)):
-         #achou=True
          print("Arquivo!", caminho+'\\'+pasta)
          processa_bz2(arquivo_bz2=caminho+'\\'+pasta, arquivo=pasta)
       if(path.isdir(caminho+'\\'+pasta)):
