@@ -28,8 +28,8 @@ c.execute(""" SELECT
 print("Inicio do processamento")   
 mundo = MeioAmbiente(qtd_agentes=0)   # Crio mundo
 benchmark = AgenteApostadorCavalo()
-benchmark.defineAtributos(nome="BENCH", minutos_back=0, minutos_lay=60  )   # O que tem hoje
-#benchmark.defineAtributos(nome="HCX5CHGNCB", odd_back_min=6.69, odd_back_max=1.45, odd_lay_min=0.0, odd_lay_max=999.9, minutos_back=482, minutos_lay=73  )  # Faz apenas lay faltando meia hora
+#benchmark.defineAtributos(nome="BENCH", minutos_back=0, minutos_lay=60  )   # O que tem hoje
+benchmark.defineAtributos(nome="HCX5CHGNCB", odd_back_min=6.69, odd_back_max=1.45, minutos_back=482, minutos_lay=73  )  # Faz apenas lay faltando meia hora
 mundo._agentes.append( benchmark )
 while True: 
    row = c.fetchone()
