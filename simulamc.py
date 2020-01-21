@@ -55,7 +55,7 @@ class AgenteApostadorCavalo():
       self.jaAposteiBack = False
       self.jaAposteiLay = False
    
-   def defineAtributos(self, nome, odd_back_min, odd_back_max, odd_lay_min, odd_lay_max, minutos_lay, minutos_back  ):
+   def defineAtributos(self, nome, odd_back_min=0.0, odd_back_max=999.9, odd_lay_min=0.0, odd_lay_max=999.9, minutos_lay=0, minutos_back=0  ):
       self.nome = nome
       self.odd_back_min = odd_back_min
       self.odd_back_max = odd_back_max
