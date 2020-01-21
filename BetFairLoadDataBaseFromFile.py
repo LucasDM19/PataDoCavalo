@@ -18,6 +18,7 @@ def insere_bz2_sqlite(arquivo_bz2, arquivo):
    with bz2.open(arquivo_bz2, "rt") as bz_file:
       md=json.loads( next(bz_file)  )['mc'][0]['marketDefinition']
       race_id=arquivo.replace('.bz2','')
+      #if(race_id == '1.153066480.bz2'): print("Tem!", arquivo)
       inplay_timestamp=0
 
       for linha in bz_file:
@@ -66,6 +67,7 @@ while( len(caminhos_or) > 0 ):
    for pasta in listdir(caminho):
       if(path.isfile(caminho+'\\'+pasta)):
          print("Arquivo!", caminho+'\\'+pasta)
+         #if(pasta == '1.166872140.bz2'): print("Arquivo!", caminho+'\\'+pasta)
          processa_bz2(arquivo_bz2=caminho+'\\'+pasta, arquivo=pasta)
       if(path.isdir(caminho+'\\'+pasta)):
          #print("dir=", caminho + '\\'+pasta)
