@@ -5,7 +5,7 @@ import json
 from shutil import copyfile
 import sqlite3
 
-conn = sqlite3.connect('D:\\Python\\Codes\\PataDoCavalo\\bf_gb_win_2009.db')
+conn = sqlite3.connect('bf_gb_win_2009.db')
 c = conn.cursor()
 
 c.execute('create table if not exists odds (RunnerId, RaceId, LastTradedPrice, PublishedTime)')
