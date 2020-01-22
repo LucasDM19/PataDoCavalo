@@ -12,7 +12,7 @@ soma_stack = 0.0 # Quanto foi apostado no total
 total_partidas = 0 # Quantas corridas tiveram
 apostei = False # Ativa apenas quando chegaria a hora
 
-conn = sqlite3.connect('bf_gb_win_2009.db')
+conn = sqlite3.connect('bf_gb_win_teste.db')
 c = conn.cursor()
 c.execute(""" SELECT 
      races.RaceId, races.MarketTime, races.InplayTimestamp, races.MarketName, races.MarketVenue,
@@ -44,13 +44,14 @@ while True:
    uma_hora_antes = datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') - timedelta(hours=0, minutes=minutos_antecedencia) # Horario para avaliar odds
    delta = datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') - datetime.strptime(data, '%Y-%m-%d %H:%M:%S')
    qtd_min = ((delta.seconds) // 60)
-   #print('Minutos=', ((delta.seconds) // 60), 'd1=', market_time, 'd2=', data )
+   print('Minutos=', ((delta.seconds) // 1), 'd1=', market_time, 'd2=', data )
    if( datetime.strptime(data, '%Y-%m-%d %H:%M:%S') > datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') ) : # Corrida em andamento
       delta = (datetime.strptime(data, '%Y-%m-%d %H:%M:%S') - datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') )
       qtd_min = -1 * ((delta.seconds) // 60)
    lista_corridas[race_id][nome_cavalo] = odd #Atualiza as odds dessa corrida
    lista_bsp[race_id][nome_cavalo] = bsp # Sabendo o BSP do cavalo
    favorito = min( lista_corridas[race_id], key=lista_corridas[race_id].get ) # Nome do cavalo com menor odd
+   print("Fav=", favorito)
    odd_favorito = lista_corridas[race_id][favorito]
    bsp_favorito = lista_bsp[race_id][favorito]
    stack_back = round(stack_lay/(odd_favorito-1),2)

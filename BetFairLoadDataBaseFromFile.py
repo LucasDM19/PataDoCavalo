@@ -27,7 +27,7 @@ def insere_bz2_sqlite(arquivo_bz2, arquivo):
          time=obj['pt']/1000.0
          if 'rc' in obj['mc'][0]:
              for odd in obj['mc'][0]['rc']:
-                 c.execute("insert or replace into  odds values (?,?,?,datetime(?,'unixepoch'))", [odd['id'], race_id, odd['ltp'], time ])
+               c.execute("insert or replace into  odds values (?,?,?,datetime(?,'unixepoch'))", [odd['id'], race_id, odd['ltp'], time ])
          
          if 'marketDefinition' in obj['mc'][0]:
              md=obj['mc'][0]['marketDefinition']                
@@ -56,8 +56,8 @@ def processa_bz2(arquivo_bz2, arquivo):
          marketType=obj['mc'][0]['marketDefinition']['marketType']
          countryCode=obj['mc'][0]['marketDefinition']['countryCode']
          if marketType=='WIN' and countryCode=='GB':
-               #copyfile(arquivo_bz2, caminho_destino_bz2 +'\\'+arquivo) #Copiar fisicamente em algum lugar
-               insere_bz2_sqlite(arquivo_bz2, arquivo)
+            #copyfile(arquivo_bz2, caminho_destino_bz2 +'\\'+arquivo) #Copiar fisicamente em algum lugar
+            insere_bz2_sqlite(arquivo_bz2, arquivo)
       except json.decoder.JSONDecodeError:
          pass
       
