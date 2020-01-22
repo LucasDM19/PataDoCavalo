@@ -1,4 +1,5 @@
 import random, string
+import operator
 
 class MeioAmbiente():
    def __init__(self, tipoAgente, qtd_agentes=1000):
@@ -78,7 +79,24 @@ class AgenteApostador():
 
 # Agente para apostas que envolvem tendencias de odds. Nao apenas para o favorito.
 class AgenteEspeculadorCavalo(AgenteApostador):
-   pass
+   def iniciaMindset(self):
+      super().iniciaMindset() # Inicio o basico do apostador
+      self.minutosX1 = 120 # Faltando duas horas para a corrida
+      self.minutosX2 = 60 # Faltando uma hora para a corrida
+      self.minutosX3 = 30 # Faltando meia hora para a corrida
+      
+   def novaCorrida(self):
+      #self.
+      pass
+      
+   def decide(self, lista_corridas, minuto, winLose, race_id=0 ):
+      #print(lista_corridas)
+      lista_corridas_ordenado = dict( sorted( lista_corridas.items(), key=operator.itemgetter(1),reverse=False ) ) # Mostra igual no site. Odds menores primeiro.
+      #for lco in lista_corridas_ordenado:
+         #print("Nome=", lco, ",o=", lista_corridas_ordenado[lco], ", W/L=", winLose[lco] )
+         
+   def __str__ (self):
+      return "Nome="+self.nome   
       
 # Agente para apostas simples com base em faixas de odds e pontos temporais de back e de lay. Nao deu certo.
 class AgenteApostadorCavalo(AgenteApostador):      
