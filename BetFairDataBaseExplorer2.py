@@ -4,6 +4,7 @@ from simulamc import MeioAmbiente, AgenteApostadorCavalo
 
 lista_corridas = {} # Cada corrida tem uma lista de cavalos
 lista_bsp = {} # Para saber qual eh o BSP correspondente
+lista_wl = {} # Para saber quem foi Win e quem foi Lose
 stack_lay = 20.0 # valor base - responsabilidade lay
 comissao = 0.065 # 0.0650 - BetFair
 minutos_antecedencia = 60   # Quanto tempo antes da corrida iniciar
@@ -39,6 +40,7 @@ while True:
    if( race_id not in lista_corridas ): 
       lista_corridas[race_id] = {}
       lista_bsp[race_id] = {}
+      lista_wl[race_id] = {}
       apostei = False
       mundo.notificaNovaCorrida()   # Se preparem para apostar
    uma_hora_antes = datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') - timedelta(hours=0, minutes=minutos_antecedencia) # Horario para avaliar odds
@@ -50,16 +52,18 @@ while True:
       qtd_min = -1 * ((delta.seconds) // 60)
    lista_corridas[race_id][nome_cavalo] = odd #Atualiza as odds dessa corrida
    lista_bsp[race_id][nome_cavalo] = bsp # Sabendo o BSP do cavalo
+   lista_wl[race_id][nome_cavalo] = win_lose # Sabendo o Win/Lose do cavalo
    favorito = min( lista_corridas[race_id], key=lista_corridas[race_id].get ) # Nome do cavalo com menor odd
    print("Fav=", favorito)
    odd_favorito = lista_corridas[race_id][favorito]
    bsp_favorito = lista_bsp[race_id][favorito]
+   wl_favorito = lista_wl[race_id][favorito]
    stack_back = round(stack_lay/(odd_favorito-1),2)
    if( win_lose == 0 ): pl = (-1*stack_back) + stack_lay/(bsp_favorito-1)
    if( win_lose == 1 ): pl = stack_back/(odd_favorito-1) + (-1*stack_lay)
    if( pl > 0 ): pl = pl*(1-comissao)   # Desconta comissao
    sbl = stack_back + stack_lay
-   mundo.recebeAtualizacao(odd=odd_favorito, minuto=qtd_min, winLose=win_lose)
+   mundo.recebeAtualizacao(odd=odd_favorito, minuto=qtd_min, winLose=wl_favorito)
    
 print("Mundo=", mundo) 
 #lucro_medio = round( (100.0*soma_pl/soma_stack) ,4)
