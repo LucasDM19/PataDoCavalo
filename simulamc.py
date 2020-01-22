@@ -25,7 +25,31 @@ class MeioAmbiente():
       melhorAgente = "<>".join( [str(agente) for agente in self._agentes if agente.lucro_medio == melhor_retorno] )
       print("Corrida#", self._corridas, " Vivos:", len(self._agentes), ", afogados=", len(self._afogados), ", Champs=", melhorAgente )
       self._corridas += 1
-      
+   
+   def exibeAgentes(self):
+      print("Agentes Vivos:")
+      lista_agentes = [agente for agente in self._agentes if agente.estouVivo() == True]
+      while( len(lista_agentes) != 0 ):
+         melhor_retorno = max([agente.lucro_medio for agente in lista_agentes])
+         melhorAgente = "<>".join( [str(agente) for agente in lista_agentes if agente.lucro_medio == melhor_retorno] )
+         if( len([str(agente) for agente in lista_agentes if agente.lucro_medio == melhor_retorno]) != 1 ):
+            for a in [str(agente) for agente in lista_agentes if agente.lucro_medio == melhor_retorno]:
+               print(a)
+         else:
+            print(melhorAgente)
+         lista_agentes = [agente for agente in lista_agentes if agente.lucro_medio != melhor_retorno]
+      print("Agentes Afogados:")
+      lista_agentes = [agente for agente in self._agentes if agente.estouVivo() == False]
+      while( len(lista_agentes) != 0 ):
+         melhor_retorno = max([agente.lucro_medio for agente in lista_agentes])
+         melhorAgente = "<>".join( [str(agente) for agente in lista_agentes if agente.lucro_medio == melhor_retorno] )
+         if( len([str(agente) for agente in lista_agentes if agente.lucro_medio == melhor_retorno]) != 1 ):
+            for a in [str(agente) for agente in lista_agentes if agente.lucro_medio == melhor_retorno]:
+               print(a)
+         else:
+            print(melhorAgente)
+         lista_agentes = [agente for agente in lista_agentes if agente.lucro_medio != melhor_retorno]
+         
    def __str__ (self):
       desc = "Era "+ str(self._geracoes)
       lista_agentes = [agente for agente in self._agentes if agente.estouVivo() == True]
@@ -75,7 +99,7 @@ class AgenteApostadorCavalo():
    def decide(self, odd, minuto, winLose):
       comissao = 0.065
       #print("Dado: Odd=", odd, ", minuto=", minuto, ", W/L=", winLose)
-      if( (odd >= self.odd_back_min) and (odd <= self.odd_back_max) and (minuto <= self.minutos_back) and (self.jaAposteiBack == False) ) :   # Bora apostar back
+      if( (odd > self.odd_back_min) and (odd <= self.odd_back_max) and (minuto <= self.minutos_back) and (self.jaAposteiBack == False) ) :   # Bora apostar back
          stack_lay = 20.0
          self.stack_back = round(stack_lay/(odd-1),2)
          if( winLose == 0 ): pl = (-1*self.stack_back)
@@ -87,7 +111,7 @@ class AgenteApostadorCavalo():
          self.jaAposteiBack = True
          self.idade += 1   # Envelhece
          return True
-      if( (odd >= self.odd_lay_min) and (odd <= self.odd_lay_max) and (minuto <= self.minutos_lay) and (self.jaAposteiLay == False) ):   # Bora apostar lay
+      if( (odd > self.odd_lay_min) and (odd <= self.odd_lay_max) and (minuto <= self.minutos_lay) and (self.jaAposteiLay == False) ):   # Bora apostar lay
          stack_lay = 20.0
          #stack_back = round(stack_lay/(odd-1),2)
          if( winLose == 0 ): pl = +1*stack_lay

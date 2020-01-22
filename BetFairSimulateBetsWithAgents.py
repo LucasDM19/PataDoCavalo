@@ -13,7 +13,7 @@ soma_stack = 0.0 # Quanto foi apostado no total
 total_partidas = 0 # Quantas corridas tiveram
 apostei = False # Ativa apenas quando chegaria a hora
 
-conn = sqlite3.connect('bf_gb_win_2009.db')
+conn = sqlite3.connect('bf_gb_win_teste.db')
 c = conn.cursor()
 c.execute(""" SELECT 
      races.RaceId, races.MarketTime, races.InplayTimestamp, races.MarketName, races.MarketVenue,
@@ -27,7 +27,7 @@ c.execute(""" SELECT
      AND runners.WinLose <> -1
    ORDER BY races.RaceId, odds.PublishedTime ASC """)      
 print("Inicio do processamento")   
-mundo = MeioAmbiente(qtd_agentes=100)   # Crio mundo
+mundo = MeioAmbiente(qtd_agentes=5)   # Crio mundo
 benchmark = AgenteApostadorCavalo()
 #benchmark.defineAtributos(nome="BENCH", minutos_back=0, minutos_lay=60  )   # O que tem hoje
 #benchmark.defineAtributos(nome="HCX5CHGNCB", odd_back_min=6.69, odd_back_max=1.45, minutos_back=482, minutos_lay=73  )  # Faz apenas lay faltando meia hora
@@ -44,7 +44,7 @@ while True:
    uma_hora_antes = datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') - timedelta(hours=0, minutes=minutos_antecedencia) # Horario para avaliar odds
    delta = datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') - datetime.strptime(data, '%Y-%m-%d %H:%M:%S')
    qtd_min = ((delta.seconds) // 60)
-   #print('Minutos=', ((delta.seconds) // 1), 'd1=', market_time, 'd2=', data )
+   #print('Segundos=', ((delta.seconds) // 1), 'Minutos=', ((delta.seconds) // 60), 'd1=', market_time, 'd2=', data )
    if( datetime.strptime(data, '%Y-%m-%d %H:%M:%S') > datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') ) : # Corrida em andamento
       delta = (datetime.strptime(data, '%Y-%m-%d %H:%M:%S') - datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') )
       qtd_min = -1 * ((delta.seconds) // 60)
@@ -58,6 +58,7 @@ while True:
    wl_favorito = lista_wl[race_id][favorito]
    mundo.recebeAtualizacao(odd=odd_favorito, minuto=qtd_min, winLose=wl_favorito)
    
-print("Mundo=", mundo) 
+#print("Mundo=", mundo) 
+mundo.exibeAgentes()
 #lucro_medio = round( (100.0*soma_pl/soma_stack) ,4)
 #print( "Total de partidas=", total_partidas, ", lucro total=", soma_pl, ", stake total=", soma_stack, ", lucro medio=", lucro_medio )
