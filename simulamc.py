@@ -8,8 +8,8 @@ class MeioAmbiente():
       self._geracoes = 0   # Contabiliza as eras
       self._corridas = 0   # Contabiliza as corridas
       
-   def recebeAtualizacao(self, odd, minuto, winLose):
-      [agente.decide(odd, minuto, winLose) for agente in self._agentes]
+   def recebeAtualizacao(self, odd, minuto, winLose, race_id=0):
+      [agente.decide(odd, minuto, winLose, race_id) for agente in self._agentes]
       [self._afogados.append(agente) for agente in self._agentes if agente.estouVivo() == False]   # Quem se afogou sai
       self._agentes =  [agente for agente in self._agentes if agente.estouVivo() == True]    # Sobreviventes
       #melhor_patrimonio = max([agente.patrimonio for agente in self._agentes])
@@ -39,7 +39,7 @@ class MeioAmbiente():
             print(melhorAgente)
          lista_agentes = [agente for agente in lista_agentes if agente.lucro_medio != melhor_retorno]
       print("Agentes Afogados:")
-      lista_agentes = [agente for agente in self._agentes if agente.estouVivo() == False]
+      lista_agentes = [agente for agente in self._afogados if agente.estouVivo() == False]
       while( len(lista_agentes) != 0 ):
          melhor_retorno = max([agente.lucro_medio for agente in lista_agentes])
          melhorAgente = "<>".join( [str(agente) for agente in lista_agentes if agente.lucro_medio == melhor_retorno] )
@@ -96,16 +96,17 @@ class AgenteApostadorCavalo():
       self.jaAposteiBack = False
       self.jaAposteiLay = False
    
-   def decide(self, odd, minuto, winLose):
+   def decide(self, odd, minuto, winLose, race_id):
       comissao = 0.065
       #print("Dado: Odd=", odd, ", minuto=", minuto, ", W/L=", winLose)
-      if( (odd > self.odd_back_min) and (odd <= self.odd_back_max) and (minuto <= self.minutos_back) and (self.jaAposteiBack == False) ) :   # Bora apostar back
+      if( (odd > self.odd_back_min) and (odd <= self.odd_back_max) and (minuto == self.minutos_back) and (self.jaAposteiBack == False) ) :   # Bora apostar back
          stack_lay = 20.0
-         self.stack_back = round(stack_lay/(odd-1),2)
+         #self.stack_back = round(stack_lay/(odd-1),2)
+         self.stack_back = stack_lay # Stack fixo
          if( winLose == 0 ): pl = (-1*self.stack_back)
-         else: pl = self.stack_back*(odd)- self.stack_back
+         else: pl = self.stack_back*(odd)-self.stack_back
          if( pl > 0 ): pl = pl*(1-comissao)
-         #print(self.nome, "Aposta back com odd=",odd, ", minuto=", minuto, ", W/L=",winLose, ", retorno=", pl, ", StackBack=", self.stack_back)
+         #print(self.nome, "Aposta back com odd=",odd, ", minuto=", minuto, ", W/L=",winLose, ", retorno=", pl, ", StackBack=", self.stack_back, ", corre=", race_id)
          self.somaStack += self.stack_back
          self.patrimonio += pl
          self.jaAposteiBack = True
