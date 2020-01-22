@@ -1,9 +1,9 @@
 import random, string
 
 class MeioAmbiente():
-   def __init__(self, qtd_agentes=1000):
+   def __init__(self, tipoAgente, qtd_agentes=1000):
       #print("No terceiro dia, surge!")
-      self._agentes = [AgenteApostadorCavalo() for agente in range(qtd_agentes)]
+      self._agentes = [tipoAgente() for agente in range(qtd_agentes)]
       self._afogados = []   # Quem perder todo o patrimonio
       self._geracoes = 0   # Contabiliza as eras
       self._corridas = 0   # Contabiliza as corridas
@@ -59,23 +59,37 @@ class MeioAmbiente():
          desc += melhorAgente + "#"
          lista_agentes = [agente for agente in lista_agentes if agente.lucro_medio != melhor_retorno]
       return desc
-      
-class AgenteApostadorCavalo():
+
+# Classe mais abstrata. Tudo o que envolve envolver apostas com stack e retornos
+class AgenteApostador():
    def __init__(self):
       self.iniciaMindset()
       
    def iniciaMindset(self):
       self.nome = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))   # Uma cadeia de letras e numeros de tamanho 10
+      self.patrimonio = 1000.0   # Mil doletas
+      self.somaStack = 0.0 # Capital de giro
+      self.lucro_medio = 0.0 # Retorno do investimento
+      self.idade = 0 # Um bebezito
+      
+   def estouVivo(self):
+      if( self.patrimonio <= 0 ): return False
+      return True
+
+# Agente para apostas que envolvem tendencias de odds. Nao apenas para o favorito.
+class AgenteEspeculadorCavalo(AgenteApostador):
+   pass
+      
+# Agente para apostas simples com base em faixas de odds e pontos temporais de back e de lay. Nao deu certo.
+class AgenteApostadorCavalo(AgenteApostador):      
+   def iniciaMindset(self):
+      super().iniciaMindset() # Inicio o basico do apostador
       self.odd_back_min = random.uniform(2.0, 9.9)
       self.odd_back_max = random.uniform(0.0, 9.9)
       self.odd_lay_min = random.uniform(2.0, 9.9)
       self.odd_lay_max = random.uniform(0.0, 9.9)
       self.minutos_lay = random.randrange(0, 120)
       self.minutos_back = random.randrange(-9, 999)
-      self.patrimonio = 1000.0   # Mil doletas
-      self.somaStack = 0.0 # Capital de giro
-      self.lucro_medio = 0.0 # Retorno do investimento
-      self.idade = 0 # Um bebezito
       self.jaAposteiBack = False
       self.jaAposteiLay = False
    
@@ -87,10 +101,6 @@ class AgenteApostadorCavalo():
       self.odd_lay_max = odd_lay_max
       self.minutos_lay = minutos_lay
       self.minutos_back = minutos_back
-      
-   def estouVivo(self):
-      if( self.patrimonio <= 0 ): return False
-      return True
       
    def novaCorrida(self):
       self.jaAposteiBack = False
