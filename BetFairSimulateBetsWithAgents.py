@@ -8,12 +8,8 @@ lista_wl = {} # Para saber quem foi Win e quem foi Lose
 stack_lay = 20.0 # valor base - responsabilidade lay
 comissao = 0.065 # 0.0650 - BetFair
 minutos_antecedencia = 60   # Quanto tempo antes da corrida iniciar
-soma_pl = 0.0 # O total que pingaria na conta
-soma_stack = 0.0 # Quanto foi apostado no total
-total_partidas = 0 # Quantas corridas tiveram
-apostei = False # Ativa apenas quando chegaria a hora
 
-conn = sqlite3.connect('bf_gb_win_teste.db')
+conn = sqlite3.connect('bf_gb_win_2009.db')
 c = conn.cursor()
 c.execute(""" SELECT 
      races.RaceId, races.MarketTime, races.InplayTimestamp, races.MarketName, races.MarketVenue,
@@ -58,7 +54,4 @@ while True:
    wl_favorito = lista_wl[race_id][favorito]
    mundo.recebeAtualizacao(odd=odd_favorito, minuto=qtd_min, winLose=wl_favorito)
    
-#print("Mundo=", mundo) 
 mundo.exibeAgentes()
-#lucro_medio = round( (100.0*soma_pl/soma_stack) ,4)
-#print( "Total de partidas=", total_partidas, ", lucro total=", soma_pl, ", stake total=", soma_stack, ", lucro medio=", lucro_medio )
