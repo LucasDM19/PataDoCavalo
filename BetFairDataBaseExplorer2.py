@@ -13,7 +13,7 @@ soma_stack = 0.0 # Quanto foi apostado no total
 total_partidas = 0 # Quantas corridas tiveram
 apostei = False # Ativa apenas quando chegaria a hora
 
-conn = sqlite3.connect('bf_gb_win_teste.db')
+conn = sqlite3.connect('bf_gb_win_2009.db')
 c = conn.cursor()
 c.execute(""" SELECT 
      races.RaceId, races.MarketTime, races.InplayTimestamp, races.MarketName, races.MarketVenue,
@@ -27,26 +27,24 @@ c.execute(""" SELECT
      AND runners.WinLose <> -1
    ORDER BY races.RaceId, odds.PublishedTime ASC """)      
 print("Inicio do processamento")   
-mundo = MeioAmbiente(qtd_agentes=0)   # Crio mundo
+mundo = MeioAmbiente(qtd_agentes=100)   # Crio mundo
 benchmark = AgenteApostadorCavalo()
 #benchmark.defineAtributos(nome="BENCH", minutos_back=0, minutos_lay=60  )   # O que tem hoje
-benchmark.defineAtributos(nome="HCX5CHGNCB", odd_back_min=6.69, odd_back_max=1.45, minutos_back=482, minutos_lay=73  )  # Faz apenas lay faltando meia hora
+#benchmark.defineAtributos(nome="HCX5CHGNCB", odd_back_min=6.69, odd_back_max=1.45, minutos_back=482, minutos_lay=73  )  # Faz apenas lay faltando meia hora
 mundo._agentes.append( benchmark )
 while True: 
    row = c.fetchone()
-   if row == None: break  # Acabou o sqlite
-            
+   if row == None: break  # Acabou o sqlite      
    race_id, market_time, inplay_timestamp, market_name, market_venue, runner_id, nome_cavalo, win_lose, bsp, odd, data = row
    if( race_id not in lista_corridas ): 
       lista_corridas[race_id] = {}
       lista_bsp[race_id] = {}
       lista_wl[race_id] = {}
-      apostei = False
       mundo.notificaNovaCorrida()   # Se preparem para apostar
    uma_hora_antes = datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') - timedelta(hours=0, minutes=minutos_antecedencia) # Horario para avaliar odds
    delta = datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') - datetime.strptime(data, '%Y-%m-%d %H:%M:%S')
    qtd_min = ((delta.seconds) // 60)
-   print('Minutos=', ((delta.seconds) // 1), 'd1=', market_time, 'd2=', data )
+   #print('Minutos=', ((delta.seconds) // 1), 'd1=', market_time, 'd2=', data )
    if( datetime.strptime(data, '%Y-%m-%d %H:%M:%S') > datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') ) : # Corrida em andamento
       delta = (datetime.strptime(data, '%Y-%m-%d %H:%M:%S') - datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') )
       qtd_min = -1 * ((delta.seconds) // 60)
@@ -54,15 +52,10 @@ while True:
    lista_bsp[race_id][nome_cavalo] = bsp # Sabendo o BSP do cavalo
    lista_wl[race_id][nome_cavalo] = win_lose # Sabendo o Win/Lose do cavalo
    favorito = min( lista_corridas[race_id], key=lista_corridas[race_id].get ) # Nome do cavalo com menor odd
-   print("Fav=", favorito)
+   #print("Fav=", favorito)
    odd_favorito = lista_corridas[race_id][favorito]
    bsp_favorito = lista_bsp[race_id][favorito]
    wl_favorito = lista_wl[race_id][favorito]
-   stack_back = round(stack_lay/(odd_favorito-1),2)
-   if( win_lose == 0 ): pl = (-1*stack_back) + stack_lay/(bsp_favorito-1)
-   if( win_lose == 1 ): pl = stack_back/(odd_favorito-1) + (-1*stack_lay)
-   if( pl > 0 ): pl = pl*(1-comissao)   # Desconta comissao
-   sbl = stack_back + stack_lay
    mundo.recebeAtualizacao(odd=odd_favorito, minuto=qtd_min, winLose=wl_favorito)
    
 print("Mundo=", mundo) 

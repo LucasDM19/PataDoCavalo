@@ -74,14 +74,14 @@ class AgenteApostadorCavalo():
    
    def decide(self, odd, minuto, winLose):
       comissao = 0.065
-      print("Dado: Odd=", odd, ", minuto=", minuto, ", W/L=", winLose)
+      #print("Dado: Odd=", odd, ", minuto=", minuto, ", W/L=", winLose)
       if( (odd >= self.odd_back_min) and (odd <= self.odd_back_max) and (minuto <= self.minutos_back) and (self.jaAposteiBack == False) ) :   # Bora apostar back
          stack_lay = 20.0
          self.stack_back = round(stack_lay/(odd-1),2)
          if( winLose == 0 ): pl = (-1*self.stack_back)
          else: pl = self.stack_back*(odd)- self.stack_back
          if( pl > 0 ): pl = pl*(1-comissao)
-         print(self.nome, "Aposta back com odd=",odd, ", minuto=", minuto, ", W/L=",winLose, ", retorno=", pl, ", StackBack=", self.stack_back)
+         #print(self.nome, "Aposta back com odd=",odd, ", minuto=", minuto, ", W/L=",winLose, ", retorno=", pl, ", StackBack=", self.stack_back)
          self.somaStack += self.stack_back
          self.patrimonio += pl
          self.jaAposteiBack = True
@@ -93,7 +93,7 @@ class AgenteApostadorCavalo():
          if( winLose == 0 ): pl = +1*stack_lay
          else: pl = (-1*(stack_lay*(odd-1)))
          if( pl > 0 ): pl = pl*(1-comissao)
-         print(self.nome, "Aposta lay com odd=", odd, ", minuto=", minuto, ", W/L=",winLose, ", retorno=", round(pl,2), ", stack=", stack_lay)
+         #print(self.nome, "Aposta lay com odd=", odd, ", minuto=", minuto, ", W/L=",winLose, ", retorno=", round(pl,2), ", stack=", stack_lay)
          self.somaStack += stack_lay
          self.patrimonio += pl
          self.jaAposteiLay = True
