@@ -22,7 +22,6 @@ c.execute(""" SELECT
      AND odds.RunnerId = runners.RunnerId
      AND runners.BSP <> -1
      AND runners.WinLose <> -1
-     AND races.RaceId = "1.153066475"
    ORDER BY races.RaceId, odds.PublishedTime ASC """)      
 print("Inicio do processamento")   
 mundo = MeioAmbiente(qtd_agentes=1, tipoAgente=AgenteEspeculadorCavalo)   # Crio mundo
@@ -39,7 +38,7 @@ while True:
       lista_corridas[race_id] = {}
       lista_bsp[race_id] = {}
       lista_wl[race_id] = {}
-      mundo.notificaNovaCorrida()   # Se preparem para apostar
+      mundo.notificaNovaCorrida(race_id)   # Se preparem para apostar
    delta = datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') - datetime.strptime(data, '%Y-%m-%d %H:%M:%S')
    qtd_min = ((delta.seconds) // 60)
    #print('Segundos=', ((delta.seconds) // 1), 'Minutos=', ((delta.seconds) // 60), 'd1=', market_time, 'd2=', data )
