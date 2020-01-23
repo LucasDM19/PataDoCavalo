@@ -82,7 +82,7 @@ class AgenteEspeculadorCavalo(AgenteApostador):
    def iniciaMindset(self):
       super().iniciaMindset() # Inicio o basico do apostador
       self.minutosX1 = 120 # Faltando duas horas para a corrida
-      self.minutosX2 = 60 # Faltando uma hora para a corrida
+      self.minutosX2 = 90 # Faltando uma hora para a corrida
       self.minutosX3 = 30 # Faltando meia hora para a corrida
       self.min_cai = -0.45 # Caindo mais do que isso, faz aposta
       self.min_sobe = 0.85 # Subindo mais do que isso, faz aposta
@@ -95,10 +95,12 @@ class AgenteEspeculadorCavalo(AgenteApostador):
       
    def decide(self, lista_corridas, minuto, winLose, lista_bsp, race_id=0 ):
       comissao = 0.065
-      #print("Dado: Odd=", lista_corridas, ", minuto=", minuto, ", W/L=", winLose, ", race=", race_id)
+      print("Dado: Odd=", lista_corridas, ", minuto=", minuto, ", W/L=", winLose, ", race=", race_id)
       lista_corridas_ordenado = dict( sorted( lista_corridas.items(), key=operator.itemgetter(1),reverse=False ) ) # Mostra igual no site. Odds menores primeiro.
-      if( minuto == self.minutosX1 or minuto == self.minutosX1-1 or minuto == self.minutosX1+1 ): self.valores_odds_X1 = lista_corridas_ordenado
+      if( minuto == self.minutosX1 or minuto == self.minutosX1-1 or minuto == self.minutosX1+1 ): 
+         self.valores_odds_X1 = lista_corridas_ordenado
       if( minuto == self.minutosX2 ): 
+         x = 1/0
          if( len(self.valores_odds_X1) == 0 ): return False # Nao tem como fazer a estrategia sem dados anteriores
          maior_var = 0.0
          nome_maior_var = ""

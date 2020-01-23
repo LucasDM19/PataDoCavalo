@@ -5,7 +5,7 @@ from simulamc import MeioAmbiente, AgenteApostadorCavalo, AgenteEspeculadorCaval
 lista_corridas = {} # Cada corrida tem uma lista de cavalos
 lista_bsp = {} # Para saber qual eh o BSP correspondente
 lista_wl = {} # Para saber quem foi Win e quem foi Lose
-
+tempo_anterior = -999 # Para deixar a fita temporal coerente
 conn = sqlite3.connect('bf_gb_win_2009.db')
 c = conn.cursor()
 c.execute(""" SELECT 
@@ -18,6 +18,7 @@ c.execute(""" SELECT
      AND odds.RunnerId = runners.RunnerId
      AND runners.BSP <> -1
      AND runners.WinLose <> -1
+     AND races.RaceId = "1.153066475"
    ORDER BY races.RaceId, odds.PublishedTime ASC """)      
 print("Inicio do processamento")   
 mundo = MeioAmbiente(qtd_agentes=1, tipoAgente=AgenteEspeculadorCavalo)   # Crio mundo
@@ -49,6 +50,10 @@ while True:
    odd_favorito = lista_corridas[race_id][favorito]
    bsp_favorito = lista_bsp[race_id][favorito]
    wl_favorito = lista_wl[race_id][favorito]
+   #print([qm for qm in range(tempo_anterior-1,qtd_min,-1)])
+   #if (len([qm for qm in range(tempo_anterior-1,qtd_min,-1)]) != 0 ): x = 1/0
+   [mundo.recebeAtualizacao(odd=lista_corridas[race_id], minuto=qm, winLose=lista_wl[race_id], bsp=lista_bsp[race_id], race_id=race_id) for qm in range(tempo_anterior-1,qtd_min,-1)  ]
    mundo.recebeAtualizacao(odd=lista_corridas[race_id], minuto=qtd_min, winLose=lista_wl[race_id], bsp=lista_bsp[race_id], race_id=race_id)
+   tempo_anterior = qtd_min
    
 #mundo.exibeAgentes()
