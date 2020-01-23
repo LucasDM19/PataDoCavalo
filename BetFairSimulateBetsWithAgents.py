@@ -1,4 +1,5 @@
 import sqlite3
+import copy
 from datetime import datetime, timedelta
 from simulamc import MeioAmbiente, AgenteApostadorCavalo, AgenteEspeculadorCavalo
 
@@ -6,6 +7,9 @@ lista_corridas = {} # Cada corrida tem uma lista de cavalos
 lista_bsp = {} # Para saber qual eh o BSP correspondente
 lista_wl = {} # Para saber quem foi Win e quem foi Lose
 tempo_anterior = -999 # Para deixar a fita temporal coerente
+odd_anterior = {}
+winLose_anterior = {}
+bsp_anterior = {}
 conn = sqlite3.connect('bf_gb_win_2009.db')
 c = conn.cursor()
 c.execute(""" SELECT 
@@ -50,10 +54,16 @@ while True:
    odd_favorito = lista_corridas[race_id][favorito]
    bsp_favorito = lista_bsp[race_id][favorito]
    wl_favorito = lista_wl[race_id][favorito]
-   #print([qm for qm in range(tempo_anterior-1,qtd_min,-1)])
+   #print("silencio da fita:", [qm for qm in range(tempo_anterior-1,qtd_min,-1)])
    #if (len([qm for qm in range(tempo_anterior-1,qtd_min,-1)]) != 0 ): x = 1/0
-   [mundo.recebeAtualizacao(odd=lista_corridas[race_id], minuto=qm, winLose=lista_wl[race_id], bsp=lista_bsp[race_id], race_id=race_id) for qm in range(tempo_anterior-1,qtd_min,-1)  ]
+   #print("Minutos de silencio, ant=", odd_anterior, ", atu=", lista_corridas[race_id])
+   [mundo.recebeAtualizacao(odd=odd_anterior, minuto=qm, winLose=winLose_anterior, bsp=bsp_anterior, race_id=race_id) for qm in range(tempo_anterior-1,qtd_min,-1)  ]
+   #print("Fita normal, ant=", odd_anterior, ", atu=", lista_corridas[race_id])
    mundo.recebeAtualizacao(odd=lista_corridas[race_id], minuto=qtd_min, winLose=lista_wl[race_id], bsp=lista_bsp[race_id], race_id=race_id)
    tempo_anterior = qtd_min
+   odd_anterior = copy.deepcopy(lista_corridas[race_id])
+   winLose_anterior = copy.deepcopy(lista_wl[race_id])
+   bsp_anterior = copy.deepcopy(lista_bsp[race_id])
+   #print("Fim do ciclo - dados novos!")
    
 #mundo.exibeAgentes()

@@ -1,4 +1,5 @@
 import random, string
+from math import log10 as log
 import operator
 
 class MeioAmbiente():
@@ -81,9 +82,14 @@ class AgenteApostador():
 class AgenteEspeculadorCavalo(AgenteApostador):
    def iniciaMindset(self):
       super().iniciaMindset() # Inicio o basico do apostador
-      self.minutosX1 = 120 # Faltando duas horas para a corrida
-      self.minutosX2 = 90 # Faltando uma hora para a corrida
-      self.minutosX3 = 30 # Faltando meia hora para a corrida
+      self.minutosX1 = 120 
+      self.minutosX2 = 105 
+      self.minutosX3 = 90 
+      self.minutosX4 = 75 
+      self.minutosX5 = 60 
+      self.minutosX6 = 45 
+      self.minutosX7 = 30
+      self.minutosX8 = 15 
       self.min_cai = -0.45 # Caindo mais do que isso, faz aposta
       self.min_sobe = 0.85 # Subindo mais do que isso, faz aposta
       
@@ -93,14 +99,35 @@ class AgenteEspeculadorCavalo(AgenteApostador):
       self.valores_odds_X2 = {}
       self.valores_odds_X3 = {}
       
+   def calculaTrend(self, valores_odds_a, valores_odds_b, lista_corrida, cp=False):
+      for lco in lista_corrida:
+         trend = log( valores_odds_a[lco]/valores_odds_b[lco] )
+         if(cp==True): print("lco=", lco, "a=", valores_odds_a[lco], "b=",valores_odds_b[lco], "Trend=", round(trend,4) )
+      return trend
+      
    def decide(self, lista_corridas, minuto, winLose, lista_bsp, race_id=0 ):
       comissao = 0.065
-      print("Dado: Odd=", lista_corridas, ", minuto=", minuto, ", W/L=", winLose, ", race=", race_id)
+      #print("Dado: Odd=", lista_corridas, ", minuto=", minuto, ", W/L=", winLose, ", race=", race_id)
       lista_corridas_ordenado = dict( sorted( lista_corridas.items(), key=operator.itemgetter(1),reverse=False ) ) # Mostra igual no site. Odds menores primeiro.
-      if( minuto == self.minutosX1 or minuto == self.minutosX1-1 or minuto == self.minutosX1+1 ): 
+      if( minuto == self.minutosX1 ): 
          self.valores_odds_X1 = lista_corridas_ordenado
       if( minuto == self.minutosX2 ): 
-         x = 1/0
+         self.valores_odds_X2 = lista_corridas_ordenado
+         self.trend_X2 = self.calculaTrend(valores_odds_a=self.valores_odds_X2, valores_odds_b=self.valores_odds_X1, lista_corrida=lista_corridas_ordenado )
+      if( minuto == self.minutosX3 ): 
+         self.valores_odds_X3 = lista_corridas_ordenado
+         self.trend_X3 = self.calculaTrend(valores_odds_a=self.valores_odds_X3, valores_odds_b=self.valores_odds_X2, lista_corrida=lista_corridas_ordenado)
+      if( minuto == self.minutosX4 ): 
+         self.valores_odds_X4 = lista_corridas_ordenado
+         self.trend_X4 = self.calculaTrend(valores_odds_a=self.valores_odds_X4, valores_odds_b=self.valores_odds_X3, lista_corrida=lista_corridas_ordenado)
+      if( minuto == self.minutosX5 ): 
+         self.valores_odds_X5 = lista_corridas_ordenado
+         self.trend_X5 = self.calculaTrend(valores_odds_a=self.valores_odds_X5, valores_odds_b=self.valores_odds_X4, lista_corrida=lista_corridas_ordenado)
+      if( minuto == self.minutosX6 ): 
+         self.valores_odds_X6 = lista_corridas_ordenado
+         self.trend_X6 = self.calculaTrend(valores_odds_a=self.valores_odds_X6, valores_odds_b=self.valores_odds_X5, lista_corrida=lista_corridas_ordenado, cp=True)
+         x = 18/0
+      if( minuto == 123456 ):
          if( len(self.valores_odds_X1) == 0 ): return False # Nao tem como fazer a estrategia sem dados anteriores
          maior_var = 0.0
          nome_maior_var = ""
@@ -145,9 +172,6 @@ class AgenteEspeculadorCavalo(AgenteApostador):
             #print("Pat=", self.patrimonio, " aos=", minuto, " com=", self.idade)
             self.idade += 1   # Envelhece
             self.jaApostei = True
-      if( minuto == self.minutosX3 ): 
-         self.valores_odds_X3 = lista_corridas_ordenado    
-         # Um plano B, para caso a tendencia se inverta
       if( self.somaStack != 0 ): self.lucro_medio = 1.0*(self.patrimonio-1000.0)/self.somaStack
       return False
                
