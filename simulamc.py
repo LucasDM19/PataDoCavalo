@@ -84,8 +84,8 @@ class AgenteEspeculadorCavalo(AgenteApostador):
       self.minutosX1 = 120 # Faltando duas horas para a corrida
       self.minutosX2 = 60 # Faltando uma hora para a corrida
       self.minutosX3 = 30 # Faltando meia hora para a corrida
-      self.min_cai = -0.10 # Caindo mais do que isso, faz aposta
-      self.min_sobe = 0.10 # Subindo mais do que isso, faz aposta
+      self.min_cai = -0.45 # Caindo mais do que isso, faz aposta
+      self.min_sobe = 0.85 # Subindo mais do que isso, faz aposta
       
    def novaCorrida(self):
       self.jaApostei = False
@@ -95,47 +95,62 @@ class AgenteEspeculadorCavalo(AgenteApostador):
       
    def decide(self, lista_corridas, minuto, winLose, lista_bsp, race_id=0 ):
       comissao = 0.065
-      #print("Dado: Odd=", lista_corridas, ", minuto=", minuto, ", W/L=", winLose)
+      #print("Dado: Odd=", lista_corridas, ", minuto=", minuto, ", W/L=", winLose, ", race=", race_id)
       lista_corridas_ordenado = dict( sorted( lista_corridas.items(), key=operator.itemgetter(1),reverse=False ) ) # Mostra igual no site. Odds menores primeiro.
       if( minuto == self.minutosX1 or minuto == self.minutosX1-1 or minuto == self.minutosX1+1 ): self.valores_odds_X1 = lista_corridas_ordenado
       if( minuto == self.minutosX2 ): 
+         if( len(self.valores_odds_X1) == 0 ): return False # Nao tem como fazer a estrategia sem dados anteriores
          maior_var = 0.0
          nome_maior_var = ""
          menor_var = 0.0
          nome_menor_var = ""
          self.valores_odds_X2 = lista_corridas_ordenado
          for lco in lista_corridas_ordenado:
-            var = 1.0*(lista_corridas_ordenado[lco] - self.valores_odds_X1[lco] ) / (self.valores_odds_X1[lco])
-            if( var > maior_var ):
-               maior_var = var
-               nome_maior_var = lco
-            if( menor_var > var ):
-               menor_var = var
-               nome_menor_var = lco
+            #print("lco=", lista_corridas_ordenado, " e X1=", self.valores_odds_X1, ", race=", race_id)
+            if( lco in self.valores_odds_X1 ): # Se tem cavalo novo, nao importa para o var
+               var = 1.0*(lista_corridas_ordenado[lco] - self.valores_odds_X1[lco] ) / (self.valores_odds_X1[lco])
+               if( var > maior_var ):
+                  maior_var = var
+                  nome_maior_var = lco
+               if( menor_var > var ):
+                  menor_var = var
+                  nome_menor_var = lco
             #print("Nome=", lco, ",o=", lista_corridas_ordenado[lco], ", W/L=", winLose[lco], ", estava=", self.valores_odds_X1[lco], ", V=", round(var,3)  )
-         if( self.jaApostei == False and self.min_cai >= menor_var ):
-            print("Maior var=", round(maior_var,3), " do=", nome_maior_var, " e menor var=", round(menor_var,3), " do=", nome_menor_var )
-            odd = lista_corridas_ordenado[nome_menor_var]
+         if( self.jaApostei == False and self.min_cai >= menor_var ): # Para variacao negativa
+         #if( self.jaApostei == False and self.min_sobe <= maior_var ): # Para variacao positiva
+         #if( self.jaApostei == False and self.min_sobe <= maior_var and self.min_cai >= menor_var ): # Para variacao positiva e negativa
+            #print("Race=", race_id, "Maior var=", round(maior_var,3), " do=", nome_maior_var, " e menor var=", round(menor_var,3), " do=", nome_menor_var )
+            #odd_back = lista_corridas_ordenado[nome_maior_var]
+            #wl_back = winLose[nome_maior_var]
+            odd_lay = lista_corridas_ordenado[nome_menor_var]
+            wl_lay = winLose[nome_menor_var]
             stack_lay = 20.0
-            self.stack_back = round(stack_lay/(odd-1),2)
-            #self.stack_back = stack_lay # Stack fixo
-            if( winLose[nome_menor_var] == 0 ): pl = (-1*self.stack_back) + (+1*stack_lay)
-            else: pl = self.stack_back*(odd)-self.stack_back + (-1*(stack_lay*(odd-1)))
-            if( pl > 0 ): pl = pl*(1-comissao)
+            #self.stack_back = round(stack_lay/(odd-1),2)
+            self.stack_back = stack_lay # Stack fixo
+            #if( wl_back == 0 ): pl_back = (-1*self.stack_back) 
+            #else: pl_back = self.stack_back*(odd_back)-self.stack_back
+            #if( pl_back > 0 ): pl_back = pl_back*(1-comissao)
+            pl_back = 0
+            #Parte Lay
+            if( wl_lay == 0 ): pl_lay = (+1*stack_lay)
+            else: pl_lay = (-1*(stack_lay*(odd_lay-1)))
+            if( pl_lay > 0 ): pl_lay = pl_lay*(1-comissao)
             #print("BSP=", lista_bsp)
             #print("Aposta back ", self.stack_back ," na odd ", odd ," caindo ", round(menor_var,3) ," e lay BSP=", lista_bsp[nome_menor_var], " teve PL=", round(pl,2) )
-            self.somaStack += self.stack_back
-            self.patrimonio += pl
-            print("Pat=", self.patrimonio, " aos=", minuto, " com=", self.idade)
+            self.somaStack += 0*self.stack_back + stack_lay
+            print("Pl back=", pl_back, " e PL lay=", pl_lay)
+            self.patrimonio += pl_back + pl_lay
+            #print("Pat=", self.patrimonio, " aos=", minuto, " com=", self.idade)
             self.idade += 1   # Envelhece
             self.jaApostei = True
       if( minuto == self.minutosX3 ): 
          self.valores_odds_X3 = lista_corridas_ordenado    
          # Um plano B, para caso a tendencia se inverta
-      
+      if( self.somaStack != 0 ): self.lucro_medio = 1.0*(self.patrimonio-1000.0)/self.somaStack
+      return False
                
    def __str__ (self):
-      return "Nome="+self.nome   
+      return "Nome="+self.nome + ", Retorno=" + str(round(self.lucro_medio,3)) + ", idade=" + str(self.idade)
       
 # Agente para apostas simples com base em faixas de odds e pontos temporais de back e de lay. Nao deu certo.
 class AgenteApostadorCavalo(AgenteApostador):      
