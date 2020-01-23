@@ -18,10 +18,9 @@ c.execute(""" SELECT
      AND odds.RunnerId = runners.RunnerId
      AND runners.BSP <> -1
      AND runners.WinLose <> -1
-     AND races.RaceId = "1.153066475"
    ORDER BY races.RaceId, odds.PublishedTime ASC """)      
 print("Inicio do processamento")   
-mundo = MeioAmbiente(qtd_agentes=50, tipoAgente=AgenteEspeculadorCavalo)   # Crio mundo
+mundo = MeioAmbiente(qtd_agentes=1, tipoAgente=AgenteEspeculadorCavalo)   # Crio mundo
 #benchmark = AgenteEspeculadorCavalo()
 #benchmark.defineAtributos(nome="BENCH", minutos_back=0, minutos_lay=60  )   # O que tem hoje
 #benchmark.defineAtributos(nome="HCX5CHGNCB", odd_back_min=6.69, odd_back_max=1.45, minutos_back=482, minutos_lay=73  )  # Faz apenas lay faltando meia hora
@@ -50,6 +49,6 @@ while True:
    odd_favorito = lista_corridas[race_id][favorito]
    bsp_favorito = lista_bsp[race_id][favorito]
    wl_favorito = lista_wl[race_id][favorito]
-   mundo.recebeAtualizacao(odd=lista_corridas[race_id], minuto=qtd_min, winLose=lista_wl[race_id], race_id=race_id)
+   mundo.recebeAtualizacao(odd=lista_corridas[race_id], minuto=qtd_min, winLose=lista_wl[race_id], bsp=lista_bsp[race_id], race_id=race_id)
    
-mundo.exibeAgentes()
+#mundo.exibeAgentes()

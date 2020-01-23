@@ -9,8 +9,8 @@ class MeioAmbiente():
       self._geracoes = 0   # Contabiliza as eras
       self._corridas = 0   # Contabiliza as corridas
       
-   def recebeAtualizacao(self, odd, minuto, winLose, race_id=0):
-      [agente.decide(odd, minuto, winLose, race_id) for agente in self._agentes]
+   def recebeAtualizacao(self, odd, minuto, winLose, bsp={}, race_id=0):
+      [agente.decide(odd, minuto, winLose, bsp, race_id) for agente in self._agentes]
       [self._afogados.append(agente) for agente in self._agentes if agente.estouVivo() == False]   # Quem se afogou sai
       self._agentes =  [agente for agente in self._agentes if agente.estouVivo() == True]    # Sobreviventes
       #melhor_patrimonio = max([agente.patrimonio for agente in self._agentes])
@@ -84,17 +84,56 @@ class AgenteEspeculadorCavalo(AgenteApostador):
       self.minutosX1 = 120 # Faltando duas horas para a corrida
       self.minutosX2 = 60 # Faltando uma hora para a corrida
       self.minutosX3 = 30 # Faltando meia hora para a corrida
+      self.min_cai = -0.10 # Caindo mais do que isso, faz aposta
+      self.min_sobe = 0.10 # Subindo mais do que isso, faz aposta
       
    def novaCorrida(self):
-      #self.
-      pass
+      self.jaApostei = False
+      self.valores_odds_X1 = {} # Cada odd no momento X1
+      self.valores_odds_X2 = {}
+      self.valores_odds_X3 = {}
       
-   def decide(self, lista_corridas, minuto, winLose, race_id=0 ):
-      #print(lista_corridas)
+   def decide(self, lista_corridas, minuto, winLose, lista_bsp, race_id=0 ):
+      comissao = 0.065
+      #print("Dado: Odd=", lista_corridas, ", minuto=", minuto, ", W/L=", winLose)
       lista_corridas_ordenado = dict( sorted( lista_corridas.items(), key=operator.itemgetter(1),reverse=False ) ) # Mostra igual no site. Odds menores primeiro.
-      #for lco in lista_corridas_ordenado:
-         #print("Nome=", lco, ",o=", lista_corridas_ordenado[lco], ", W/L=", winLose[lco] )
-         
+      if( minuto == self.minutosX1 or minuto == self.minutosX1-1 or minuto == self.minutosX1+1 ): self.valores_odds_X1 = lista_corridas_ordenado
+      if( minuto == self.minutosX2 ): 
+         maior_var = 0.0
+         nome_maior_var = ""
+         menor_var = 0.0
+         nome_menor_var = ""
+         self.valores_odds_X2 = lista_corridas_ordenado
+         for lco in lista_corridas_ordenado:
+            var = 1.0*(lista_corridas_ordenado[lco] - self.valores_odds_X1[lco] ) / (self.valores_odds_X1[lco])
+            if( var > maior_var ):
+               maior_var = var
+               nome_maior_var = lco
+            if( menor_var > var ):
+               menor_var = var
+               nome_menor_var = lco
+            #print("Nome=", lco, ",o=", lista_corridas_ordenado[lco], ", W/L=", winLose[lco], ", estava=", self.valores_odds_X1[lco], ", V=", round(var,3)  )
+         if( self.jaApostei == False and self.min_cai >= menor_var ):
+            print("Maior var=", round(maior_var,3), " do=", nome_maior_var, " e menor var=", round(menor_var,3), " do=", nome_menor_var )
+            odd = lista_corridas_ordenado[nome_menor_var]
+            stack_lay = 20.0
+            self.stack_back = round(stack_lay/(odd-1),2)
+            #self.stack_back = stack_lay # Stack fixo
+            if( winLose[nome_menor_var] == 0 ): pl = (-1*self.stack_back) + (+1*stack_lay)
+            else: pl = self.stack_back*(odd)-self.stack_back + (-1*(stack_lay*(odd-1)))
+            if( pl > 0 ): pl = pl*(1-comissao)
+            #print("BSP=", lista_bsp)
+            #print("Aposta back ", self.stack_back ," na odd ", odd ," caindo ", round(menor_var,3) ," e lay BSP=", lista_bsp[nome_menor_var], " teve PL=", round(pl,2) )
+            self.somaStack += self.stack_back
+            self.patrimonio += pl
+            print("Pat=", self.patrimonio, " aos=", minuto, " com=", self.idade)
+            self.idade += 1   # Envelhece
+            self.jaApostei = True
+      if( minuto == self.minutosX3 ): 
+         self.valores_odds_X3 = lista_corridas_ordenado    
+         # Um plano B, para caso a tendencia se inverta
+      
+               
    def __str__ (self):
       return "Nome="+self.nome   
       
