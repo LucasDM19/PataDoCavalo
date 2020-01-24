@@ -99,6 +99,15 @@ class AgenteEspeculadorCavalo(AgenteApostador):
       self.tipoStackBack = random.choice(["Fixo", "Proporcional"]) # Fixo ou Proporcional
       self.tipoStackLay = random.choice(["Fixo", "Proporcional"]) # Fixo ou Proporcional
       self.estrategia = "" # Para categorizacao mesmo
+      if( self.temApostaBack ): self.estrategia += "Back"
+      if( self.tipoOddBack == "BSP" ): self.estrategia += "BSP"
+      if( self.tipoStackBack == "Proporcional" ): self.estrategia += "Prop"
+      if( self.temApostaLay ): self.estrategia += "Lay"
+      if( self.tipoOddLay == "BSP" ): self.estrategia += "BSP"
+      if( self.tipoStackLay == "Proporcional" ): self.estrategia += "Prop"
+      if( self.tipoTrend == "Maior" ): self.estrategia += "+"
+      if( self.tipoTrend == "Menor" ): self.estrategia += "-"
+      #print("Do grego=", self.estrategia)
       #self.min_cai = -0.45 # Caindo mais do que isso, faz aposta
       #self.min_sobe = 0.85 # Subindo mais do que isso, faz aposta
       
@@ -205,36 +214,24 @@ class AgenteEspeculadorCavalo(AgenteApostador):
          #print("Maior=", nome_maior_trend, " e menor=", nome_menor_trend )
          
          if( self.jaApostei == False ):
-            self.estrategia = ""
             if( self.tipoTrend == "Maior" ): nome_trend = nome_maior_trend
             if( self.tipoTrend == "Menor" ): nome_trend = nome_menor_trend
             if( self.temApostaBack ): # Devo fazer back
-               self.estrategia += "Back"
                if( self.tipoOddBack == "Atual" ): odd_back = lista_corridas_ordenado[nome_trend] 
-               if( self.tipoOddBack == "BSP" ): 
-                  odd_back = lista_bsp[nome_trend] 
-                  self.estrategia += "BSP"
+               if( self.tipoOddBack == "BSP" ): odd_back = lista_bsp[nome_trend] 
                if( self.tipoStackBack == "Fixo" ): stack_back = 20.0
-               if( self.tipoStackBack == "Proporcional" ): 
-                  stack_back = round(20.0/(odd_back-1),2)
-                  self.estrategia += "Prop"
+               if( self.tipoStackBack == "Proporcional" ): stack_back = round(20.0/(odd_back-1),2)
                wl_back = winLose[nome_trend]
                pl_back = self.fazApostaBack(odd_back, stack_back, wl_back)
                self.patrimonio += pl_back
             if( self.temApostaLay ): # Devo fazer lay
-               self.estrategia += "Lay"
                if( self.tipoOddLay == "Atual" ): odd_lay = lista_corridas_ordenado[nome_trend] 
-               if( self.tipoOddLay == "BSP" ): 
-                  odd_lay = lista_bsp[nome_trend]
-                  self.estrategia += "BSP"
+               if( self.tipoOddLay == "BSP" ): odd_lay = lista_bsp[nome_trend]
                if( self.tipoStackLay == "Fixo" ): stack_lay = 20.0
-               if( self.tipoStackLay == "Proporcional" ): 
-                  stack_lay = round(20.0/(odd_lay-1),2)
-                  self.estrategia += "Prop"
+               if( self.tipoStackLay == "Proporcional" ): stack_lay = round(20.0/(odd_lay-1),2)
                wl_lay = winLose[nome_trend]
                pl_lay = self.fazApostaLay(odd_lay, stack_lay, wl_lay)
                self.patrimonio += pl_lay
-            #print("Do grego=", self.estrategia)
             #x = 18/0 
             self.idade += 1   # Envelhece
             self.jaApostei = True 
