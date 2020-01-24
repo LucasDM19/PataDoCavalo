@@ -91,8 +91,16 @@ class AgenteEspeculadorCavalo(AgenteApostador):
       self.minutosX6 = 45 
       self.minutosX7 = 30
       self.minutosX8 = 15 
-      self.min_cai = -0.45 # Caindo mais do que isso, faz aposta
-      self.min_sobe = 0.85 # Subindo mais do que isso, faz aposta
+      self.temApostaBack = bool(random.getrandbits(1)) # True tem back
+      self.temApostaLay = bool(random.getrandbits(1)) # True tem lay
+      self.tipoTrend = random.choice(["Maior", "Menor"]) # Maior ou Menor
+      self.tipoOddBack = random.choice(["Atual", "BSP"]) # Atual ou BSP
+      self.tipoOddLay = random.choice(["Atual", "BSP"]) # Atual ou BSP
+      self.tipoStackBack = random.choice(["Fixo", "Proporcional"]) # Fixo ou Proporcional
+      self.tipoStackLay = random.choice(["Fixo", "Proporcional"]) # Fixo ou Proporcional
+      self.estrategia = "" # Para categorizacao mesmo
+      #self.min_cai = -0.45 # Caindo mais do que isso, faz aposta
+      #self.min_sobe = 0.85 # Subindo mais do que isso, faz aposta
       
    def novaCorrida(self):
       self.jaApostei = False
@@ -134,7 +142,7 @@ class AgenteEspeculadorCavalo(AgenteApostador):
       if( pl_back > 0 ): 
          pl_back = pl_back*(1-comissao)
       self.somaStack += stack_back
-      print("Aposta back ", stack_back ," na odd ", odd_back , " teve PL=", round(pl_back,2) )
+      #print("Aposta back ", stack_back ," na odd ", odd_back , " teve PL=", round(pl_back,2) )
       return pl_back
       
    # Faz apenas Lay
@@ -146,7 +154,7 @@ class AgenteEspeculadorCavalo(AgenteApostador):
       if( pl_lay > 0 ): 
          pl_lay = pl_lay*(1-comissao)
       self.somaStack += stack_lay
-      print("Aposta lay ", stack_lay ," na odd ", odd_lay , " teve PL=", round(pl_lay,2) )
+      #print("Aposta lay ", stack_lay ," na odd ", odd_lay , " teve PL=", round(pl_lay,2) )
       return pl_lay
       
    def decide(self, lista_corridas, minuto, winLose, lista_bsp, race_id=0 ):
@@ -190,119 +198,51 @@ class AgenteEspeculadorCavalo(AgenteApostador):
          #for m in media_trend: print("Media Trend de ", m,"=", round(media_trend[m],4) ) # Exibo cada media
          #print([self.trend[x][vlox] for x in self.todos_trend for vlox in self.valores_odds_X1  ])
          if( len([media_trend[n] for n in media_trend]) == 0 ): return False # Sem aposta
-         nome_maior_trend = [m for m in media_trend if media_trend[m] == max([media_trend[n] for n in media_trend]) ][0]
-         nome_menor_trend = [m for m in media_trend if media_trend[m] == min([media_trend[n] for n in media_trend]) ][0]
+         maior_valor_trend = max([media_trend[n] for n in media_trend])
+         menor_valor_trend = min([media_trend[n] for n in media_trend])
+         nome_maior_trend = [m for m in media_trend if media_trend[m] == maior_valor_trend ][0]
+         nome_menor_trend = [m for m in media_trend if media_trend[m] == menor_valor_trend ][0]
          #print("Maior=", nome_maior_trend, " e menor=", nome_menor_trend )
          
-         self.estrategia = "LayBSPMaior" # Testando
          if( self.jaApostei == False ):
-            if( self.estrategia == "BackMaior" ):
-               stack_back = 20.0
-               odd_back = lista_corridas_ordenado[nome_maior_trend]
-               wl_back = winLose[nome_maior_trend]
+            self.estrategia = ""
+            if( self.tipoTrend == "Maior" ): nome_trend = nome_maior_trend
+            if( self.tipoTrend == "Menor" ): nome_trend = nome_menor_trend
+            if( self.temApostaBack ): # Devo fazer back
+               self.estrategia += "Back"
+               if( self.tipoOddBack == "Atual" ): odd_back = lista_corridas_ordenado[nome_trend] 
+               if( self.tipoOddBack == "BSP" ): 
+                  odd_back = lista_bsp[nome_trend] 
+                  self.estrategia += "BSP"
+               if( self.tipoStackBack == "Fixo" ): stack_back = 20.0
+               if( self.tipoStackBack == "Proporcional" ): 
+                  stack_back = round(20.0/(odd_back-1),2)
+                  self.estrategia += "Prop"
+               wl_back = winLose[nome_trend]
                pl_back = self.fazApostaBack(odd_back, stack_back, wl_back)
                self.patrimonio += pl_back
-               self.idade += 1   # Envelhece
-               self.jaApostei = True
-            if( self.estrategia == "LayMaior" ):
-               stack_lay = 20.0
-               odd_lay = lista_corridas_ordenado[nome_maior_trend]
-               wl_lay = winLose[nome_maior_trend]
+            if( self.temApostaLay ): # Devo fazer lay
+               self.estrategia += "Lay"
+               if( self.tipoOddLay == "Atual" ): odd_lay = lista_corridas_ordenado[nome_trend] 
+               if( self.tipoOddLay == "BSP" ): 
+                  odd_lay = lista_bsp[nome_trend]
+                  self.estrategia += "BSP"
+               if( self.tipoStackLay == "Fixo" ): stack_lay = 20.0
+               if( self.tipoStackLay == "Proporcional" ): 
+                  stack_lay = round(20.0/(odd_lay-1),2)
+                  self.estrategia += "Prop"
+               wl_lay = winLose[nome_trend]
                pl_lay = self.fazApostaLay(odd_lay, stack_lay, wl_lay)
                self.patrimonio += pl_lay
-               self.idade += 1   # Envelhece
-               self.jaApostei = True
-            if( self.estrategia == "BackMenor" ):
-               stack_back = 20.0
-               odd_back = lista_corridas_ordenado[nome_menor_trend]
-               wl_back = winLose[nome_menor_trend]
-               pl_back = self.fazApostaBack(odd_back, stack_back, wl_back)
-               self.patrimonio += pl_back
-               self.idade += 1   # Envelhece
-               self.jaApostei = True
-            if( self.estrategia == "LayMenor" ):
-               stack_lay = 20.0
-               odd_lay = lista_corridas_ordenado[nome_menor_trend]
-               wl_lay = winLose[nome_menor_trend]
-               pl_lay = self.fazApostaLay(odd_lay, stack_lay, wl_lay)
-               self.patrimonio += pl_lay
-               self.idade += 1   # Envelhece
-               self.jaApostei = True
-            if( self.estrategia == "BackLayBSPMaior" ):
-               stack_lay = 20.0
-               odd_back = lista_corridas_ordenado[nome_maior_trend]
-               stack_back = round(stack_lay/(odd_back-1),2)
-               odd_lay_bsp = lista_bsp[nome_maior_trend]
-               wl_back = winLose[nome_maior_trend]
-               wl_lay = winLose[nome_maior_trend]
-               pl = self.fazApostaBackLay(odd_back, stack_back, wl_back, odd_lay_bsp, stack_lay, wl_lay)
-               self.patrimonio += pl
-               self.idade += 1   # Envelhece
-               self.jaApostei = True
-            if( self.estrategia == "BackLayBSPMenor" ):
-               stack_lay = 20.0
-               odd_back = lista_corridas_ordenado[nome_menor_trend]
-               stack_back = round(stack_lay/(odd_back-1),2)
-               odd_lay_bsp = lista_bsp[nome_menor_trend]
-               wl_back = winLose[nome_menor_trend]
-               wl_lay = winLose[nome_menor_trend]
-               pl = self.fazApostaBackLay(odd_back, stack_back, wl_back, odd_lay_bsp, stack_lay, wl_lay)
-               self.patrimonio += pl
-               self.idade += 1   # Envelhece
-               self.jaApostei = True
-            if( self.estrategia == "LayBackBSPMaior" ):
-               stack_back = 20.0
-               odd_back_bsp = lista_bsp[nome_maior_trend]
-               odd_lay = lista_corridas_ordenado[nome_maior_trend]
-               stack_lay = round(stack_back/(odd_lay-1),2)
-               wl_back = winLose[nome_maior_trend]
-               wl_lay = winLose[nome_maior_trend]
-               pl = self.fazApostaBackLay(odd_back_bsp, stack_back, wl_back, odd_lay, stack_lay, wl_lay)
-               self.patrimonio += pl
-               self.idade += 1   # Envelhece
-               self.jaApostei = True
-            if( self.estrategia == "LayBackBSPMenor" ):
-               stack_back = 20.0
-               odd_back_bsp = lista_bsp[nome_menor_trend]
-               odd_lay = lista_corridas_ordenado[nome_menor_trend]
-               stack_lay = round(stack_back/(odd_lay-1),2)
-               wl_back = winLose[nome_menor_trend]
-               wl_lay = winLose[nome_menor_trend]
-               pl = self.fazApostaBackLay(odd_back_bsp, stack_back, wl_back, odd_lay, stack_lay, wl_lay)
-               self.patrimonio += pl
-               self.idade += 1   # Envelhece
-               self.jaApostei = True
-            if( self.estrategia == "BackBSPMaior" ):
-               stack_back = 20.0
-               odd_back_bsp = lista_bsp[nome_maior_trend]
-               wl_back = winLose[nome_maior_trend]
-               pl_back = self.fazApostaBack(odd_back_bsp, stack_back, wl_back)
-               self.patrimonio += pl_back
-               self.idade += 1   # Envelhece
-               self.jaApostei = True
-            if( self.estrategia == "BackBSPMenor" ):
-               stack_back = 20.0
-               odd_back_bsp = lista_bsp[nome_menor_trend]
-               wl_back = winLose[nome_menor_trend]
-               pl_back = self.fazApostaBack(odd_back_bsp, stack_back, wl_back)
-               self.patrimonio += pl_back
-               self.idade += 1   # Envelhece
-               self.jaApostei = True   
-            if( self.estrategia == "LayBSPMaior" ):
-               stack_lay = 20.0
-               odd_lay_bsp = lista_bsp[nome_maior_trend]
-               wl_lay = winLose[nome_maior_trend]
-               pl_lay = self.fazApostaLay(odd_lay_bsp, stack_lay, wl_lay)
-               self.patrimonio += pl_lay
-               self.idade += 1   # Envelhece
-               self.jaApostei = True
-               
-         #x = 18/0 
+            #print("Do grego=", self.estrategia)
+            #x = 18/0 
+            self.idade += 1   # Envelhece
+            self.jaApostei = True 
       if( self.somaStack != 0 ): self.lucro_medio = 1.0*(self.patrimonio-1000.0)/self.somaStack
       return False
                
    def __str__ (self):
-      return "Nome="+self.nome + ", Retorno=" + str(round(self.lucro_medio,3)) + ", idade=" + str(self.idade)
+      return "Nome="+self.nome + ", Estrategia="+self.estrategia + ", Retorno=" + str(round(self.lucro_medio,3)) + ", idade=" + str(self.idade)
       
 # Agente para apostas simples com base em faixas de odds e pontos temporais de back e de lay. Nao deu certo.
 class AgenteApostadorCavalo(AgenteApostador):      
