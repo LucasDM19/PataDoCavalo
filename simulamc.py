@@ -83,14 +83,7 @@ class AgenteApostador():
 class AgenteEspeculadorCavalo(AgenteApostador):
    def iniciaMindset(self):
       super().iniciaMindset() # Inicio o basico do apostador
-      self.minutosX1 = 120 
-      self.minutosX2 = 105 
-      self.minutosX3 = 90 
-      self.minutosX4 = 75 
-      self.minutosX5 = 60 
-      self.minutosX6 = 45 
-      self.minutosX7 = 30
-      self.minutosX8 = 15 
+      self.minutos = [m for m in range(120,0,-15)]
       self.temApostaBack = bool(random.getrandbits(1)) # True tem back
       self.temApostaLay = bool(random.getrandbits(1)) # True tem lay
       self.tipoTrend = random.choice(["Maior", "Menor"]) # Maior ou Menor
@@ -113,16 +106,10 @@ class AgenteEspeculadorCavalo(AgenteApostador):
       
    def novaCorrida(self):
       self.jaApostei = False
-      self.valores_odds_X1 = {} # Cada odd no momento X1
-      self.valores_odds_X2 = {}
-      self.valores_odds_X3 = {}
-      self.valores_odds_X4 = {}
-      self.valores_odds_X5 = {}
-      self.valores_odds_X6 = {}
-      self.valores_odds_X7 = {}
-      self.valores_odds_X8 = {}
       self.todos_trend = ["X2","X3","X4","X5","X6","X7","X8",]
+      self.todos_trend_x = ["X1", "X2","X3","X4","X5","X6","X7","X8",]
       self.trend = { x : {} for x in self.todos_trend } # Calcula tendencia
+      self.valores_odds = { x : {} for x in self.todos_trend_x } # Memoriza as odds
       
    def calculaTrend(self, valores_odds_a, valores_odds_b, lista_corrida, cp=False):
       #print(valores_odds_a, valores_odds_b)
@@ -170,78 +157,56 @@ class AgenteEspeculadorCavalo(AgenteApostador):
       comissao = 0.065
       #print("Dado: Odd=", lista_corridas, ", minuto=", minuto, ", W/L=", winLose, ", race=", race_id)
       lista_corridas_ordenado = dict( sorted( lista_corridas.items(), key=operator.itemgetter(1),reverse=False ) ) # Mostra igual no site. Odds menores primeiro.
-      if( minuto == self.minutosX1 ): 
-         #print("Hora do X1")
-         self.valores_odds_X1 = copy.deepcopy(lista_corridas_ordenado)
-      if( minuto == self.minutosX2 ): 
-         #print("Hora do X2")
-         self.valores_odds_X2 = copy.deepcopy(lista_corridas_ordenado)
-         self.trend["X2"] = self.calculaTrend(valores_odds_a=self.valores_odds_X2, valores_odds_b=self.valores_odds_X1, lista_corrida=lista_corridas_ordenado, cp=False)
-      if( minuto == self.minutosX3 ): 
-         #print("Hora do X3")
-         self.valores_odds_X3 = copy.deepcopy(lista_corridas_ordenado)
-         self.trend["X3"] = self.calculaTrend(valores_odds_a=self.valores_odds_X3, valores_odds_b=self.valores_odds_X2, lista_corrida=lista_corridas_ordenado, cp=False)
-      if( minuto == self.minutosX4 ): 
-         #print("Hora do X4")
-         self.valores_odds_X4 = copy.deepcopy(lista_corridas_ordenado)
-         self.trend["X4"] = self.calculaTrend(valores_odds_a=self.valores_odds_X4, valores_odds_b=self.valores_odds_X3, lista_corrida=lista_corridas_ordenado, cp=False)
-      if( minuto == self.minutosX5 ): 
-         #print("Hora do X5")
-         self.valores_odds_X5 = copy.deepcopy(lista_corridas_ordenado)
-         self.trend["X5"] = self.calculaTrend(valores_odds_a=self.valores_odds_X5, valores_odds_b=self.valores_odds_X4, lista_corrida=lista_corridas_ordenado, cp=False)
-      if( minuto == self.minutosX6 ): 
-         #print("Hora do X6")
-         self.valores_odds_X6 = copy.deepcopy(lista_corridas_ordenado)
-         self.trend["X6"] = self.calculaTrend(valores_odds_a=self.valores_odds_X6, valores_odds_b=self.valores_odds_X5, lista_corrida=lista_corridas_ordenado, cp=False)
-      if( minuto == self.minutosX7 ): 
-         #print("Hora do X7")
-         self.valores_odds_X7 = copy.deepcopy(lista_corridas_ordenado)
-         self.trend["X7"] = self.calculaTrend(valores_odds_a=self.valores_odds_X7, valores_odds_b=self.valores_odds_X6, lista_corrida=lista_corridas_ordenado, cp=False)
-      if( minuto == self.minutosX8 ): 
-         #print("Hora do X8")
-         self.valores_odds_X8 = copy.deepcopy(lista_corridas_ordenado)
-         self.trend["X8"] = self.calculaTrend(valores_odds_a=self.valores_odds_X8, valores_odds_b=self.valores_odds_X7, lista_corrida=lista_corridas_ordenado, cp=False)
-         #print("Vals=", self.trend["X2"], self.trend["X3"], self.trend["X4"], self.trend["X5"], self.trend["X6"], self.trend["X7"], self.trend["X8"])
-         media_trend = {}
-         for vlox in self.valores_odds_X1: media_trend[vlox] = sum( [self.trend[x][vlox] for x in self.todos_trend  ] ) / (len(self.todos_trend)) # Tiro media de cada trend
-         #for m in media_trend: print("Media Trend de ", m,"=", round(media_trend[m],4) ) # Exibo cada media
-         #print([self.trend[x][vlox] for x in self.todos_trend for vlox in self.valores_odds_X1  ])
-         if( len([media_trend[n] for n in media_trend]) == 0 ): return False # Sem aposta
-         maior_valor_trend = max([media_trend[n] for n in media_trend])
-         menor_valor_trend = min([media_trend[n] for n in media_trend])
-         nome_maior_trend = [m for m in media_trend if media_trend[m] == maior_valor_trend ][0]
-         nome_menor_trend = [m for m in media_trend if media_trend[m] == menor_valor_trend ][0]
-         #if( maior_valor_trend > self.maximo ): self.maximo = maior_valor_trend
-         
-         #print("Maior=", nome_maior_trend, " e menor=", nome_menor_trend )
-         
-         if( self.jaApostei == False ):
-            if( self.tipoTrend == "Maior" ): 
-               nome_trend = nome_maior_trend
-               valor_trend = maior_valor_trend
-            if( self.tipoTrend == "Menor" ): 
-               nome_trend = nome_menor_trend
-               valor_trend = menor_valor_trend
-            if( self.maximo_trend >= abs(valor_trend) and self.minimo_trend <= abs(valor_trend)): # Tem um teto de trend
-               if( self.temApostaBack ): # Devo fazer back
-                  if( self.tipoOddBack == "Atual" ): odd_back = lista_corridas_ordenado[nome_trend] 
-                  if( self.tipoOddBack == "BSP" ): odd_back = lista_bsp[nome_trend] 
-                  if( self.tipoStackBack == "Fixo" ): stack_back = 20.0
-                  if( self.tipoStackBack == "Proporcional" ): stack_back = round(20.0/(odd_back-1),2)
-                  wl_back = winLose[nome_trend]
-                  pl_back = self.fazApostaBack(odd_back, stack_back, wl_back)
-                  self.patrimonio += pl_back
-               if( self.temApostaLay ): # Devo fazer lay
-                  if( self.tipoOddLay == "Atual" ): odd_lay = lista_corridas_ordenado[nome_trend] 
-                  if( self.tipoOddLay == "BSP" ): odd_lay = lista_bsp[nome_trend]
-                  if( self.tipoStackLay == "Fixo" ): stack_lay = 20.0
-                  if( self.tipoStackLay == "Proporcional" ): stack_lay = round(20.0/(odd_lay-1),2)
-                  wl_lay = winLose[nome_trend]
-                  pl_lay = self.fazApostaLay(odd_lay, stack_lay, wl_lay)
-                  self.patrimonio += pl_lay
-               #x = 18/0 
-               self.idade += 1   # Envelhece
-               self.jaApostei = True 
+      for idx_min in range(len(self.minutos)): # Para todas as faixas de acompanhamento
+         if( minuto == self.minutos[idx_min] ):
+            qual_x = self.todos_trend_x[idx_min]
+            #print("Hora do ", qual_x)
+            self.valores_odds[qual_x] = copy.deepcopy(lista_corridas_ordenado)
+            if( idx_min != 0 ): # Primeiro nao tem anterior
+               qual_x_ant = self.todos_trend_x[idx_min-1]
+               self.trend[qual_x] = self.calculaTrend(valores_odds_a=self.valores_odds[qual_x], valores_odds_b=self.valores_odds[qual_x_ant], lista_corrida=lista_corridas_ordenado, cp=False)
+            if( idx_min == len(self.minutos)-1 ): # Ultimo tem a aposta em si
+               #print("Vals=", self.trend["X2"], self.trend["X3"], self.trend["X4"], self.trend["X5"], self.trend["X6"], self.trend["X7"], self.trend["X8"])
+               media_trend = {}
+               for vlox in self.valores_odds["X1"]: media_trend[vlox] = sum( [self.trend[x][vlox] for x in self.todos_trend  ] ) / (len(self.todos_trend)) # Tiro media de cada trend
+               #for m in media_trend: print("Media Trend de ", m,"=", round(media_trend[m],4) ) # Exibo cada media
+               #print([self.trend[x][vlox] for x in self.todos_trend for vlox in self.valores_odds_X1  ])
+               if( len([media_trend[n] for n in media_trend]) == 0 ): return False # Sem aposta
+               maior_valor_trend = max([media_trend[n] for n in media_trend])
+               menor_valor_trend = min([media_trend[n] for n in media_trend])
+               nome_maior_trend = [m for m in media_trend if media_trend[m] == maior_valor_trend ][0]
+               nome_menor_trend = [m for m in media_trend if media_trend[m] == menor_valor_trend ][0]
+               #if( maior_valor_trend > self.maximo ): self.maximo = maior_valor_trend
+               
+               #print("Maior=", nome_maior_trend, " e menor=", nome_menor_trend )
+               
+               if( self.jaApostei == False ):
+                  if( self.tipoTrend == "Maior" ): 
+                     nome_trend = nome_maior_trend
+                     valor_trend = maior_valor_trend
+                  if( self.tipoTrend == "Menor" ): 
+                     nome_trend = nome_menor_trend
+                     valor_trend = menor_valor_trend
+                  if( self.maximo_trend >= abs(valor_trend) and self.minimo_trend <= abs(valor_trend)): # Tem um teto de trend
+                     if( self.temApostaBack ): # Devo fazer back
+                        if( self.tipoOddBack == "Atual" ): odd_back = lista_corridas_ordenado[nome_trend] 
+                        if( self.tipoOddBack == "BSP" ): odd_back = lista_bsp[nome_trend] 
+                        if( self.tipoStackBack == "Fixo" ): stack_back = 20.0
+                        if( self.tipoStackBack == "Proporcional" ): stack_back = round(20.0/(odd_back-1),2)
+                        wl_back = winLose[nome_trend]
+                        pl_back = self.fazApostaBack(odd_back, stack_back, wl_back)
+                        self.patrimonio += pl_back
+                     if( self.temApostaLay ): # Devo fazer lay
+                        if( self.tipoOddLay == "Atual" ): odd_lay = lista_corridas_ordenado[nome_trend] 
+                        if( self.tipoOddLay == "BSP" ): odd_lay = lista_bsp[nome_trend]
+                        if( self.tipoStackLay == "Fixo" ): stack_lay = 20.0
+                        if( self.tipoStackLay == "Proporcional" ): stack_lay = round(20.0/(odd_lay-1),2)
+                        wl_lay = winLose[nome_trend]
+                        pl_lay = self.fazApostaLay(odd_lay, stack_lay, wl_lay)
+                        self.patrimonio += pl_lay
+                     #x = 18/0 
+                     self.idade += 1   # Envelhece
+                     self.jaApostei = True 
       if( self.somaStack != 0 ): self.lucro_medio = 1.0*(self.patrimonio-1000.0)/self.somaStack
       return False
                
