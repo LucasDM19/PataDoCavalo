@@ -83,14 +83,27 @@ class AgenteApostador():
 class AgenteEspeculadorCavalo(AgenteApostador):
    def iniciaMindset(self):
       super().iniciaMindset() # Inicio o basico do apostador
-      self.minutos = [m for m in range(120,0,-15)]
-      self.temApostaBack = bool(random.getrandbits(1)) # True tem back
-      self.temApostaLay = bool(random.getrandbits(1)) # True tem lay
-      self.tipoTrend = random.choice(["Maior", "Menor"]) # Maior ou Menor
-      self.tipoOddBack = random.choice(["Atual", "BSP"]) # Atual ou BSP
-      self.tipoOddLay = random.choice(["Atual", "BSP"]) # Atual ou BSP
-      self.tipoStackBack = random.choice(["Fixo", "Proporcional"]) # Fixo ou Proporcional
-      self.tipoStackLay = random.choice(["Fixo", "Proporcional"]) # Fixo ou Proporcional
+      #self.minutos = [m for m in range(120,0,-15)]
+      qtd_intervalo = random.randrange(2, 10) # Quantas amostras serao obtidas para obter trend
+      #qtd_intervalo = 10
+      self.minutos = [m for m in range(120,0,-1*int(120/qtd_intervalo) )]
+      qtd_intervalo = len(self.minutos)
+      #print("Intervalo=", qtd_intervalo, -1*int(120/qtd_intervalo))
+      #self.minutos = [120, 107, 94, 81, 68, 55, 42, 29, 16, 3]
+      #self.temApostaBack = bool(random.getrandbits(1)) # True tem back
+      self.temApostaBack = True 
+      #self.temApostaLay = bool(random.getrandbits(1)) # True tem lay
+      self.temApostaLay = True
+      #self.tipoTrend = random.choice(["Maior", "Menor"]) # Maior ou Menor
+      self.tipoTrend = "Maior"
+      #self.tipoOddBack = random.choice(["Atual", "BSP"]) # Atual ou BSP
+      self.tipoOddBack = "BSP"
+      #self.tipoOddLay = random.choice(["Atual", "BSP"]) # Atual ou BSP
+      self.tipoOddLay = "Atual"
+      #self.tipoStackBack = random.choice(["Fixo", "Proporcional"]) # Fixo ou Proporcional
+      self.tipoStackBack = "Proporcional"
+      #self.tipoStackLay = random.choice(["Fixo", "Proporcional"]) # Fixo ou Proporcional
+      self.tipoStackLay = "Proporcional"
       self.estrategia = "" # Para categorizacao mesmo
       if( self.temApostaBack ): self.estrategia += "Back"
       if( self.tipoOddBack == "BSP" ): self.estrategia += "BSP"
@@ -101,13 +114,16 @@ class AgenteEspeculadorCavalo(AgenteApostador):
       if( self.tipoTrend == "Maior" ): self.estrategia += "+"
       if( self.tipoTrend == "Menor" ): self.estrategia += "-"
       #print("Do grego=", self.estrategia)
-      self.minimo_trend = random.uniform(0.0, 0.290) # Caindo mais do que isso (em modulo), faz aposta
-      self.maximo_trend = random.uniform(0.0, 0.290) # Caindo mais do que isso (em modulo), faz aposta
+      #self.minimo_trend = random.uniform(0.0, 0.290) # Caindo mais do que isso (em modulo), faz aposta
+      self.minimo_trend = 0.0
+      #self.maximo_trend = random.uniform(0.0, 0.290)
+      self.maximo_trend = 0.290 # Caindo mais do que isso (em modulo), faz aposta
+      self.todos_trend = ["X"+str(x) for x in range(2,qtd_intervalo+1)] #["X2","X3","X4","X5","X6","X7","X8",]
+      self.todos_trend_x = ["X1",] +  self.todos_trend
+      #print(self.todos_trend_x, self.todos_trend )
       
    def novaCorrida(self):
       self.jaApostei = False
-      self.todos_trend = ["X2","X3","X4","X5","X6","X7","X8",]
-      self.todos_trend_x = ["X1", "X2","X3","X4","X5","X6","X7","X8",]
       self.trend = { x : {} for x in self.todos_trend } # Calcula tendencia
       self.valores_odds = { x : {} for x in self.todos_trend_x } # Memoriza as odds
       
@@ -155,19 +171,22 @@ class AgenteEspeculadorCavalo(AgenteApostador):
       
    def decide(self, lista_corridas_ordenado, minuto, winLose, lista_bsp, race_id=0 ):
       comissao = 0.065
-      print("Dado: Odd=", lista_corridas_ordenado, ", minuto=", minuto, ", W/L=", winLose, ", race=", race_id)
+      #print("Dado: Odd=", lista_corridas_ordenado, ", minuto=", minuto, ", W/L=", winLose, ", race=", race_id)
       #lista_corridas_ordenado = dict( sorted( lista_corridas.items(), key=operator.itemgetter(1),reverse=False ) ) # Mostra igual no site. Odds menores primeiro.
       for idx_min in range(len(self.minutos)): # Para todas as faixas de acompanhamento
          if( minuto == self.minutos[idx_min] ):
             qual_x = self.todos_trend_x[idx_min]
             #print("Hora do ", qual_x)
             self.valores_odds[qual_x] = copy.deepcopy(lista_corridas_ordenado)
+            #print("Valor do ", qual_x, "=", self.valores_odds[qual_x] )
             if( idx_min != 0 ): # Primeiro nao tem anterior
                qual_x_ant = self.todos_trend_x[idx_min-1]
                self.trend[qual_x] = self.calculaTrend(valores_odds_a=self.valores_odds[qual_x], valores_odds_b=self.valores_odds[qual_x_ant], lista_corrida=lista_corridas_ordenado, cp=False)
             if( idx_min == len(self.minutos)-1 ): # Ultimo tem a aposta em si
-               #print("Vals=", self.trend["X2"], self.trend["X3"], self.trend["X4"], self.trend["X5"], self.trend["X6"], self.trend["X7"], self.trend["X8"])
+               #for vtc in self.todos_trend: print("Vals=", vtc, self.trend[vtc])
+               #print("X1=", self.valores_odds["X1"])
                media_trend = {}
+               #for x in self.todos_trend: print("Trend=",x, self.trend[x])
                for vlox in self.valores_odds["X1"]: media_trend[vlox] = sum( [self.trend[x][vlox] for x in self.todos_trend  ] ) / (len(self.todos_trend)) # Tiro media de cada trend
                #for m in media_trend: print("Media Trend de ", m,"=", round(media_trend[m],4) ) # Exibo cada media
                #print([self.trend[x][vlox] for x in self.todos_trend for vlox in self.valores_odds_X1  ])
@@ -211,7 +230,7 @@ class AgenteEspeculadorCavalo(AgenteApostador):
       return False
                
    def __str__ (self):
-      return "Nome="+self.nome + ", Estrategia="+self.estrategia + ", Retorno=" + str(round(self.lucro_medio,3)) + ", max=" + str(round(self.maximo_trend,3)) + ", min=" + str(round(self.minimo_trend,3)) + ", idade=" + str(self.idade)
+      return "Nome="+self.nome + ", Estrategia="+self.estrategia + ", min=" + str(round(self.minimo_trend,3)) + ", max=" + str(round(self.maximo_trend,3)) + ", mins="+str(self.minutos)+ ", idade=" + str(self.idade) + ", Retorno=" + str(round(self.lucro_medio,3)) 
       
 # Agente para apostas simples com base em faixas de odds e pontos temporais de back e de lay. Nao deu certo.
 class AgenteApostadorCavalo(AgenteApostador):      

@@ -26,7 +26,7 @@ c.execute(""" SELECT
      AND runners.WinLose <> -1
    ORDER BY races.RaceId, odds.PublishedTime ASC """)      
 print("Inicio do processamento")   
-mundo = MeioAmbiente(qtd_agentes=10, tipoAgente=AgenteEspeculadorCavalo)   # Crio mundo
+mundo = MeioAmbiente(qtd_agentes=100, tipoAgente=AgenteEspeculadorCavalo)   # Crio mundo
 #benchmark = AgenteEspeculadorCavalo()
 #benchmark.defineAtributos(nome="BENCH", minutos_back=0, minutos_lay=60  )   # O que tem hoje
 #benchmark.defineAtributos(nome="HCX5CHGNCB", odd_back_min=6.69, odd_back_max=1.45, minutos_back=482, minutos_lay=73  )  # Faz apenas lay faltando meia hora
@@ -68,8 +68,8 @@ while True:
    odd_anterior = copy.deepcopy(lista_corridas[race_id])
    winLose_anterior = copy.deepcopy(lista_wl[race_id])
    bsp_anterior = copy.deepcopy(lista_bsp[race_id])
-   print("Demorou", time.process_time() - start)
-   if(time.process_time() - start > 0 ) : x = 1/0
+   #print("Demorou", time.process_time() - start)
+   #if(time.process_time() - start > 0 ) : x = 1/0
    #print("Fim do ciclo - dados novos!")
    
 mundo.exibeAgentes()
