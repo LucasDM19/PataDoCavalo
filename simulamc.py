@@ -153,10 +153,10 @@ class AgenteEspeculadorCavalo(AgenteApostador):
       #print("Aposta lay ", stack_lay ," na odd ", odd_lay , " teve PL=", round(pl_lay,2) )
       return pl_lay
       
-   def decide(self, lista_corridas, minuto, winLose, lista_bsp, race_id=0 ):
+   def decide(self, lista_corridas_ordenado, minuto, winLose, lista_bsp, race_id=0 ):
       comissao = 0.065
-      #print("Dado: Odd=", lista_corridas, ", minuto=", minuto, ", W/L=", winLose, ", race=", race_id)
-      lista_corridas_ordenado = dict( sorted( lista_corridas.items(), key=operator.itemgetter(1),reverse=False ) ) # Mostra igual no site. Odds menores primeiro.
+      print("Dado: Odd=", lista_corridas_ordenado, ", minuto=", minuto, ", W/L=", winLose, ", race=", race_id)
+      #lista_corridas_ordenado = dict( sorted( lista_corridas.items(), key=operator.itemgetter(1),reverse=False ) ) # Mostra igual no site. Odds menores primeiro.
       for idx_min in range(len(self.minutos)): # Para todas as faixas de acompanhamento
          if( minuto == self.minutos[idx_min] ):
             qual_x = self.todos_trend_x[idx_min]

@@ -1,6 +1,8 @@
 import sqlite3
 import copy
 from datetime import datetime, timedelta
+import time
+import operator
 from simulamc import MeioAmbiente, AgenteApostadorCavalo, AgenteEspeculadorCavalo
 
 lista_corridas = {} # Cada corrida tem uma lista de cavalos
@@ -24,7 +26,7 @@ c.execute(""" SELECT
      AND runners.WinLose <> -1
    ORDER BY races.RaceId, odds.PublishedTime ASC """)      
 print("Inicio do processamento")   
-mundo = MeioAmbiente(qtd_agentes=1, tipoAgente=AgenteEspeculadorCavalo)   # Crio mundo
+mundo = MeioAmbiente(qtd_agentes=10, tipoAgente=AgenteEspeculadorCavalo)   # Crio mundo
 #benchmark = AgenteEspeculadorCavalo()
 #benchmark.defineAtributos(nome="BENCH", minutos_back=0, minutos_lay=60  )   # O que tem hoje
 #benchmark.defineAtributos(nome="HCX5CHGNCB", odd_back_min=6.69, odd_back_max=1.45, minutos_back=482, minutos_lay=73  )  # Faz apenas lay faltando meia hora
@@ -32,9 +34,11 @@ mundo = MeioAmbiente(qtd_agentes=1, tipoAgente=AgenteEspeculadorCavalo)   # Crio
 #mundo._agentes.append( benchmark )
 while True: 
    row = c.fetchone()
-   if row == None: break  # Acabou o sqlite      
+   if row == None: break  # Acabou o sqlite
+   start = time.process_time() # Liga relogio
    race_id, market_time, inplay_timestamp, market_name, market_venue, runner_id, nome_cavalo, win_lose, bsp, odd, data = row
    if( race_id not in lista_corridas ): 
+      #print("Corrida nova!")
       lista_corridas[race_id] = {}
       lista_bsp[race_id] = {}
       lista_wl[race_id] = {}
@@ -53,6 +57,7 @@ while True:
    odd_favorito = lista_corridas[race_id][favorito]
    bsp_favorito = lista_bsp[race_id][favorito]
    wl_favorito = lista_wl[race_id][favorito]
+   #lista_corridas_ordenado = dict( sorted( lista_corridas[race_id].items(), key=operator.itemgetter(1),reverse=False ) ) # Mostra igual no site. Odds menores primeiro.
    #print("silencio da fita:", [qm for qm in range(tempo_anterior-1,qtd_min,-1)])
    #if (len([qm for qm in range(tempo_anterior-1,qtd_min,-1)]) != 0 ): x = 1/0
    #print("Minutos de silencio, ant=", odd_anterior, ", atu=", lista_corridas[race_id])
@@ -63,6 +68,8 @@ while True:
    odd_anterior = copy.deepcopy(lista_corridas[race_id])
    winLose_anterior = copy.deepcopy(lista_wl[race_id])
    bsp_anterior = copy.deepcopy(lista_bsp[race_id])
+   print("Demorou", time.process_time() - start)
+   if(time.process_time() - start > 0 ) : x = 1/0
    #print("Fim do ciclo - dados novos!")
    
 mundo.exibeAgentes()
