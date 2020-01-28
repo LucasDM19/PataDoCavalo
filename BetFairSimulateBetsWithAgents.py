@@ -22,17 +22,17 @@ c.execute(""" SELECT
    WHERE runners.RaceId = races.RaceId
      AND odds.RaceId = races.RaceId
      AND odds.RunnerId = runners.RunnerId
-     and races.RaceId <> "1.160357779"
+     and races.RaceId = "1.160357779"
      AND runners.BSP <> -1
      AND runners.WinLose <> -1
    ORDER BY races.RaceId, odds.PublishedTime ASC """)      
 print("Inicio do processamento")   
-mundo = MeioAmbiente(qtd_agentes=500, tipoAgente=AgenteEspeculadorCavalo)   # Crio mundo
-#benchmark = AgenteEspeculadorCavalo()
+mundo = MeioAmbiente(qtd_agentes=0, tipoAgente=AgenteEspeculadorCavalo)   # Crio mundo
+benchmark = AgenteEspeculadorCavalo()
 #benchmark.defineAtributos(nome="BENCH", minutos_back=0, minutos_lay=60  )   # O que tem hoje
-#benchmark.defineAtributos(nome="HCX5CHGNCB", odd_back_min=6.69, odd_back_max=1.45, minutos_back=482, minutos_lay=73  )  # Faz apenas lay faltando meia hora
+benchmark.defineAtributos(nome="0AWCKP31IA", min=0.0, max=0.29, mins=[88, 74, 60, 46, 32, 18, 4], temBack=True, temLay=True, tipoBack="Atual", tipoLay="BSP" )  # Faz Back e Lay
 #benchmark.defineAtributos(nome="RMNCQLBS2E", odd_back_min=4.16, odd_back_max=6.7, minutos_back=85, odd_lay_max=2.0, odd_lay_min=8.0, minutos_lay=850  )  # Era canto de sereia
-#mundo._agentes.append( benchmark )
+mundo._agentes.append( benchmark )
 while True: 
    row = c.fetchone()
    if row == None: break  # Acabou o sqlite

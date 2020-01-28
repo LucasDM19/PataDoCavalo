@@ -106,6 +106,23 @@ class AgenteEspeculadorCavalo(AgenteApostador):
       self.tipoStackBack = "Proporcional"
       #self.tipoStackLay = random.choice(["Fixo", "Proporcional"]) # Fixo ou Proporcional
       self.tipoStackLay = "Fixo"
+      #self.minimo_trend = random.uniform(0.0, 0.290) # Caindo mais do que isso (em modulo), faz aposta
+      self.minimo_trend = 0.0
+      #self.maximo_trend = random.uniform(0.0, 0.290)
+      self.maximo_trend = 0.290 # Caindo mais do que isso (em modulo), faz aposta
+      self.defineAtributos(nome=self.nome, min=self.minimo_trend, max=self.maximo_trend, mins=self.minutos, temBack=self.temApostaBack, temLay=self.temApostaLay, tipoBack=self.tipoOddBack, tipoLay=self.tipoOddLay )
+   
+   def defineAtributos(self, nome, min, max, mins, temBack, temLay, tipoBack, tipoLay ):
+      self.nome=nome 
+      self.minimo_trend=min
+      self.maximo_trend = max
+      self.minutos=mins 
+      qtd_intervalo = len(self.minutos)
+      self.temApostaBack = temBack
+      self.temApostaLay = temLay
+      self.tipoOddLay = tipoLay
+      self.tipoOddBack = tipoBack
+      
       self.estrategia = "" # Para categorizacao mesmo
       if( self.temApostaBack ): self.estrategia += "Back"
       if( self.tipoOddBack == "BSP" ): self.estrategia += "BSP"
@@ -116,14 +133,10 @@ class AgenteEspeculadorCavalo(AgenteApostador):
       if( self.tipoTrend == "Maior" ): self.estrategia += "+"
       if( self.tipoTrend == "Menor" ): self.estrategia += "-"
       #print("Do grego=", self.estrategia)
-      #self.minimo_trend = random.uniform(0.0, 0.290) # Caindo mais do que isso (em modulo), faz aposta
-      self.minimo_trend = 0.0
-      #self.maximo_trend = random.uniform(0.0, 0.290)
-      self.maximo_trend = 0.290 # Caindo mais do que isso (em modulo), faz aposta
       self.todos_trend = ["X"+str(x) for x in range(2,qtd_intervalo+1)] #["X2","X3","X4","X5","X6","X7","X8",]
       self.todos_trend_x = ["X1",] +  self.todos_trend
       #print(self.todos_trend_x, self.todos_trend )
-      
+   
    def novaCorrida(self):
       self.jaApostei = False
       self.trend = { x : {} for x in self.todos_trend } # Calcula tendencia
