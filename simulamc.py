@@ -95,16 +95,17 @@ class AgenteEspeculadorCavalo(AgenteApostador):
       self.temApostaBack = True 
       #self.temApostaLay = bool(random.getrandbits(1)) # True tem lay
       self.temApostaLay = True
-      self.tipoTrend = random.choice(["Maior", "Menor"]) # Maior ou Menor
-      #self.tipoTrend = "Maior"
-      self.tipoOddBack = random.choice(["Atual", "BSP"]) # Atual ou BSP
-      #self.tipoOddBack = "BSP"
-      self.tipoOddLay = random.choice(["Atual", "BSP"]) # Atual ou BSP
-      #self.tipoOddLay = "Atual"
-      self.tipoStackBack = random.choice(["Fixo", "Proporcional"]) # Fixo ou Proporcional
-      #self.tipoStackBack = "Proporcional"
-      self.tipoStackLay = random.choice(["Fixo", "Proporcional"]) # Fixo ou Proporcional
-      #self.tipoStackLay = "Proporcional"
+      #self.tipoTrend = random.choice(["Maior", "Menor"]) # Maior ou Menor
+      self.tipoTrend = "Maior"
+      #self.tipoOddBack = random.choice(["Atual", "BSP"]) # Atual ou BSP
+      self.tipoOddBack = "Atual"
+      if( self.tipoOddBack == "BSP" ) : self.tipoOddLay = "Atual"
+      else: self.tipoOddLay = random.choice(["Atual", "BSP"]) # Atual ou BSP
+      self.tipoOddLay = "BSP"
+      #self.tipoStackBack = random.choice(["Fixo", "Proporcional"]) # Fixo ou Proporcional
+      self.tipoStackBack = "Proporcional"
+      #self.tipoStackLay = random.choice(["Fixo", "Proporcional"]) # Fixo ou Proporcional
+      self.tipoStackLay = "Fixo"
       self.estrategia = "" # Para categorizacao mesmo
       if( self.temApostaBack ): self.estrategia += "Back"
       if( self.tipoOddBack == "BSP" ): self.estrategia += "BSP"
