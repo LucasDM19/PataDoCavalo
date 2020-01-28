@@ -22,17 +22,19 @@ c.execute(""" SELECT
    WHERE runners.RaceId = races.RaceId
      AND odds.RaceId = races.RaceId
      AND odds.RunnerId = runners.RunnerId
-     and races.RaceId = "1.160357779"
+     and (races.RaceId <> "1.159938420" AND races.RaceId <> "1.160357774" AND races.RaceId <> "1.160357775" AND races.RaceId <> "1.160934216" AND races.RaceId <> "1.162266316" AND races.RaceId <> "1.165629272")
      AND runners.BSP <> -1
      AND runners.WinLose <> -1
    ORDER BY races.RaceId, odds.PublishedTime ASC """)      
 print("Inicio do processamento")   
-mundo = MeioAmbiente(qtd_agentes=0, tipoAgente=AgenteEspeculadorCavalo)   # Crio mundo
-benchmark = AgenteEspeculadorCavalo()
-#benchmark.defineAtributos(nome="BENCH", minutos_back=0, minutos_lay=60  )   # O que tem hoje
-benchmark.defineAtributos(nome="0AWCKP31IA", min=0.0, max=0.29, mins=[88, 74, 60, 46, 32, 18, 4], temBack=True, temLay=True, tipoBack="Atual", tipoLay="BSP" )  # Faz Back e Lay
-#benchmark.defineAtributos(nome="RMNCQLBS2E", odd_back_min=4.16, odd_back_max=6.7, minutos_back=85, odd_lay_max=2.0, odd_lay_min=8.0, minutos_lay=850  )  # Era canto de sereia
-mundo._agentes.append( benchmark )
+mundo = MeioAmbiente(qtd_agentes=50, tipoAgente=AgenteEspeculadorCavalo)   # Crio mundo
+#benchmark = AgenteEspeculadorCavalo()
+benchmark2 = AgenteEspeculadorCavalo()
+#benchmark.defineAtributos(nome="0AWCKP31IA", min=0.0, max=0.29, mins=[88, 74, 60, 46, 32, 18, 4], temBack=True, temLay=True, tipoBack="Atual", tipoLay="BSP", tipoTrend="Maior" )  # Retorno de ~1%
+benchmark2.defineAtributos(nome="FU8YXOUW0T", min=0.0, max=0.29, mins=[44, 39, 34, 29, 24, 19, 14, 9, 4], temBack=True, temLay=True, tipoBack="Atual", tipoLay="BSP", tipoTrend="Maior" ) # Retorno de ~2,7%
+#benchmark.defineAtributos(nome="BIZARRO", min=0.0, max=0.29, mins=[88, 74, 60, 46, 32, 18, 4], temBack=True, temLay=True, tipoBack="BSP", tipoLay="Atual", tipoTrend="Menor" )  # Faz Back e Lay
+#mundo._agentes.append( benchmark )
+mundo._agentes.append( benchmark2 ) 
 while True: 
    row = c.fetchone()
    if row == None: break  # Acabou o sqlite

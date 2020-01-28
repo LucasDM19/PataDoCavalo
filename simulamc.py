@@ -84,10 +84,14 @@ class AgenteEspeculadorCavalo(AgenteApostador):
    def iniciaMindset(self):
       super().iniciaMindset() # Inicio o basico do apostador
       #self.minutos = [m for m in range(120,0,-15)]
-      qtd_intervalo = random.randrange(2, 10) # Quantas amostras serao obtidas para obter trend
+      qtd_intervalo = random.randrange(2, 50) # Quantas amostras serao obtidas para obter trend
       #qtd_intervalo = 10
       tempo_inicial = random.randrange(qtd_intervalo, 150)
-      self.minutos = [m for m in range(tempo_inicial,0,-1*int(tempo_inicial/qtd_intervalo) )]
+      #self.minutos = [m for m in range(tempo_inicial,0,-1*int(tempo_inicial/qtd_intervalo) )]
+      n_min = [ random.randrange(1, 150) for n in range(qtd_intervalo)] # Gera numeros aleatorios
+      n_min_s_rep = list(set(n_min)) # Removo duplicatas
+      n_min_s_rep.sort(reverse=True) # Ordem ascendente - feita sem retorno de nada
+      self.minutos = n_min_s_rep # 
       qtd_intervalo = len(self.minutos)
       #print("Intervalo=", qtd_intervalo, -1*int(120/qtd_intervalo))
       #self.minutos = [120, 107, 94, 81, 68, 55, 42, 29, 16, 3]
@@ -110,9 +114,9 @@ class AgenteEspeculadorCavalo(AgenteApostador):
       self.minimo_trend = 0.0
       #self.maximo_trend = random.uniform(0.0, 0.290)
       self.maximo_trend = 0.290 # Caindo mais do que isso (em modulo), faz aposta
-      self.defineAtributos(nome=self.nome, min=self.minimo_trend, max=self.maximo_trend, mins=self.minutos, temBack=self.temApostaBack, temLay=self.temApostaLay, tipoBack=self.tipoOddBack, tipoLay=self.tipoOddLay )
+      self.defineAtributos(nome=self.nome, min=self.minimo_trend, max=self.maximo_trend, mins=self.minutos, temBack=self.temApostaBack, temLay=self.temApostaLay, tipoBack=self.tipoOddBack, tipoLay=self.tipoOddLay, tipoTrend=self.tipoTrend )
    
-   def defineAtributos(self, nome, min, max, mins, temBack, temLay, tipoBack, tipoLay ):
+   def defineAtributos(self, nome, min, max, mins, temBack, temLay, tipoBack, tipoLay, tipoTrend ):
       self.nome=nome 
       self.minimo_trend=min
       self.maximo_trend = max
@@ -122,6 +126,7 @@ class AgenteEspeculadorCavalo(AgenteApostador):
       self.temApostaLay = temLay
       self.tipoOddLay = tipoLay
       self.tipoOddBack = tipoBack
+      self.tipoTrend = tipoTrend
       
       self.estrategia = "" # Para categorizacao mesmo
       if( self.temApostaBack ): self.estrategia += "Back"
@@ -169,7 +174,7 @@ class AgenteEspeculadorCavalo(AgenteApostador):
       if( pl_back > 0 ): 
          pl_back = pl_back*(1-comissao)
       self.somaStack += stack_back
-      #print("Aposta back ", stack_back ," na odd ", odd_back , " teve PL=", round(pl_back,2) )
+      #print("Aposta back ", stack_back ," na odd ", odd_back , " teve PL=", round(pl_back,2), " e WL=", wl_back )
       return pl_back
       
    # Faz apenas Lay
@@ -181,7 +186,7 @@ class AgenteEspeculadorCavalo(AgenteApostador):
       if( pl_lay > 0 ): 
          pl_lay = pl_lay*(1-comissao)
       self.somaStack += stack_lay
-      #print("Aposta lay ", stack_lay ," na odd ", odd_lay , " teve PL=", round(pl_lay,2) )
+      #print("Aposta lay ", stack_lay ," na odd ", odd_lay , " teve PL=", round(pl_lay,2), " e WL=", wl_lay )
       return pl_lay
       
    def decide(self, lista_corridas_ordenado, minuto, winLose, lista_bsp, race_id=0 ):
@@ -204,14 +209,12 @@ class AgenteEspeculadorCavalo(AgenteApostador):
                #for x in self.todos_trend: print("Trend=",x, self.trend[x])
                for vlox in self.valores_odds["X1"]: media_trend[vlox] = sum( [self.trend[x][vlox] for x in self.todos_trend  ] ) / (len(self.todos_trend)) # Tiro media de cada trend
                #for m in media_trend: print("Media Trend de ", m,"=", round(media_trend[m],4) ) # Exibo cada media
-               #print([self.trend[x][vlox] for x in self.todos_trend for vlox in self.valores_odds_X1  ])
+               #print([self.trend[x][vlox] for x in self.todos_trend for vlox in self.valores_odds["X1"]  ])
                if( len([media_trend[n] for n in media_trend]) == 0 ): return False # Sem aposta
                maior_valor_trend = max([media_trend[n] for n in media_trend])
                menor_valor_trend = min([media_trend[n] for n in media_trend])
                nome_maior_trend = [m for m in media_trend if media_trend[m] == maior_valor_trend ][0]
                nome_menor_trend = [m for m in media_trend if media_trend[m] == menor_valor_trend ][0]
-               #if( maior_valor_trend > self.maximo ): self.maximo = maior_valor_trend
-               
                #print("Maior=", nome_maior_trend, " e menor=", nome_menor_trend )
                
                if( self.jaApostei == False ):
