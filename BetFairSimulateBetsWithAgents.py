@@ -22,6 +22,7 @@ c.execute(""" SELECT
    WHERE runners.RaceId = races.RaceId
      AND odds.RaceId = races.RaceId
      AND odds.RunnerId = runners.RunnerId
+     and races.RaceId <> "1.160357779"
      AND runners.BSP <> -1
      AND runners.WinLose <> -1
    ORDER BY races.RaceId, odds.PublishedTime ASC """)      
