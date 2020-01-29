@@ -94,7 +94,7 @@ class AgenteEspeculadorCavalo(AgenteApostador):
       self.minutos = n_min_s_rep # 
       qtd_intervalo = len(self.minutos)
       #print("Intervalo=", qtd_intervalo, -1*int(120/qtd_intervalo))
-      #self.minutos = [120, 107, 94, 81, 68, 55, 42, 29, 16, 3]
+      #self.minutos = [44, 39, 34, 29, 24, 19, 14, 9, 4]
       #self.temApostaBack = bool(random.getrandbits(1)) # True tem back
       self.temApostaBack = True 
       #self.temApostaLay = bool(random.getrandbits(1)) # True tem lay
@@ -110,10 +110,10 @@ class AgenteEspeculadorCavalo(AgenteApostador):
       self.tipoStackBack = "Proporcional"
       #self.tipoStackLay = random.choice(["Fixo", "Proporcional"]) # Fixo ou Proporcional
       self.tipoStackLay = "Fixo"
-      #self.minimo_trend = random.uniform(0.0, 0.290) # Caindo mais do que isso (em modulo), faz aposta
-      self.minimo_trend = 0.0
-      #self.maximo_trend = random.uniform(0.0, 0.290)
-      self.maximo_trend = 0.290 # Caindo mais do que isso (em modulo), faz aposta
+      self.minimo_trend = random.uniform(0.0, 0.290) # Caindo mais do que isso (em modulo), faz aposta
+      #self.minimo_trend = 0.0
+      self.maximo_trend = random.uniform(self.minimo_trend, 0.290)
+      #self.maximo_trend = 0.290 # Caindo mais do que isso (em modulo), faz aposta
       self.defineAtributos(nome=self.nome, min=self.minimo_trend, max=self.maximo_trend, mins=self.minutos, temBack=self.temApostaBack, temLay=self.temApostaLay, tipoBack=self.tipoOddBack, tipoLay=self.tipoOddLay, tipoTrend=self.tipoTrend )
    
    def defineAtributos(self, nome, min, max, mins, temBack, temLay, tipoBack, tipoLay, tipoTrend ):

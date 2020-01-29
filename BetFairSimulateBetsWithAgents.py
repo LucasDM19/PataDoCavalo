@@ -30,9 +30,9 @@ print("Inicio do processamento")
 mundo = MeioAmbiente(qtd_agentes=50, tipoAgente=AgenteEspeculadorCavalo)   # Crio mundo
 #benchmark = AgenteEspeculadorCavalo()
 benchmark2 = AgenteEspeculadorCavalo()
-#benchmark.defineAtributos(nome="0AWCKP31IA", min=0.0, max=0.29, mins=[88, 74, 60, 46, 32, 18, 4], temBack=True, temLay=True, tipoBack="Atual", tipoLay="BSP", tipoTrend="Maior" )  # Retorno de ~1%
+#benchmark.defineAtributos(nome="0AWCKP31IA", min=0.0, max=0.29, mins=[88, 74, 60, 46, 32, 18, 4], temBack=True, temLay=True, tipoBack="Atual", tipoLay="BSP", tipoTrend="Maior" )  # Retorno de ~1,1%
 benchmark2.defineAtributos(nome="FU8YXOUW0T", min=0.0, max=0.29, mins=[44, 39, 34, 29, 24, 19, 14, 9, 4], temBack=True, temLay=True, tipoBack="Atual", tipoLay="BSP", tipoTrend="Maior" ) # Retorno de ~2,7%
-#benchmark.defineAtributos(nome="BIZARRO", min=0.0, max=0.29, mins=[88, 74, 60, 46, 32, 18, 4], temBack=True, temLay=True, tipoBack="BSP", tipoLay="Atual", tipoTrend="Menor" )  # Faz Back e Lay
+#benchmark2.defineAtributos(nome="0AWCKP31IA", min=0.0, max=0.29, mins=[88, 74, 60, 46, 32, 18, 4], temBack=True, temLay=True, tipoBack="Atual", tipoLay="BSP", tipoTrend="Maior" )  # Tira teima
 #mundo._agentes.append( benchmark )
 mundo._agentes.append( benchmark2 ) 
 while True: 
