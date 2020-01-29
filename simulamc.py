@@ -84,12 +84,12 @@ class AgenteEspeculadorCavalo(AgenteApostador):
    def iniciaMindset(self):
       super().iniciaMindset() # Inicio o basico do apostador
       #stackBack = random.choice(["Fixo", "Proporcional"]) # Fixo ou Proporcional
-      stackBack = "Proporcional"
+      ndvqdsdb = "Proporcional"
       #stackLay = random.choice(["Fixo", "Proporcional"]) # Fixo ou Proporcional
-      stackLay = "Fixo"
-      self.defineAtributos(nome=self.nome, stackBack=stackBack , stackLay=stackLay )
+      ndvqdsdl = "Fixo"
+      self.defineAtributos(nome=self.nome, stkb=ndvqdsdb , stkl=ndvqdsdl )
    
-   def defineAtributos(self, nome, min=None, max=None, mins=None, temBack=None, temLay=None, tipoBack=None, tipoLay=None, tipoTrend=None, stackBack=None, stackLay=None ):
+   def defineAtributos(self, nome, min=None, max=None, mins=None, temBack=None, temLay=None, tipoBack=None, tipoLay=None, tipoTrend=None, stkb=None, stkl=None ):
       self.nome=nome 
       if( min is None ): self.minimo_trend = random.uniform(0.0, 0.290)
       else: self.minimo_trend=min
@@ -117,11 +117,11 @@ class AgenteEspeculadorCavalo(AgenteApostador):
          if( self.tipoOddBack == "BSP" ) : self.tipoOddLay = "Atual"
          else: self.tipoOddLay = random.choice(["Atual", "BSP"]) # Atual ou BSP
       else: self.tipoOddLay = tipoLay
-      print("SB=", stackBack, nome)
-      if( stackBack is None ): self.tipoStackBack = random.choice(["Fixo", "Proporcional"]) # Fixo ou Proporcional
-      self.tipoStackBack = stackBack
-      if( stackLay is None ): self.tipoStackLay = random.choice(["Fixo", "Proporcional"]) # Fixo ou Proporcional
-      self.tipoStackLay = stackLay
+      if( stkb is None ): self.tipoStackBack = random.choice(["Fixo", "Proporcional"]) # Fixo ou Proporcional
+      self.tipoStackBack = stkb
+      #print("SB=", self.tipoStackBack)
+      if( stkl is None ): self.tipoStackLay = random.choice(["Fixo", "Proporcional"]) # Fixo ou Proporcional
+      self.tipoStackLay = stkl
       if( tipoTrend is None ): self.tipoTrend = random.choice(["Maior", "Menor"]) # Maior ou Menor
       else: self.tipoTrend = tipoTrend
       
