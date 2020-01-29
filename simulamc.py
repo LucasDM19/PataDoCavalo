@@ -83,50 +83,47 @@ class AgenteApostador():
 class AgenteEspeculadorCavalo(AgenteApostador):
    def iniciaMindset(self):
       super().iniciaMindset() # Inicio o basico do apostador
-      #self.minutos = [m for m in range(120,0,-15)]
-      qtd_intervalo = random.randrange(2, 50) # Quantas amostras serao obtidas para obter trend
-      #qtd_intervalo = 10
-      tempo_inicial = random.randrange(qtd_intervalo, 150)
-      #self.minutos = [m for m in range(tempo_inicial,0,-1*int(tempo_inicial/qtd_intervalo) )]
-      n_min = [ random.randrange(1, 150) for n in range(qtd_intervalo)] # Gera numeros aleatorios
-      n_min_s_rep = list(set(n_min)) # Removo duplicatas
-      n_min_s_rep.sort(reverse=True) # Ordem ascendente - feita sem retorno de nada
-      self.minutos = n_min_s_rep # 
-      qtd_intervalo = len(self.minutos)
-      #print("Intervalo=", qtd_intervalo, -1*int(120/qtd_intervalo))
-      #self.minutos = [44, 39, 34, 29, 24, 19, 14, 9, 4]
-      #self.temApostaBack = bool(random.getrandbits(1)) # True tem back
-      self.temApostaBack = True 
-      #self.temApostaLay = bool(random.getrandbits(1)) # True tem lay
-      self.temApostaLay = True
-      #self.tipoTrend = random.choice(["Maior", "Menor"]) # Maior ou Menor
-      self.tipoTrend = "Maior"
-      #self.tipoOddBack = random.choice(["Atual", "BSP"]) # Atual ou BSP
-      self.tipoOddBack = "Atual"
-      if( self.tipoOddBack == "BSP" ) : self.tipoOddLay = "Atual"
-      else: self.tipoOddLay = random.choice(["Atual", "BSP"]) # Atual ou BSP
-      self.tipoOddLay = "BSP"
-      #self.tipoStackBack = random.choice(["Fixo", "Proporcional"]) # Fixo ou Proporcional
-      self.tipoStackBack = "Proporcional"
-      #self.tipoStackLay = random.choice(["Fixo", "Proporcional"]) # Fixo ou Proporcional
-      self.tipoStackLay = "Fixo"
-      self.minimo_trend = random.uniform(0.0, 0.290) # Caindo mais do que isso (em modulo), faz aposta
-      #self.minimo_trend = 0.0
-      self.maximo_trend = random.uniform(self.minimo_trend, 0.290)
-      #self.maximo_trend = 0.290 # Caindo mais do que isso (em modulo), faz aposta
-      self.defineAtributos(nome=self.nome, min=self.minimo_trend, max=self.maximo_trend, mins=self.minutos, temBack=self.temApostaBack, temLay=self.temApostaLay, tipoBack=self.tipoOddBack, tipoLay=self.tipoOddLay, tipoTrend=self.tipoTrend )
+      #stackBack = random.choice(["Fixo", "Proporcional"]) # Fixo ou Proporcional
+      stackBack = "Proporcional"
+      #stackLay = random.choice(["Fixo", "Proporcional"]) # Fixo ou Proporcional
+      stackLay = "Fixo"
+      self.defineAtributos(nome=self.nome, stackBack=stackBack , stackLay=stackLay )
    
-   def defineAtributos(self, nome, min, max, mins, temBack, temLay, tipoBack, tipoLay, tipoTrend ):
+   def defineAtributos(self, nome, min=None, max=None, mins=None, temBack=None, temLay=None, tipoBack=None, tipoLay=None, tipoTrend=None, stackBack=None, stackLay=None ):
       self.nome=nome 
-      self.minimo_trend=min
-      self.maximo_trend = max
-      self.minutos=mins 
-      qtd_intervalo = len(self.minutos)
-      self.temApostaBack = temBack
-      self.temApostaLay = temLay
-      self.tipoOddLay = tipoLay
-      self.tipoOddBack = tipoBack
-      self.tipoTrend = tipoTrend
+      if( min is None ): self.minimo_trend = random.uniform(0.0, 0.290)
+      else: self.minimo_trend=min
+      if( max is None ): self.maximo_trend = random.uniform(self.minimo_trend, 0.290)
+      else: self.maximo_trend = max
+      if( mins is None ): 
+         qtd_intervalo = random.randrange(2, 50) # Quantas amostras serao obtidas para obter trend
+         tempo_inicial = random.randrange(qtd_intervalo, 150)
+         #self.minutos = [m for m in range(tempo_inicial,0,-1*int(tempo_inicial/qtd_intervalo) )]
+         n_min = [ random.randrange(1, 150) for n in range(qtd_intervalo)] # Gera numeros aleatorios
+         n_min_s_rep = list(set(n_min)) # Removo duplicatas
+         n_min_s_rep.sort(reverse=True) # Ordem ascendente - feita sem retorno de nada
+         self.minutos = n_min_s_rep #
+         qtd_intervalo = len(self.minutos)
+      else: 
+         self.minutos=mins 
+         qtd_intervalo = len(self.minutos)
+      if( temBack is None ): self.temApostaBack = bool(random.getrandbits(1)) # True tem back
+      else: self.temApostaBack = temBack
+      if( temLay is None ): self.temApostaLay = bool(random.getrandbits(1)) # True tem lay
+      else: self.temApostaLay = temLay
+      if( tipoBack is None ): self.tipoOddBack = random.choice(["Atual", "BSP"]) # Atual ou BSP
+      else: self.tipoOddBack = tipoBack
+      if( tipoLay is None ):
+         if( self.tipoOddBack == "BSP" ) : self.tipoOddLay = "Atual"
+         else: self.tipoOddLay = random.choice(["Atual", "BSP"]) # Atual ou BSP
+      else: self.tipoOddLay = tipoLay
+      print("SB=", stackBack, nome)
+      if( stackBack is None ): self.tipoStackBack = random.choice(["Fixo", "Proporcional"]) # Fixo ou Proporcional
+      self.tipoStackBack = stackBack
+      if( stackLay is None ): self.tipoStackLay = random.choice(["Fixo", "Proporcional"]) # Fixo ou Proporcional
+      self.tipoStackLay = stackLay
+      if( tipoTrend is None ): self.tipoTrend = random.choice(["Maior", "Menor"]) # Maior ou Menor
+      else: self.tipoTrend = tipoTrend
       
       self.estrategia = "" # Para categorizacao mesmo
       if( self.temApostaBack ): self.estrategia += "Back"
