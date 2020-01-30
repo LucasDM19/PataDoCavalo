@@ -87,7 +87,8 @@ class AgenteEspeculadorCavalo(AgenteApostador):
       ndvqdsdb = "Proporcional"
       #stackLay = random.choice(["Fixo", "Proporcional"]) # Fixo ou Proporcional
       ndvqdsdl = "Fixo"
-      self.defineAtributos(nome=self.nome, stkb=ndvqdsdb , stkl=ndvqdsdl )
+      #self.defineAtributos(nome=self.nome, stkb=ndvqdsdb , stkl=ndvqdsdl )
+      self.defineAtributos(nome=self.nome, stkb=ndvqdsdb , stkl=ndvqdsdl, min=0.00, max=0.290, temBack=True, temLay=True, tipoBack="Atual", tipoLay="BSP", tipoTrend="Maior" )
    
    def defineAtributos(self, nome, min=None, max=None, mins=None, temBack=None, temLay=None, tipoBack=None, tipoLay=None, tipoTrend=None, stkb=None, stkl=None ):
       self.nome=nome 
@@ -97,12 +98,11 @@ class AgenteEspeculadorCavalo(AgenteApostador):
       else: self.maximo_trend = max
       if( mins is None ): 
          qtd_intervalo = random.randrange(2, 50) # Quantas amostras serao obtidas para obter trend
-         tempo_inicial = random.randrange(qtd_intervalo, 150)
-         #self.minutos = [m for m in range(tempo_inicial,0,-1*int(tempo_inicial/qtd_intervalo) )]
          n_min = [ random.randrange(1, 150) for n in range(qtd_intervalo)] # Gera numeros aleatorios
          n_min_s_rep = list(set(n_min)) # Removo duplicatas
          n_min_s_rep.sort(reverse=True) # Ordem ascendente - feita sem retorno de nada
          self.minutos = n_min_s_rep #
+         self.minutos = [random.randrange(2, 150), 1] # Testando
          qtd_intervalo = len(self.minutos)
       else: 
          self.minutos=mins 

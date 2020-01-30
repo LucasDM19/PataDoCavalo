@@ -27,7 +27,7 @@ c.execute(""" SELECT
      AND runners.WinLose <> -1
    ORDER BY races.RaceId, odds.PublishedTime ASC """)      
 print("Inicio do processamento")   
-mundo = MeioAmbiente(qtd_agentes=50, tipoAgente=AgenteEspeculadorCavalo)   # Crio mundo
+mundo = MeioAmbiente(qtd_agentes=150, tipoAgente=AgenteEspeculadorCavalo)   # Crio mundo
 #benchmark = AgenteEspeculadorCavalo()
 benchmark2 = AgenteEspeculadorCavalo()
 #benchmark.defineAtributos(nome="0AWCKP31IA", min=0.0, max=0.29, mins=[88, 74, 60, 46, 32, 18, 4], temBack=True, temLay=True, tipoBack="Atual", tipoLay="BSP", tipoTrend="Maior" )  # Retorno de ~1,1%
