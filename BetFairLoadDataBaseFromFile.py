@@ -6,7 +6,7 @@ import json
 from shutil import copyfile
 import sqlite3
 
-conn = sqlite3.connect('bf_gb_win_teste.db')
+conn = sqlite3.connect('bf_gb_win_full.db')
 c = conn.cursor()
 
 c.execute('create table if not exists odds (RunnerId, RaceId, LastTradedPrice, PublishedTime)')
@@ -92,4 +92,8 @@ c.execute("DROP INDEX IF EXISTS idx_odds_RaceId")
 c.execute("CREATE INDEX idx_odds_RaceId ON odds ( RaceId ASC )")
 c.execute("DROP INDEX IF EXISTS idx_odds_RunnerId")
 c.execute("CREATE INDEX idx_odds_RunnerId ON odds ( RunnerId )")
+conn.commit() # Agora sim grava tudo
+
+# E ainda faz aquela limpeza geral
+c.execute("VACUUM")
 conn.commit() # Agora sim grava tudo
