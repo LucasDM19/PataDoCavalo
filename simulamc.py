@@ -88,7 +88,7 @@ class AgenteEspeculadorCavalo(AgenteApostador):
       #stackLay = random.choice(["Fixo", "Proporcional"]) # Fixo ou Proporcional
       ndvqdsdl = "Fixo"
       #self.defineAtributos(nome=self.nome, stkb=ndvqdsdb , stkl=ndvqdsdl )
-      self.defineAtributos(nome=self.nome, stkb=ndvqdsdb , stkl=ndvqdsdl, min=0.00, max=0.290, temBack=True, temLay=True, tipoBack="Atual", tipoLay="BSP", tipoTrend="Maior" )
+      self.defineAtributos(nome=self.nome, stkb=ndvqdsdb , stkl=ndvqdsdl, min=0.00, max=9.290, temBack=True, temLay=True, tipoBack="Atual", tipoLay="BSP", tipoTrend="Maior" )
    
    def defineAtributos(self, nome, min=None, max=None, mins=None, temBack=None, temLay=None, tipoBack=None, tipoLay=None, tipoTrend=None, stkb=None, stkl=None ):
       self.nome=nome 
@@ -156,14 +156,18 @@ class AgenteEspeculadorCavalo(AgenteApostador):
    
    # Back e lay simples
    def fazApostaBackLay(self, odd_back, stack_back, wl_back, odd_lay, stack_lay, wl_lay, comissao = 0.065 ):
+      if( stack_lay < 2 ): return 0 # Sem condicao
+      if( stack_back < 2 ): return 0 # Sem condicao
       pl_back = self.fazApostaBack(odd_back, stack_back, wl_back)
       pl_lay = self.fazApostaLay(odd_lay, stack_lay, wl_lay)
       pl = pl_back + pl_lay
-      #print("Pl back=", pl_back, " e PL lay=", pl_lay)
+      #print("1/2 Aposta back ", stack_back ," na odd ", odd_back , " teve PL=", round(pl_back,2), " e WL=", wl_back )
+      #print("2/2 Aposta lay ", stack_lay ," na odd ", odd_lay , " teve PL=", round(pl_lay,2), " e WL=", wl_lay )
       return pl
       
    # Faz apenas Back
    def fazApostaBack(self, odd_back, stack_back, wl_back, comissao = 0.065):
+      if( stack_back < 2 ): return 0 # Sem condicao
       if( wl_back == 0 ): 
          pl_back = (-1*stack_back) 
       else: 
@@ -176,6 +180,7 @@ class AgenteEspeculadorCavalo(AgenteApostador):
       
    # Faz apenas Lay
    def fazApostaLay(self, odd_lay, stack_lay, wl_lay, comissao = 0.065):
+      if( stack_lay < 2 ): return 0 # Sem condicao
       if( wl_lay == 0 ): 
          pl_lay = (+1*stack_lay)
       else: 
@@ -228,16 +233,21 @@ class AgenteEspeculadorCavalo(AgenteApostador):
                         if( self.tipoStackBack == "Fixo" ): stack_back = 20.0
                         if( self.tipoStackBack == "Proporcional" ): stack_back = round(20.0/(odd_back-1),2)
                         wl_back = winLose[nome_trend]
-                        pl_back = self.fazApostaBack(odd_back, stack_back, wl_back)
-                        self.patrimonio += pl_back
+                        if( self.temApostaLay == False ): # Somente Back, sem Lay
+                           pl_back = self.fazApostaBack(odd_back, stack_back, wl_back)
+                           self.patrimonio += pl_back
                      if( self.temApostaLay ): # Devo fazer lay
                         if( self.tipoOddLay == "Atual" ): odd_lay = lista_corridas_ordenado[nome_trend] 
                         if( self.tipoOddLay == "BSP" ): odd_lay = lista_bsp[nome_trend]
                         if( self.tipoStackLay == "Fixo" ): stack_lay = 20.0
                         if( self.tipoStackLay == "Proporcional" ): stack_lay = round(20.0/(odd_lay-1),2)
                         wl_lay = winLose[nome_trend]
-                        pl_lay = self.fazApostaLay(odd_lay, stack_lay, wl_lay)
-                        self.patrimonio += pl_lay
+                        if( self.temApostaBack == False ): # Somente LAy, sem Back
+                           pl_lay = self.fazApostaLay(odd_lay, stack_lay, wl_lay)
+                           self.patrimonio += pl_lay
+                     if( self.temApostaBack and self.temApostaLay ): # Os dois ao mesmo tempo
+                        pl_bl = self.fazApostaBackLay(odd_back, stack_back, wl_back, odd_lay, stack_lay, wl_lay)
+                        self.patrimonio += pl_bl
                      #x = 18/0 
                      self.idade += 1   # Envelhece
                      self.jaApostei = True 
