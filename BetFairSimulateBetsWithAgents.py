@@ -11,10 +11,10 @@ def insereAgenteBenchmark(mundo, nome, min, max, mins, temBack, temLay, tipoBack
    mundo._agentes.append( benchmark )
    
 def processaCorrida(qtd_corrdas = 5000):
-   mundo = MeioAmbiente(qtd_agentes=0, tipoAgente=AgenteEspeculadorCavalo)   # Crio mundo 
-   insereAgenteBenchmark(mundo, nome="FU8YXOUW0T", min=0.0, max=9.29, mins=[44, 39, 34, 29, 24, 19, 14, 9, 4], temBack=True, temLay=True, tipoBack="Atual", tipoLay="BSP", tipoTrend="Maior", stkb = "Proporcional", stkl = "Fixo" ) # Retorno de ~2,7%
-   insereAgenteBenchmark(mundo, nome="4ZD0KLPHQ5", min=0.0, max=9.29, mins=[148, 1], temBack=True, temLay=True, tipoBack="Atual", tipoLay="BSP", tipoTrend="Maior", stkb = "Proporcional", stkl = "Fixo" )  # Retorno de ~16,3%   
-   insereAgenteBenchmark(mundo, nome="BZPESS60Z7", min=0.0, max=9.29, mins=[9, 1], temBack=True, temLay=True, tipoBack="Atual", tipoLay="BSP", tipoTrend="Maior", stkb = "Proporcional", stkl = "Fixo") # Retorno de ~23,8%
+   mundo = MeioAmbiente(qtd_agentes=50, tipoAgente=AgenteEspeculadorCavalo)   # Crio mundo 
+   insereAgenteBenchmark(mundo, nome="OWTUIE1A9I", min=0.0, max=9.29, mins=[138, 136, 135, 113, 90, 87, 43], temBack=True, temLay=True, tipoBack="Atual", tipoLay="BSP", tipoTrend="Maior", stkb = "Proporcional", stkl = "Fixo" ) # Retorno de ~5,5%
+   insereAgenteBenchmark(mundo, nome="2UKBVXTDW0", min=0.0, max=9.29, mins=[149, 146, 142, 141, 140, 137, 135, 126, 123, 117, 113, 107, 105, 102, 97, 93, 88, 81, 76, 73, 70, 67, 65, 64, 63, 60, 58, 57, 56, 54, 51, 41, 36, 35, 26, 22, 17, 16, 15, 11, 10, 8], temBack=True, temLay=True, tipoBack="Atual", tipoLay="BSP", tipoTrend="Maior", stkb = "Proporcional", stkl = "Fixo" )  # Retorno de ~3,6%   
+   insereAgenteBenchmark(mundo, nome="9TKVH925L4", min=0.0, max=9.29, mins=[149, 147, 146, 137, 132, 130, 117, 108, 106, 105, 104, 97, 95, 94, 91, 88, 86, 80, 75, 68, 66, 63, 55, 54, 47, 44, 32, 26, 24, 22, 14, 10, 8], temBack=True, temLay=True, tipoBack="Atual", tipoLay="BSP", tipoTrend="Maior", stkb = "Proporcional", stkl = "Fixo") # Retorno de ~23,8%
    conn = sqlite3.connect('bf_gb_win_full.db')
    c_corrida = conn.cursor()
    c_corrida.execute(""" SELECT * FROM races ORDER BY RANDOM() LIMIT ?; """, (qtd_corrdas,) )

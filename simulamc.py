@@ -83,12 +83,12 @@ class AgenteApostador():
 class AgenteEspeculadorCavalo(AgenteApostador):
    def iniciaMindset(self):
       super().iniciaMindset() # Inicio o basico do apostador
-      #stackBack = random.choice(["Fixo", "Proporcional"]) # Fixo ou Proporcional
-      ndvqdsdb = "Proporcional"
-      #stackLay = random.choice(["Fixo", "Proporcional"]) # Fixo ou Proporcional
-      ndvqdsdl = "Fixo"
+      stackBack = random.choice(["Fixo", "Proporcional"]) # Fixo ou Proporcional
+      #ndvqdsdb = "Proporcional"
+      stackLay = random.choice(["Fixo", "Proporcional"]) # Fixo ou Proporcional
+      #ndvqdsdl = "Fixo"
       #self.defineAtributos(nome=self.nome, stkb=ndvqdsdb , stkl=ndvqdsdl )
-      self.defineAtributos(nome=self.nome, stkb=ndvqdsdb , stkl=ndvqdsdl, min=0.00, max=9.290, temBack=True, temLay=True, tipoBack="Atual", tipoLay="BSP", tipoTrend="Maior" )
+      self.defineAtributos(nome=self.nome, stkb=stackBack , stkl=stackLay, min=0.00, max=9.290, temBack=True, temLay=False, tipoBack="Atual", tipoLay="Atual", tipoTrend="Maior" )
    
    def defineAtributos(self, nome, min=None, max=None, mins=None, temBack=None, temLay=None, tipoBack=None, tipoLay=None, tipoTrend=None, stkb=None, stkl=None ):
       self.nome=nome 
@@ -102,7 +102,7 @@ class AgenteEspeculadorCavalo(AgenteApostador):
          n_min_s_rep = list(set(n_min)) # Removo duplicatas
          n_min_s_rep.sort(reverse=True) # Ordem ascendente - feita sem retorno de nada
          self.minutos = n_min_s_rep #
-         self.minutos = [random.randrange(2, 150), 1] # Testando
+         #self.minutos = [random.randrange(2, 150), 1] # Testando
          qtd_intervalo = len(self.minutos)
       else: 
          self.minutos=mins 
