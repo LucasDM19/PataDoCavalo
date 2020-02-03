@@ -5,6 +5,7 @@ import time
 import operator
 from simulamc import MeioAmbiente, AgenteApostadorCavalo, AgenteEspeculadorCavalo, MeioAmbienteNeural, AgenteNEAT
 import neat # pip install neat-python
+import os
 
 def processaOddsMundo(race_id, nets, agentes, ge):
    lista_corridas = {} # Cada corrida tem uma lista de cavalos
@@ -62,13 +63,16 @@ def processaOddsMundo(race_id, nets, agentes, ge):
       #print("Fita normal, ant=", odd_anterior, ", atu=", lista_corridas[race_id])
       #mundo.recebeAtualizacao(odd=lista_corridas[race_id], minuto=qtd_min, winLose=lista_wl[race_id], bsp=lista_bsp[race_id], race_id=race_id)
       
+      print("X=", lista_corridas[race_id] )
+      y = 20/0
+      
       for x, agente in enumerate(agentes):
          ge[x].fitness += 1 # Por estar vivo
          #agente.move()
          output = nets[agentes.index(agente)].activate((lista_corridas[race_id], qtd_min))
          
          if output[0] > 0.5:
-            agente.apostaBack()
+            agente.apostaBack(odd_back=2.0, stack_back=20.0, wl_back=0)
       
       tempo_anterior = qtd_min
       odd_anterior = copy.deepcopy(lista_corridas[race_id])

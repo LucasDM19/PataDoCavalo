@@ -5,7 +5,7 @@ import copy
 import neat # pip install neat-python
 
 # Mundo que utiliza rede neural NEAT
-class MeioAmbienteNeural(config_file):
+class MeioAmbienteNeural():
    def __init__(self, config_file):
       self.config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction,
                neat.DefaultSpeciesSet, neat.DefaultStagnation,
@@ -83,10 +83,6 @@ class MeioAmbiente():
          lista_agentes = [agente for agente in lista_agentes if agente.lucro_medio != melhor_retorno]
       return desc
 
-# Classe que utiliza rede neural
-class AgenteNEAT():
-   pass
-
 # Classe mais abstrata. Tudo o que envolve envolver apostas com stack e retornos
 class AgenteApostador():
    def __init__(self):
@@ -102,6 +98,23 @@ class AgenteApostador():
    def estouVivo(self):
       if( self.patrimonio <= 0 ): return False
       return True
+      
+   # Faz apenas Back
+   def fazApostaBack(self, odd_back, stack_back, wl_back, comissao = 0.065):
+      if( stack_back < 2 ): return 0 # Sem condicao
+      if( wl_back == 0 ): 
+         pl_back = (-1*stack_back) 
+      else: 
+         pl_back = stack_back*(odd_back)-stack_back
+      if( pl_back > 0 ): 
+         pl_back = pl_back*(1-comissao)
+      self.somaStack += stack_back
+      #print("Aposta back ", stack_back ," na odd ", odd_back , " teve PL=", round(pl_back,2), " e WL=", wl_back )
+      return pl_back
+
+# Classe que utiliza rede neural
+class AgenteNEAT(AgenteApostador):
+   pass
 
 # Agente para apostas que envolvem tendencias de odds. Nao apenas para o favorito.
 class AgenteEspeculadorCavalo(AgenteApostador):
@@ -189,18 +202,7 @@ class AgenteEspeculadorCavalo(AgenteApostador):
       #print("2/2 Aposta lay ", stack_lay ," na odd ", odd_lay , " teve PL=", round(pl_lay,2), " e WL=", wl_lay )
       return pl
       
-   # Faz apenas Back
-   def fazApostaBack(self, odd_back, stack_back, wl_back, comissao = 0.065):
-      if( stack_back < 2 ): return 0 # Sem condicao
-      if( wl_back == 0 ): 
-         pl_back = (-1*stack_back) 
-      else: 
-         pl_back = stack_back*(odd_back)-stack_back
-      if( pl_back > 0 ): 
-         pl_back = pl_back*(1-comissao)
-      self.somaStack += stack_back
-      #print("Aposta back ", stack_back ," na odd ", odd_back , " teve PL=", round(pl_back,2), " e WL=", wl_back )
-      return pl_back
+
       
    # Faz apenas Lay
    def fazApostaLay(self, odd_lay, stack_lay, wl_lay, comissao = 0.065):
