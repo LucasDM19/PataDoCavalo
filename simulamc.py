@@ -2,7 +2,27 @@ import random, string
 from math import log10 as log
 import operator
 import copy
+import neat # pip install neat-python
 
+# Mundo que utiliza rede neural NEAT
+class MeioAmbienteNeural(config_file):
+   def __init__(self, config_file):
+      self.config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction,
+               neat.DefaultSpeciesSet, neat.DefaultStagnation,
+               config_file)
+   
+   # Cria a populacao
+   def criaPopulacao(self):
+      self.p = neat.Population(self.config)
+   
+   # Cria um Reporter StdOut
+   def criaReporterStdOut(self):
+      self.p.add_reporter(neat.StdOutReporter(True))
+      self.stats = neat.StatisticsReporter()
+      self.p.add_reporter(self.stats)
+      #self.p.add_reporter(neat.Checkpointer(5))
+
+# Mundo basico para agentes com variacoes de atributos
 class MeioAmbiente():
    def __init__(self, tipoAgente, qtd_agentes=1000):
       #print("No terceiro dia, surge!")
@@ -62,6 +82,10 @@ class MeioAmbiente():
          desc += melhorAgente + "#"
          lista_agentes = [agente for agente in lista_agentes if agente.lucro_medio != melhor_retorno]
       return desc
+
+# Classe que utiliza rede neural
+class AgenteNEAT():
+   pass
 
 # Classe mais abstrata. Tudo o que envolve envolver apostas com stack e retornos
 class AgenteApostador():

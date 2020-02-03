@@ -3,31 +3,10 @@ import copy
 from datetime import datetime, timedelta
 import time
 import operator
-from simulamc import MeioAmbiente, AgenteApostadorCavalo, AgenteEspeculadorCavalo
+from simulamc import MeioAmbiente, AgenteApostadorCavalo, AgenteEspeculadorCavalo, MeioAmbienteNeural, AgenteNEAT
+import neat # pip install neat-python
 
-def insereAgenteBenchmark(mundo, nome, min, max, mins, temBack, temLay, tipoBack, tipoLay, tipoTrend, stkb, stkl):
-   benchmark = AgenteEspeculadorCavalo()
-   benchmark.defineAtributos(nome=nome, min=min, max=max, mins=mins, temBack=temBack, temLay=temLay, tipoBack=tipoBack, tipoLay=tipoLay, tipoTrend=tipoTrend, stkb=stkb, stkl=stkl)
-   mundo._agentes.append( benchmark )
-   
-def processaCorrida(qtd_corrdas = 5000):
-   mundo = MeioAmbiente(qtd_agentes=50, tipoAgente=AgenteEspeculadorCavalo)   # Crio mundo 
-   insereAgenteBenchmark(mundo, nome="OWTUIE1A9I", min=0.0, max=9.29, mins=[138, 136, 135, 113, 90, 87, 43], temBack=True, temLay=True, tipoBack="Atual", tipoLay="BSP", tipoTrend="Maior", stkb = "Proporcional", stkl = "Fixo" ) # Retorno de ~5,5%
-   insereAgenteBenchmark(mundo, nome="2UKBVXTDW0", min=0.0, max=9.29, mins=[149, 146, 142, 141, 140, 137, 135, 126, 123, 117, 113, 107, 105, 102, 97, 93, 88, 81, 76, 73, 70, 67, 65, 64, 63, 60, 58, 57, 56, 54, 51, 41, 36, 35, 26, 22, 17, 16, 15, 11, 10, 8], temBack=True, temLay=True, tipoBack="Atual", tipoLay="BSP", tipoTrend="Maior", stkb = "Proporcional", stkl = "Fixo" )  # Retorno de ~3,6%   
-   insereAgenteBenchmark(mundo, nome="9TKVH925L4", min=0.0, max=9.29, mins=[149, 147, 146, 137, 132, 130, 117, 108, 106, 105, 104, 97, 95, 94, 91, 88, 86, 80, 75, 68, 66, 63, 55, 54, 47, 44, 32, 26, 24, 22, 14, 10, 8], temBack=True, temLay=True, tipoBack="Atual", tipoLay="BSP", tipoTrend="Maior", stkb = "Proporcional", stkl = "Fixo") # Retorno de ~23,8%
-   conn = sqlite3.connect('bf_gb_win_full.db')
-   c_corrida = conn.cursor()
-   c_corrida.execute(""" SELECT * FROM races ORDER BY RANDOM() LIMIT ?; """, (qtd_corrdas,) )
-   print("Inicio do processamento")  
-   while True: 
-      row = c_corrida.fetchone()
-      if row == None: break  # Acabou o sqlite
-      race_id, market_time, inplay_timestamp, market_name, market_venue = row
-      #print("Col=", row)
-      processaOddsMundo(race_id, mundo)
-   mundo.exibeAgentes()
-   
-def processaOddsMundo(race_id, mundo):
+def processaOddsMundo(race_id, nets, agentes, ge):
    lista_corridas = {} # Cada corrida tem uma lista de cavalos
    lista_bsp = {} # Para saber qual eh o BSP correspondente
    lista_wl = {} # Para saber quem foi Win e quem foi Lose
@@ -60,7 +39,7 @@ def processaOddsMundo(race_id, mundo):
          lista_corridas[race_id] = {}
          lista_bsp[race_id] = {}
          lista_wl[race_id] = {}
-         mundo.notificaNovaCorrida(race_id)   # Se preparem para apostar
+         #mundo.notificaNovaCorrida(race_id)   # Se preparem para apostar
       delta = datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') - datetime.strptime(data, '%Y-%m-%d %H:%M:%S')
       qtd_min = ((delta.seconds) // 60)
       #print('Segundos=', ((delta.seconds) // 1), 'Minutos=', ((delta.seconds) // 60), 'd1=', market_time, 'd2=', data )
@@ -79,9 +58,18 @@ def processaOddsMundo(race_id, mundo):
       #print("silencio da fita:", [qm for qm in range(tempo_anterior-1,qtd_min,-1)])
       #if (len([qm for qm in range(tempo_anterior-1,qtd_min,-1)]) != 0 ): x = 1/0
       #print("Minutos de silencio, ant=", odd_anterior, ", atu=", lista_corridas[race_id])
-      [mundo.recebeAtualizacao(odd=odd_anterior, minuto=qm, winLose=winLose_anterior, bsp=bsp_anterior, race_id=race_id) for qm in range(tempo_anterior-1,qtd_min,-1)  ]
+      #[mundo.recebeAtualizacao(odd=odd_anterior, minuto=qm, winLose=winLose_anterior, bsp=bsp_anterior, race_id=race_id) for qm in range(tempo_anterior-1,qtd_min,-1)  ]
       #print("Fita normal, ant=", odd_anterior, ", atu=", lista_corridas[race_id])
-      mundo.recebeAtualizacao(odd=lista_corridas[race_id], minuto=qtd_min, winLose=lista_wl[race_id], bsp=lista_bsp[race_id], race_id=race_id)
+      #mundo.recebeAtualizacao(odd=lista_corridas[race_id], minuto=qtd_min, winLose=lista_wl[race_id], bsp=lista_bsp[race_id], race_id=race_id)
+      
+      for x, agente in enumerate(agentes):
+         ge[x].fitness += 1 # Por estar vivo
+         #agente.move()
+         output = nets[agentes.index(agente)].activate((lista_corridas[race_id], qtd_min))
+         
+         if output[0] > 0.5:
+            agente.apostaBack()
+      
       tempo_anterior = qtd_min
       odd_anterior = copy.deepcopy(lista_corridas[race_id])
       winLose_anterior = copy.deepcopy(lista_wl[race_id])
@@ -90,4 +78,55 @@ def processaOddsMundo(race_id, mundo):
       #if(time.process_time() - start > 0 ) : x = 1/0
       #print("Fim do ciclo - dados novos!")
 
-processaCorrida()
+def processaCorrida(qtd_corrdas, nets, agentes, ge):   
+   conn = sqlite3.connect('bf_gb_win_full.db')
+   c_corrida = conn.cursor()
+   c_corrida.execute(""" SELECT * FROM races ORDER BY RANDOM() LIMIT ?; """, (qtd_corrdas,) )
+   print("Inicio do processamento")  
+   while True: 
+      row = c_corrida.fetchone()
+      if row == None: break  # Acabou o sqlite
+      race_id, market_time, inplay_timestamp, market_name, market_venue = row
+      #print("Col=", row)
+      processaOddsMundo(race_id, nets=nets, agentes=agentes, ge=ge)
+   mundo.exibeAgentes()
+
+def avalia_genomas(genomes, config):
+   nets = [] # Redes
+   agentes = [] # Agentes apostadores
+   ge = [] # Genomas
+   for genome_id, genome in genomes:
+      genome.fitness = 0  # O fitness comeca com 0
+      net = neat.nn.FeedForwardNetwork.create(genome, config)
+      nets.append(net)
+      agente = AgenteNEAT()
+      agentes.append(agente)
+      ge.append(genome)
+      
+   # Agora os dados
+   processaCorrida(qtd_corrdas = 5000, nets=nets, agentes=agentes, ge=ge)
+      
+def simula(config_file):
+   #mundo = MeioAmbienteNeural(config_file)   # Crio mundo 
+   #mundo.criaPopulacao()
+   #mundo.criaReporterStdOut()
+   config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction,
+               neat.DefaultSpeciesSet, neat.DefaultStagnation,
+               config_file)
+   
+   # Cria a populacao
+   p = neat.Population(config)
+   
+   # Cria um Reporter StdOut
+   p.add_reporter(neat.StdOutReporter(True))
+   stats = neat.StatisticsReporter()
+   p.add_reporter(stats)
+   #p.add_reporter(neat.Checkpointer(5))
+   
+   # Executa 50 geracoes
+   winner = p.run(avalia_genomas, 50)
+
+if __name__ == '__main__':
+   local_dir = os.path.dirname(__file__)
+   config_path = os.path.join(local_dir, 'config-feedforward.txt')
+   simula(config_path)
