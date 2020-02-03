@@ -89,9 +89,10 @@ def processaOddsMundo(race_id, nets, agentes, ge):
             ge.pop(agentes.index(agente)) # Remove genoma
             agentes.pop(agentes.index(agente)) # Remove agente
          else:
-            ge[x].fitness = agente.lucro_medio # O que tem de retorno eh fitness
+            ge[x].fitness += agente.lucro_medio # O que tem de retorno eh fitness
+            #if( agente.lucro_medio == 0  ): ge[x].fitness -= 1 # Tem de ser ousado
             #agente.move()
-            if( len(melhores_odds) < 3 ) : print("Deu merda!")
+            if( len(melhores_odds) < 3 ) : break #print("Deu merda!")
             output = nets[agentes.index(agente)].activate((qtd_min, melhores_odds[0][1], melhores_odds[1][1], melhores_odds[2][1] ))
             
             if output[0] > 0.5:
@@ -132,7 +133,7 @@ def avalia_genomas(genomes, config):
       ge.append(genome)
       
    # Agora os dados
-   processaCorrida(qtd_corrdas = 500, nets=nets, agentes=agentes, ge=ge)
+   processaCorrida(qtd_corrdas = 2000, nets=nets, agentes=agentes, ge=ge)
       
 def simula(config_file):
    #mundo = MeioAmbienteNeural(config_file)   # Crio mundo 
@@ -152,7 +153,7 @@ def simula(config_file):
    #p.add_reporter(neat.Checkpointer(5))
    
    # Executa 50 geracoes
-   winner = p.run(avalia_genomas, 500)
+   winner = p.run(avalia_genomas, 300)
 
 if __name__ == '__main__':
    local_dir = os.path.dirname(__file__)
