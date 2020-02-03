@@ -110,11 +110,39 @@ class AgenteApostador():
          pl_back = pl_back*(1-comissao)
       self.somaStack += stack_back
       #print("Aposta back ", stack_back ," na odd ", odd_back , " teve PL=", round(pl_back,2), " e WL=", wl_back )
+      if( self.somaStack != 0 ): self.lucro_medio = 1.0*(self.patrimonio-1000.0)/self.somaStack
       return pl_back
+      
+   # Faz apenas Lay
+   def fazApostaLay(self, odd_lay, stack_lay, wl_lay, comissao = 0.065):
+      if( stack_lay < 2 ): return 0 # Sem condicao
+      if( wl_lay == 0 ): 
+         pl_lay = (+1*stack_lay)
+      else: 
+         pl_lay = (-1*(stack_lay*(odd_lay-1)))
+      if( pl_lay > 0 ): 
+         pl_lay = pl_lay*(1-comissao)
+      self.somaStack += stack_lay
+      #print("Aposta lay ", stack_lay ," na odd ", odd_lay , " teve PL=", round(pl_lay,2), " e WL=", wl_lay )
+      return pl_lay
+   
+   # Back e lay simples
+   def fazApostaBackLay(self, odd_back, stack_back, wl_back, odd_lay, stack_lay, wl_lay, comissao = 0.065 ):
+      if( stack_lay < 2 ): return 0 # Sem condicao
+      if( stack_back < 2 ): return 0 # Sem condicao
+      pl_back = self.fazApostaBack(odd_back, stack_back, wl_back)
+      pl_lay = self.fazApostaLay(odd_lay, stack_lay, wl_lay)
+      pl = pl_back + pl_lay
+      #print("1/2 Aposta back ", stack_back ," na odd ", odd_back , " teve PL=", round(pl_back,2), " e WL=", wl_back )
+      #print("2/2 Aposta lay ", stack_lay ," na odd ", odd_lay , " teve PL=", round(pl_lay,2), " e WL=", wl_lay )
+      return pl
 
 # Classe que utiliza rede neural
 class AgenteNEAT(AgenteApostador):
-   pass
+   def iniciaMindset(self):
+      super().iniciaMindset() # Inicio o basico do apostador
+   #def fazApostaBack(self, odd_back, stack_back, wl_back, comissao = 0.065):
+   #   super().fazApostaBack(odd_back, stack_back, wl_back, comissao = 0.065)
 
 # Agente para apostas que envolvem tendencias de odds. Nao apenas para o favorito.
 class AgenteEspeculadorCavalo(AgenteApostador):
@@ -190,32 +218,6 @@ class AgenteEspeculadorCavalo(AgenteApostador):
             trend[lco] = log( valores_odds_a[lco]/valores_odds_b[lco] )
             if(cp==True): print("lco=", lco, "a=", valores_odds_a[lco], "b=",valores_odds_b[lco], "Trend=", round(trend[lco],4) )
       return trend
-   
-   # Back e lay simples
-   def fazApostaBackLay(self, odd_back, stack_back, wl_back, odd_lay, stack_lay, wl_lay, comissao = 0.065 ):
-      if( stack_lay < 2 ): return 0 # Sem condicao
-      if( stack_back < 2 ): return 0 # Sem condicao
-      pl_back = self.fazApostaBack(odd_back, stack_back, wl_back)
-      pl_lay = self.fazApostaLay(odd_lay, stack_lay, wl_lay)
-      pl = pl_back + pl_lay
-      #print("1/2 Aposta back ", stack_back ," na odd ", odd_back , " teve PL=", round(pl_back,2), " e WL=", wl_back )
-      #print("2/2 Aposta lay ", stack_lay ," na odd ", odd_lay , " teve PL=", round(pl_lay,2), " e WL=", wl_lay )
-      return pl
-      
-
-      
-   # Faz apenas Lay
-   def fazApostaLay(self, odd_lay, stack_lay, wl_lay, comissao = 0.065):
-      if( stack_lay < 2 ): return 0 # Sem condicao
-      if( wl_lay == 0 ): 
-         pl_lay = (+1*stack_lay)
-      else: 
-         pl_lay = (-1*(stack_lay*(odd_lay-1)))
-      if( pl_lay > 0 ): 
-         pl_lay = pl_lay*(1-comissao)
-      self.somaStack += stack_lay
-      #print("Aposta lay ", stack_lay ," na odd ", odd_lay , " teve PL=", round(pl_lay,2), " e WL=", wl_lay )
-      return pl_lay
       
    def decide(self, lista_corridas_ordenado, minuto, winLose, lista_bsp, race_id=0 ):
       comissao = 0.065
