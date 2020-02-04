@@ -107,7 +107,7 @@ def processaOddsMundo(race_id, nets, agentes, ge):
                pl_back = agente.fazApostaBack(odd_back=melhores_odds[0][1], stack_back=20.0, wl_back=lista_wl[race_id][nome_melhor] )
                agente.patrimonio += pl_back
                agente.atualizaRetorno()
-               ge[x].fitness += agente.lucro_medio # O que tem de retorno eh fitness
+               ge[x].fitness = agente.lucro_medio # O que tem de retorno eh fitness
       
       tempo_anterior = qtd_min
       odd_anterior = copy.deepcopy(lista_corridas[race_id])
@@ -143,7 +143,7 @@ def avalia_genomas(genomes, config):
       ge.append(genome)
       
    # Agora os dados
-   processaCorrida(qtd_corrdas = 500, nets=nets, agentes=agentes, ge=ge)
+   processaCorrida(qtd_corrdas = 5000, nets=nets, agentes=agentes, ge=ge)
       
 def simula(config_file):
    #mundo = MeioAmbienteNeural(config_file)   # Crio mundo 
