@@ -160,7 +160,8 @@ def simula(config_file):
    p.add_reporter(neat.StdOutReporter(True))
    stats = neat.StatisticsReporter()
    p.add_reporter(stats)
-   p.add_reporter(neat.Checkpointer(generation_interval=5, filename_prefix='neat-checkpoint-')) #generation_interval=100, time_interval_seconds=300, filename_prefix='neat-checkpoint-'
+   ckpoint = neat.Checkpointer(generation_interval=5, filename_prefix='neat-checkpoint-') #generation_interval=100, time_interval_seconds=300, filename_prefix='neat-checkpoint-'
+   p.add_reporter(ckpoint) 
    
    # Executa 50 geracoes
    winner = p.run(avalia_genomas, 300)
