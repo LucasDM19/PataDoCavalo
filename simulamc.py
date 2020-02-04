@@ -98,6 +98,9 @@ class AgenteApostador():
    def estouVivo(self):
       if( self.patrimonio <= 0 ): return False
       return True
+   
+   def atualizaRetorno(self):
+      if( self.somaStack != 0 ): self.lucro_medio = 1.0*(self.patrimonio-1000.0)/self.somaStack
       
    # Faz apenas Back
    def fazApostaBack(self, odd_back, stack_back, wl_back, comissao = 0.065):
@@ -109,8 +112,8 @@ class AgenteApostador():
       if( pl_back > 0 ): 
          pl_back = pl_back*(1-comissao)
       self.somaStack += stack_back
-      #print("Aposta back ", stack_back ," na odd ", odd_back , " teve PL=", round(pl_back,2), " e WL=", wl_back )
-      if( self.somaStack != 0 ): self.lucro_medio = 1.0*(self.patrimonio-1000.0)/self.somaStack
+      #print("Aposta back ", stack_back ," na odd ", odd_back , " teve PL=", round(pl_back,2), " e WL=", wl_back )      
+      #if( self.somaStack != 0 ): print("Pat depois=", self.lucro_medio, " $=", self.patrimonio, " SS=", self.somaStack )
       return pl_back
       
    # Faz apenas Lay

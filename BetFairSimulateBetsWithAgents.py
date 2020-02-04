@@ -83,21 +83,31 @@ def processaOddsMundo(race_id, nets, agentes, ge):
       
       for x, agente in enumerate(agentes):
          if( agente.estouVivo() == False ): # Morreu
-            print("MURRIO!")
+            #print("MURRIO!")
             ge[x].fitness -= 5 # Por ter morrido
             nets.pop(agentes.index(agente)) # Remove rede
             ge.pop(agentes.index(agente)) # Remove genoma
             agentes.pop(agentes.index(agente)) # Remove agente
          else:
-            ge[x].fitness += agente.lucro_medio # O que tem de retorno eh fitness
+            #ge[x].fitness += agente.lucro_medio # O que tem de retorno eh fitness
             #if( agente.lucro_medio == 0  ): ge[x].fitness -= 1 # Tem de ser ousado
             #agente.move()
             if( len(melhores_odds) < 3 ) : break #print("Deu merda!")
-            output = nets[agentes.index(agente)].activate((qtd_min, melhores_odds[0][1], melhores_odds[1][1], melhores_odds[2][1] ))
+            if( qtd_min > 60 ): break # Apenas uma hora antes
+            idx_qtd_min = 1.0*qtd_min/60 # Entre 0 e 1
+            prob1 = 1.0/melhores_odds[0][1]
+            prob2 = 1.0/melhores_odds[1][1]
+            prob3 = 1.0/melhores_odds[2][1]
+            #print("Entrada=", idx_qtd_min, prob1, prob2, prob3 )
+            output = nets[agentes.index(agente)].activate((idx_qtd_min, prob1, prob2, prob3 ))
             
+            #print("Saida=", output, agente.lucro_medio)
             if output[0] > 0.5:
                nome_melhor = melhores_odds[0][0] # O com menor odd
-               agente.fazApostaBack(odd_back=melhores_odds[0][1], stack_back=20.0, wl_back=lista_wl[race_id][nome_melhor] )
+               pl_back = agente.fazApostaBack(odd_back=melhores_odds[0][1], stack_back=20.0, wl_back=lista_wl[race_id][nome_melhor] )
+               agente.patrimonio += pl_back
+               agente.atualizaRetorno()
+               ge[x].fitness += agente.lucro_medio # O que tem de retorno eh fitness
       
       tempo_anterior = qtd_min
       odd_anterior = copy.deepcopy(lista_corridas[race_id])
@@ -133,7 +143,7 @@ def avalia_genomas(genomes, config):
       ge.append(genome)
       
    # Agora os dados
-   processaCorrida(qtd_corrdas = 2000, nets=nets, agentes=agentes, ge=ge)
+   processaCorrida(qtd_corrdas = 500, nets=nets, agentes=agentes, ge=ge)
       
 def simula(config_file):
    #mundo = MeioAmbienteNeural(config_file)   # Crio mundo 
