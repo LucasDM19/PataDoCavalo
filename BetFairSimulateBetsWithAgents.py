@@ -165,6 +165,14 @@ def simula(config_file):
    
    # Executa 50 geracoes
    winner = p.run(avalia_genomas, 300)
+   
+   #if resume == True: p = neat.Checkpointer.restore_checkpoint(restore_file) # Se for o caso continua
+   #p = neat.Checkpointer.restore_checkpoint( 'neat-checkpoint-4' ) # Carregar o checkpoint
+   #p.run( eval_genomes , 10 ) # Aqui tem de simular
+   
+   # Depois do treino, hora de salvar o campeao
+   with open('vencedor.pkl', 'wb') as output:
+      pickle.dump(winner, output, 1) # Salva o vencedor
 
 if __name__ == '__main__':
    local_dir = os.path.dirname(__file__)
