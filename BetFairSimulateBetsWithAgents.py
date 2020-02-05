@@ -8,7 +8,7 @@ import neat # pip install neat-python
 import os
 import pickle
 
-def validaModelo(nome_picke, config_file, qtd_corrdas):
+def validaModelo(nome_picke, config_file, qtd_corridas):
    print("Bora validar!")
    file = open(nome_picke, 'rb')
    winner = pickle.load(file)
@@ -28,7 +28,7 @@ def validaModelo(nome_picke, config_file, qtd_corrdas):
    agente = AgenteNEAT()
    
    # Agora simular
-   corridas = obtemCorridasAleatorias(qtd_corrdas = 5)
+   corridas = obtemCorridasAleatorias(qtd_corridas = 5000)
    for corrida in corridas:
       processaOddsMundo(race_id=corrida, nets=[net,], agentes=[agente,], ge=[winner,] )
       
@@ -168,7 +168,7 @@ def avalia_genomas(genomes, config):
       ge.append(genome)
       
    # Agora os dados
-   corridas = obtemCorridasAleatorias(qtd_corrdas = 5)
+   corridas = obtemCorridasAleatorias(qtd_corrdas = 5000)
    for corrida in corridas:
       processaOddsMundo(race_id=corrida, nets=nets, agentes=agentes, ge=ge)
       
@@ -191,7 +191,7 @@ def simula(config_file):
    p.add_reporter(ckpoint) 
    
    # Executa 50 geracoes
-   winner = p.run(avalia_genomas, 3)
+   winner = p.run(avalia_genomas, 30)
 
    #if resume == True: p = neat.Checkpointer.restore_checkpoint(restore_file) # Se for o caso continua
    #p = neat.Checkpointer.restore_checkpoint( 'neat-checkpoint-4' ) # Carregar o checkpoint
@@ -205,4 +205,4 @@ if __name__ == '__main__':
    local_dir = os.path.dirname(__file__)
    config_path = os.path.join(local_dir, 'config-feedforward.txt')
    simula(config_path)
-   validaModelo(nome_picke='vencedor.pkl', config_file=config_path, qtd_corrdas=50)
+   validaModelo(nome_picke='vencedor.pkl', config_file=config_path, qtd_corridas=5000)
