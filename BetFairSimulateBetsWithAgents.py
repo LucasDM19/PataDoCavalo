@@ -6,6 +6,33 @@ import operator
 from simulamc import MeioAmbiente, AgenteApostadorCavalo, AgenteEspeculadorCavalo, MeioAmbienteNeural, AgenteNEAT
 import neat # pip install neat-python
 import os
+import pickle
+
+def validaModelo(nome_picke, config_file, qtd_corrdas):
+   print("Bora validar!")
+   file = open(nome_picke, 'rb')
+   winner = pickle.load(file)
+   file.close()
+   
+   #print('\nBest genome:\n{!s}'.format(winner))
+   
+   print("Fitness anterior=", winner.fitness)
+   #print("Index=", winner.key)
+   
+   config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction,
+               neat.DefaultSpeciesSet, neat.DefaultStagnation,
+               config_file)
+   
+   # Reiniciando os itens
+   net = neat.nn.FeedForwardNetwork.create(winner, config)
+   agente = AgenteNEAT()
+   
+   # Agora simular
+   corridas = obtemCorridasAleatorias(qtd_corrdas = 5)
+   for corrida in corridas:
+      processaOddsMundo(race_id=corrida, nets=[net,], agentes=[agente,], ge=[winner,] )
+      
+   print("Fitness posterior=", winner.fitness)
 
 def obtemParticipantesDeCorrida(race_id):
    lista_participantes = {}
@@ -113,11 +140,9 @@ def processaOddsMundo(race_id, nets, agentes, ge):
       odd_anterior = copy.deepcopy(lista_corridas[race_id])
       winLose_anterior = copy.deepcopy(lista_wl[race_id])
       bsp_anterior = copy.deepcopy(lista_bsp[race_id])
-      #print("Demorou", time.process_time() - start)
-      #if(time.process_time() - start > 0 ) : x = 1/0
-      #print("Fim do ciclo - dados novos!")
 
-def processaCorrida(qtd_corrdas, nets, agentes, ge):   
+def obtemCorridasAleatorias(qtd_corrdas):   
+   lista_corridas = []
    conn = sqlite3.connect('bf_gb_win_full.db')
    c_corrida = conn.cursor()
    c_corrida.execute(""" SELECT * FROM races ORDER BY RANDOM() LIMIT ?; """, (qtd_corrdas,) )
@@ -127,8 +152,8 @@ def processaCorrida(qtd_corrdas, nets, agentes, ge):
       if row == None: break  # Acabou o sqlite
       race_id, market_time, inplay_timestamp, market_name, market_venue = row
       #print("Col=", row)
-      processaOddsMundo(race_id, nets=nets, agentes=agentes, ge=ge)
-   #mundo.exibeAgentes()
+      lista_corridas.append(race_id)
+   return lista_corridas
 
 def avalia_genomas(genomes, config):
    nets = [] # Redes
@@ -143,7 +168,9 @@ def avalia_genomas(genomes, config):
       ge.append(genome)
       
    # Agora os dados
-   processaCorrida(qtd_corrdas = 5000, nets=nets, agentes=agentes, ge=ge)
+   corridas = obtemCorridasAleatorias(qtd_corrdas = 5)
+   for corrida in corridas:
+      processaOddsMundo(race_id=corrida, nets=nets, agentes=agentes, ge=ge)
       
 def simula(config_file):
    #mundo = MeioAmbienteNeural(config_file)   # Crio mundo 
@@ -164,8 +191,8 @@ def simula(config_file):
    p.add_reporter(ckpoint) 
    
    # Executa 50 geracoes
-   winner = p.run(avalia_genomas, 300)
-   
+   winner = p.run(avalia_genomas, 3)
+
    #if resume == True: p = neat.Checkpointer.restore_checkpoint(restore_file) # Se for o caso continua
    #p = neat.Checkpointer.restore_checkpoint( 'neat-checkpoint-4' ) # Carregar o checkpoint
    #p.run( eval_genomes , 10 ) # Aqui tem de simular
@@ -178,3 +205,4 @@ if __name__ == '__main__':
    local_dir = os.path.dirname(__file__)
    config_path = os.path.join(local_dir, 'config-feedforward.txt')
    simula(config_path)
+   validaModelo(nome_picke='vencedor.pkl', config_file=config_path, qtd_corrdas=50)

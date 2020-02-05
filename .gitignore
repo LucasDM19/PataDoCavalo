@@ -119,3 +119,9 @@ client-2048.key
 
 # Coisas
 Hush.py
+
+# Qualquer coisa Pickle
+*.pkl
+
+# Bancos de dado sqLite
+*.db
