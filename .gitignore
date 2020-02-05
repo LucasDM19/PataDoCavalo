@@ -125,3 +125,6 @@ Hush.py
 
 # Bancos de dado sqLite
 *.db
+
+# Checkpoint do NEAT
+neat-checkpoint-*
