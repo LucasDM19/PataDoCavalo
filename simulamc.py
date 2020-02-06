@@ -109,11 +109,12 @@ class AgenteApostador():
          pl_back = (-1*stack_back) 
       elif( wl_back == 1 ): 
          pl_back = stack_back*(odd_back)-stack_back
+      else: return 0 # WL invalido nao conta
       if( pl_back > 0 ): 
          pl_back = pl_back*(1-comissao)
       self.somaStack += stack_back
-      #print("Aposta back ", stack_back ," na odd ", odd_back , " teve PL=", round(pl_back,2), " e WL=", wl_back )   
-      #input("Teve aposta.")      
+      print("Aposta back ", stack_back ," na odd ", odd_back , " teve PL=", round(pl_back,2), " e WL=", wl_back )   
+      input("Teve aposta.")      
       #if( self.somaStack != 0 ): print("Pat depois=", self.lucro_medio, " $=", self.patrimonio, " SS=", self.somaStack )
       return pl_back
       
@@ -124,6 +125,7 @@ class AgenteApostador():
          pl_lay = (+1*stack_lay)
       elif( wl_back == 1 ): 
          pl_lay = (-1*(stack_lay*(odd_lay-1)))
+      else: return 0 # WL invalido nao conta
       if( pl_lay > 0 ): 
          pl_lay = pl_lay*(1-comissao)
       self.somaStack += stack_lay

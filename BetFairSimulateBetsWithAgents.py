@@ -86,8 +86,8 @@ def processaOddsMundo(race_id, nets, agentes, ge):
          #mundo.notificaNovaCorrida(race_id)   # Se preparem para apostar
       delta = datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') - datetime.strptime(data, '%Y-%m-%d %H:%M:%S')
       qtd_min = ((delta.seconds) // 60)
-      #print('Segundos=', ((delta.seconds) // 1), 'Minutos=', ((delta.seconds) // 60), 'd1=', market_time, 'd2=', data )
-      #print("DBG=", race_id, market_time, inplay_timestamp, market_name, market_venue, runner_id, nome_cavalo, win_lose, bsp, odd, data)
+      print('Segundos=', ((delta.seconds) // 1), 'Minutos=', ((delta.seconds) // 60), 'd1=', market_time, 'd2=', data )
+      print("DBG=", race_id, market_time, inplay_timestamp, market_name, market_venue, runner_id, nome_cavalo, win_lose, bsp, odd, data)
       if( datetime.strptime(data, '%Y-%m-%d %H:%M:%S') > datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') ) : # Corrida em andamento
          delta = (datetime.strptime(data, '%Y-%m-%d %H:%M:%S') - datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') )
          qtd_min = -1 * ((delta.seconds) // 60)
@@ -124,7 +124,8 @@ def processaOddsMundo(race_id, nets, agentes, ge):
             #agente.move()
             if( len(melhores_odds) < 3 ) : break #print("Deu merda!")
             #print("minutos=", qtd_min)
-            if( qtd_min > 60 or qtd_min < 1 ): break # Apenas uma hora antes
+            #if( qtd_min > 60 or qtd_min < 1 ): break # Apenas uma hora antes
+            if( qtd_min > 60  ): break
             idx_qtd_min = 1.0*qtd_min/60 # Entre 0 e 1
             prob1 = 1.0/melhores_odds[0][1]
             prob2 = 1.0/melhores_odds[1][1]
@@ -196,7 +197,7 @@ def simula(config_file):
    p.add_reporter(ckpoint) 
    
    # Executa 50 geracoes
-   winner = p.run(avalia_genomas, 30)
+   winner = p.run(avalia_genomas, 3)
 
    #if resume == True: p = neat.Checkpointer.restore_checkpoint(restore_file) # Se for o caso continua
    #p = neat.Checkpointer.restore_checkpoint( 'neat-checkpoint-4' ) # Carregar o checkpoint
