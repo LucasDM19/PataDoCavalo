@@ -75,7 +75,9 @@ def processaOddsMundo(race_id, nets, agentes, ge):
       ORDER BY races.RaceId, odds.PublishedTime ASC """, (race_id,) )       
    while True: 
       row = c.fetchone()
-      if row == None: break  # Acabou o sqlite
+      if row == None: 
+         #print("Idade=", agentes[0].idade, ", Patrimonio=", agentes[0].patrimonio )
+         break  # Acabou o sqlite
       start = time.process_time() # Liga relogio
       race_id, market_time, inplay_timestamp, market_name, market_venue, runner_id, nome_cavalo, win_lose, bsp, odd, data = row
       if( race_id not in lista_corridas ): 
@@ -85,6 +87,7 @@ def processaOddsMundo(race_id, nets, agentes, ge):
       delta = datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') - datetime.strptime(data, '%Y-%m-%d %H:%M:%S')
       qtd_min = ((delta.seconds) // 60)
       #print('Segundos=', ((delta.seconds) // 1), 'Minutos=', ((delta.seconds) // 60), 'd1=', market_time, 'd2=', data )
+      #print("DBG=", race_id, market_time, inplay_timestamp, market_name, market_venue, runner_id, nome_cavalo, win_lose, bsp, odd, data)
       if( datetime.strptime(data, '%Y-%m-%d %H:%M:%S') > datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') ) : # Corrida em andamento
          delta = (datetime.strptime(data, '%Y-%m-%d %H:%M:%S') - datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') )
          qtd_min = -1 * ((delta.seconds) // 60)
@@ -105,13 +108,13 @@ def processaOddsMundo(race_id, nets, agentes, ge):
       #mundo.recebeAtualizacao(odd=lista_corridas[race_id], minuto=qtd_min, winLose=lista_wl[race_id], bsp=lista_bsp[race_id], race_id=race_id)
       
       melhores_odds = list(lista_corridas_ordenado.items())[0:3] # Top 3 odds
-      #print("X=", lista_corridas_ordenado  )
+      #print("X=", melhores_odds , " e todos=", list(lista_corridas_ordenado.items()) )
       #print(melhores_odds[0][0], melhores_odds[1][0], melhores_odds[2][0] ) # Nomes
       
       for x, agente in enumerate(agentes):
          if( agente.estouVivo() == False ): # Morreu
             #print("MURRIO!")
-            ge[x].fitness -= 5 # Por ter morrido
+            ge[x].fitness -= 5000 # Por ter morrido
             nets.pop(agentes.index(agente)) # Remove rede
             ge.pop(agentes.index(agente)) # Remove genoma
             agentes.pop(agentes.index(agente)) # Remove agente
@@ -120,7 +123,8 @@ def processaOddsMundo(race_id, nets, agentes, ge):
             #if( agente.lucro_medio == 0  ): ge[x].fitness -= 1 # Tem de ser ousado
             #agente.move()
             if( len(melhores_odds) < 3 ) : break #print("Deu merda!")
-            if( qtd_min > 60 ): break # Apenas uma hora antes
+            #print("minutos=", qtd_min)
+            if( qtd_min > 60 or qtd_min < 1 ): break # Apenas uma hora antes
             idx_qtd_min = 1.0*qtd_min/60 # Entre 0 e 1
             prob1 = 1.0/melhores_odds[0][1]
             prob2 = 1.0/melhores_odds[1][1]
@@ -133,6 +137,7 @@ def processaOddsMundo(race_id, nets, agentes, ge):
                nome_melhor = melhores_odds[0][0] # O com menor odd
                pl_back = agente.fazApostaBack(odd_back=melhores_odds[0][1], stack_back=20.0, wl_back=lista_wl[race_id][nome_melhor] )
                agente.patrimonio += pl_back
+               agente.idade += 1
                agente.atualizaRetorno()
                ge[x].fitness = agente.lucro_medio # O que tem de retorno eh fitness
       
@@ -141,11 +146,11 @@ def processaOddsMundo(race_id, nets, agentes, ge):
       winLose_anterior = copy.deepcopy(lista_wl[race_id])
       bsp_anterior = copy.deepcopy(lista_bsp[race_id])
 
-def obtemCorridasAleatorias(qtd_corrdas):   
+def obtemCorridasAleatorias(qtd_corridas):   
    lista_corridas = []
    conn = sqlite3.connect('bf_gb_win_full.db')
    c_corrida = conn.cursor()
-   c_corrida.execute(""" SELECT * FROM races ORDER BY RANDOM() LIMIT ?; """, (qtd_corrdas,) )
+   c_corrida.execute(""" SELECT * FROM races ORDER BY RANDOM() LIMIT ?; """, (qtd_corridas,) )
    #print("Inicio do processamento")  
    while True: 
       row = c_corrida.fetchone()
@@ -168,7 +173,7 @@ def avalia_genomas(genomes, config):
       ge.append(genome)
       
    # Agora os dados
-   corridas = obtemCorridasAleatorias(qtd_corrdas = 5000)
+   corridas = obtemCorridasAleatorias(qtd_corridas = 5000)
    for corrida in corridas:
       processaOddsMundo(race_id=corrida, nets=nets, agentes=agentes, ge=ge)
       
@@ -204,5 +209,5 @@ def simula(config_file):
 if __name__ == '__main__':
    local_dir = os.path.dirname(__file__)
    config_path = os.path.join(local_dir, 'config-feedforward.txt')
-   simula(config_path)
-   validaModelo(nome_picke='vencedor.pkl', config_file=config_path, qtd_corridas=5000)
+   #simula(config_path)
+   validaModelo(nome_picke='agente_R28_E14_ID45.pkl', config_file=config_path, qtd_corridas=5000)
