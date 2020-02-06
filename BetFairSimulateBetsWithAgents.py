@@ -33,6 +33,7 @@ def validaModelo(nome_picke, config_file, qtd_corridas):
       processaOddsMundo(race_id=corrida, nets=[net,], agentes=[agente,], ge=[winner,] )
       
    print("Fitness posterior=", winner.fitness)
+   print("Apostas feitas=", agente.idade )
 
 def obtemParticipantesDeCorrida(race_id):
    lista_participantes = {}
@@ -86,8 +87,8 @@ def processaOddsMundo(race_id, nets, agentes, ge):
          #mundo.notificaNovaCorrida(race_id)   # Se preparem para apostar
       delta = datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') - datetime.strptime(data, '%Y-%m-%d %H:%M:%S')
       qtd_min = ((delta.seconds) // 60)
-      print('Segundos=', ((delta.seconds) // 1), 'Minutos=', ((delta.seconds) // 60), 'd1=', market_time, 'd2=', data )
-      print("DBG=", race_id, market_time, inplay_timestamp, market_name, market_venue, runner_id, nome_cavalo, win_lose, bsp, odd, data)
+      #print('Segundos=', ((delta.seconds) // 1), 'Minutos=', ((delta.seconds) // 60), 'd1=', market_time, 'd2=', data )
+      #print("DBG=", race_id, market_time, inplay_timestamp, market_name, market_venue, runner_id, nome_cavalo, win_lose, bsp, odd, data)
       if( datetime.strptime(data, '%Y-%m-%d %H:%M:%S') > datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') ) : # Corrida em andamento
          delta = (datetime.strptime(data, '%Y-%m-%d %H:%M:%S') - datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') )
          qtd_min = -1 * ((delta.seconds) // 60)

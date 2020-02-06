@@ -114,7 +114,7 @@ class AgenteApostador():
          pl_back = pl_back*(1-comissao)
       self.somaStack += stack_back
       print("Aposta back ", stack_back ," na odd ", odd_back , " teve PL=", round(pl_back,2), " e WL=", wl_back )   
-      input("Teve aposta.")      
+      #input("Teve aposta.")      
       #if( self.somaStack != 0 ): print("Pat depois=", self.lucro_medio, " $=", self.patrimonio, " SS=", self.somaStack )
       return pl_back
       
