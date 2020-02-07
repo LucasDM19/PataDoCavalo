@@ -7,6 +7,13 @@ from simulamc import MeioAmbiente, AgenteApostadorCavalo, AgenteEspeculadorCaval
 import neat # pip install neat-python
 import os
 import pickle
+from math import log # Log base natural mesmo
+
+def relu(input):
+   if input > 0:
+      return input
+   else:
+      return 0
 
 def validaModelo(nome_picke, config_file, qtd_corridas):
    print("Bora validar!")
@@ -133,15 +140,19 @@ def processaOddsMundo(race_id, nets, agentes, ge):
             prob3 = 1.0/melhores_odds[2][1]
             #print("Entrada=", idx_qtd_min, prob1, prob2, prob3 )
             output = nets[agentes.index(agente)].activate((idx_qtd_min, prob1, prob2, prob3 ))
-            
+            devoFazerBack = output[0] # Se ativado, faco aposta Back no favorito
+            frac_apos = output[1] # Fracao a ser apostada no Back no favorito
             #print("Saida=", output, agente.lucro_medio)
-            if output[0] > 0.5:
+            if devoFazerBack > 0.5 and frac_apos > 0:
                nome_melhor = melhores_odds[0][0] # O com menor odd
-               pl_back = agente.fazApostaBack(odd_back=melhores_odds[0][1], stack_back=20.0, wl_back=lista_wl[race_id][nome_melhor] )
+               odds_cavalo1 = melhores_odds[0][1] # Cavalo com menor odd
+               pl_back = agente.fazApostaBack(odd_back=odds_cavalo1, stack_back=20.0, wl_back=lista_wl[race_id][nome_melhor], fracao_aposta=frac_apos )
                agente.patrimonio += pl_back
+               #print("Antes do Log:", frac_apos, pl_back, relu(pl_back) )
+               agente.cres_exp += log(1+ frac_apos*relu(pl_back) ) # Soma crescimento exponencial da banca
                agente.idade += 1
                agente.atualizaRetorno()
-               ge[x].fitness = agente.lucro_medio # O que tem de retorno eh fitness
+               ge[x].fitness = agente.cres_exp # O que cresce exponencialmente na banca eh fitness
       
       tempo_anterior = qtd_min
       odd_anterior = copy.deepcopy(lista_corridas[race_id])
@@ -211,5 +222,5 @@ def simula(config_file):
 if __name__ == '__main__':
    local_dir = os.path.dirname(__file__)
    config_path = os.path.join(local_dir, 'config-feedforward.txt')
-   #simula(config_path)
-   validaModelo(nome_picke='agente_R28_E14_ID45.pkl', config_file=config_path, qtd_corridas=5000)
+   simula(config_path)
+   validaModelo(nome_picke='vencedor.pkl', config_file=config_path, qtd_corridas=5000)

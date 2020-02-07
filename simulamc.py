@@ -1,5 +1,4 @@
 import random, string
-from math import log10 as log
 import operator
 import copy
 import neat # pip install neat-python
@@ -94,6 +93,7 @@ class AgenteApostador():
       self.somaStack = 0.0 # Capital de giro
       self.lucro_medio = 0.0 # Retorno do investimento
       self.idade = 0 # Um bebezito
+      self.cres_exp = 0.0 # Crescimento exponencial da banca
       
    def estouVivo(self):
       if( self.patrimonio <= 0 ): return False
@@ -103,7 +103,8 @@ class AgenteApostador():
       if( self.somaStack != 0 ): self.lucro_medio = 1.0*(self.patrimonio-1000.0)/self.somaStack
       
    # Faz apenas Back
-   def fazApostaBack(self, odd_back, stack_back, wl_back, comissao = 0.065):
+   def fazApostaBack(self, odd_back, stack_back, wl_back, fracao_aposta=1.0, comissao = 0.065):
+      stack_back *= fracao_aposta # Aposto uma determinada fracao do Stack
       if( stack_back < 2 ): return 0 # Sem condicao
       if( wl_back == 0 ): 
          pl_back = (-1*stack_back) 
@@ -113,13 +114,14 @@ class AgenteApostador():
       if( pl_back > 0 ): 
          pl_back = pl_back*(1-comissao)
       self.somaStack += stack_back
-      print("Aposta back ", stack_back ," na odd ", odd_back , " teve PL=", round(pl_back,2), " e WL=", wl_back )   
+      #print("Aposta back ", stack_back ," na odd ", odd_back , " teve PL=", round(pl_back,2), " e WL=", wl_back, ", frac=", fracao_aposta )   
       #input("Teve aposta.")      
       #if( self.somaStack != 0 ): print("Pat depois=", self.lucro_medio, " $=", self.patrimonio, " SS=", self.somaStack )
       return pl_back
       
    # Faz apenas Lay
-   def fazApostaLay(self, odd_lay, stack_lay, wl_lay, comissao = 0.065):
+   def fazApostaLay(self, odd_lay, stack_lay, wl_lay, fracao_aposta=1.0, comissao = 0.065):
+      stack_lay *= fracao_aposta # Aposto uma determinada fracao do Stack
       if( stack_lay < 2 ): return 0 # Sem condicao
       if( wl_lay == 0 ): 
          pl_lay = (+1*stack_lay)
