@@ -9,6 +9,10 @@ import os
 import pickle
 from math import log # Log base natural mesmo
 
+qtd_corridas_treino = 1000
+qtd_corridas_validacao = 1000
+qtd_geracoes = 5
+
 def relu(input):
    if input > 0:
       return input
@@ -35,7 +39,7 @@ def validaModelo(nome_picke, config_file, qtd_corridas):
    agente = AgenteNEAT()
    
    # Agora simular
-   corridas = obtemCorridasAleatorias(qtd_corridas = 5000)
+   corridas = obtemCorridasAleatorias(qtd_corridas = qtd_corridas_validacao)
    for corrida in corridas:
       processaOddsMundo(race_id=corrida, nets=[net,], agentes=[agente,], ge=[winner,] )
       
@@ -186,7 +190,7 @@ def avalia_genomas(genomes, config):
       ge.append(genome)
       
    # Agora os dados
-   corridas = obtemCorridasAleatorias(qtd_corridas = 5000)
+   corridas = obtemCorridasAleatorias(qtd_corridas = qtd_corridas_treino)
    for corrida in corridas:
       processaOddsMundo(race_id=corrida, nets=nets, agentes=agentes, ge=ge)
       
@@ -199,7 +203,8 @@ def simula(config_file):
                config_file)
    
    # Cria a populacao
-   p = neat.Population(config)
+   #p = neat.Population(config)
+   p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-10') # Se for o caso continua
    
    # Cria um Reporter StdOut
    p.add_reporter(neat.StdOutReporter(True))
@@ -209,11 +214,12 @@ def simula(config_file):
    p.add_reporter(ckpoint) 
    
    # Executa 50 geracoes
-   winner = p.run(avalia_genomas, 3)
+   #winner = p.run(avalia_genomas, qtd_geracoes)
 
-   #if resume == True: p = neat.Checkpointer.restore_checkpoint(restore_file) # Se for o caso continua
+   #if resume == True: 
+   #p = neat.Checkpointer.restore_checkpoint(restore_file) # Se for o caso continua
    #p = neat.Checkpointer.restore_checkpoint( 'neat-checkpoint-4' ) # Carregar o checkpoint
-   #p.run( eval_genomes , 10 ) # Aqui tem de simular
+   winner = p.run( avalia_genomas , qtd_geracoes ) # Aqui tem de simular
    
    # Depois do treino, hora de salvar o campeao
    with open('vencedor.pkl', 'wb') as output:
