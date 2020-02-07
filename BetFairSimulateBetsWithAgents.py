@@ -132,8 +132,8 @@ def processaOddsMundo(race_id, nets, agentes, ge):
             #agente.move()
             if( len(melhores_odds) < 3 ) : break #print("Deu merda!")
             #print("minutos=", qtd_min)
-            #if( qtd_min > 60 or qtd_min < 1 ): break # Apenas uma hora antes
-            if( qtd_min > 60  ): break
+            if( qtd_min > 60 or qtd_min < 1 ): break # Apenas uma hora antes
+            #if( qtd_min > 60  ): break
             idx_qtd_min = 1.0*qtd_min/60 # Entre 0 e 1
             prob1 = 1.0/melhores_odds[0][1]
             prob2 = 1.0/melhores_odds[1][1]

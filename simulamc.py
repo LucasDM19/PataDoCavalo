@@ -131,7 +131,7 @@ class AgenteApostador():
       if( pl_lay > 0 ): 
          pl_lay = pl_lay*(1-comissao)
       self.somaStack += stack_lay
-      #print("Aposta lay ", stack_lay ," na odd ", odd_lay , " teve PL=", round(pl_lay,2), " e WL=", wl_lay )
+      #print("Aposta lay ", stack_lay ," na odd ", odd_lay , " teve PL=", round(pl_lay,2), " e WL=", wl_lay, ", frac=", fracao_aposta )
       return pl_lay
    
    # Back e lay simples
