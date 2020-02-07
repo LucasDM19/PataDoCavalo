@@ -99,7 +99,7 @@ def processaOddsMundo(race_id, nets, agentes, ge):
       delta = datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') - datetime.strptime(data, '%Y-%m-%d %H:%M:%S')
       qtd_min = ((delta.seconds) // 60)
       #print('Segundos=', ((delta.seconds) // 1), 'Minutos=', ((delta.seconds) // 60), 'd1=', market_time, 'd2=', data )
-      #print("DBG=", race_id, market_time, inplay_timestamp, market_name, market_venue, runner_id, nome_cavalo, win_lose, bsp, odd, data)
+      print("DBG=", race_id, market_time, inplay_timestamp, market_name, market_venue, runner_id, nome_cavalo, win_lose, bsp, odd, data)
       if( datetime.strptime(data, '%Y-%m-%d %H:%M:%S') > datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') ) : # Corrida em andamento
          delta = (datetime.strptime(data, '%Y-%m-%d %H:%M:%S') - datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') )
          qtd_min = -1 * ((delta.seconds) // 60)
@@ -135,7 +135,7 @@ def processaOddsMundo(race_id, nets, agentes, ge):
             #if( agente.lucro_medio == 0  ): ge[x].fitness -= 1 # Tem de ser ousado
             #agente.move()
             if( len(melhores_odds) < 3 ) : break #print("Deu merda!")
-            #print("minutos=", qtd_min)
+            print("minutos=", qtd_min)
             if( qtd_min > 60 or qtd_min < 1 ): break # Apenas uma hora antes
             #if( qtd_min > 60  ): break
             idx_qtd_min = 1.0*qtd_min/60 # Entre 0 e 1
@@ -204,7 +204,15 @@ def simula(config_file):
    
    # Cria a populacao
    #p = neat.Population(config)
-   p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-10') # Se for o caso continua
+   p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-14') # Se for o caso continua
+   
+   # Extraindo algum item que eu queira (tipo ID=36 nesse caso)
+   #for x in p.population:
+   #   print("P=", x, p.population[x].fitness )
+   #parece_boa = p.population[36] # Meio que se mantem de boas
+   #with open('candidato.pkl', 'wb') as output:
+   #   pickle.dump(parece_boa, output, 1) # Salva o vencedor
+   #x  = 1/0
    
    # Cria um Reporter StdOut
    p.add_reporter(neat.StdOutReporter(True))
@@ -228,5 +236,5 @@ def simula(config_file):
 if __name__ == '__main__':
    local_dir = os.path.dirname(__file__)
    config_path = os.path.join(local_dir, 'config-feedforward.txt')
-   simula(config_path)
-   validaModelo(nome_picke='vencedor.pkl', config_file=config_path, qtd_corridas=5000)
+   #simula(config_path)
+   validaModelo(nome_picke='candidato.pkl', config_file=config_path, qtd_corridas=qtd_corridas_validacao)
