@@ -9,9 +9,9 @@ import os
 import pickle
 from math import log # Log base natural mesmo
 
-qtd_corridas_treino = 1000
-qtd_corridas_validacao = 1000
-qtd_geracoes = 5
+qtd_corridas_treino = 5000
+qtd_corridas_validacao = 5000
+qtd_geracoes = 10
 
 def relu(input):
    if input > 0:
@@ -42,9 +42,11 @@ def validaModelo(nome_picke, config_file, qtd_corridas):
    corridas = obtemCorridasAleatorias(qtd_corridas = qtd_corridas_validacao)
    for corrida in corridas:
       processaOddsMundo(race_id=corrida, nets=[net,], agentes=[agente,], ge=[winner,] )
+      [a.novaCorrida() for a in [agente,] ] # Agora pode apostar
       
    print("Fitness posterior=", winner.fitness)
    print("Apostas feitas=", agente.idade )
+   print("Patrimonio final=", agente.patrimonio )
 
 def obtemParticipantesDeCorrida(race_id):
    lista_participantes = {}
@@ -99,7 +101,7 @@ def processaOddsMundo(race_id, nets, agentes, ge):
       delta = datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') - datetime.strptime(data, '%Y-%m-%d %H:%M:%S')
       qtd_min = ((delta.seconds) // 60)
       #print('Segundos=', ((delta.seconds) // 1), 'Minutos=', ((delta.seconds) // 60), 'd1=', market_time, 'd2=', data )
-      print("DBG=", race_id, market_time, inplay_timestamp, market_name, market_venue, runner_id, nome_cavalo, win_lose, bsp, odd, data)
+      #print("DBG=", race_id, market_time, inplay_timestamp, market_name, market_venue, runner_id, nome_cavalo, win_lose, bsp, odd, data)
       if( datetime.strptime(data, '%Y-%m-%d %H:%M:%S') > datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') ) : # Corrida em andamento
          delta = (datetime.strptime(data, '%Y-%m-%d %H:%M:%S') - datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') )
          qtd_min = -1 * ((delta.seconds) // 60)
@@ -135,8 +137,9 @@ def processaOddsMundo(race_id, nets, agentes, ge):
             #if( agente.lucro_medio == 0  ): ge[x].fitness -= 1 # Tem de ser ousado
             #agente.move()
             if( len(melhores_odds) < 3 ) : break #print("Deu merda!")
-            print("minutos=", qtd_min)
             if( qtd_min > 60 or qtd_min < 1 ): break # Apenas uma hora antes
+            #print( "Foi?=", agente.jaApostei)
+            if( agente.jaApostei == True ): break # Ja apostei
             #if( qtd_min > 60  ): break
             idx_qtd_min = 1.0*qtd_min/60 # Entre 0 e 1
             prob1 = 1.0/melhores_odds[0][1]
@@ -146,17 +149,20 @@ def processaOddsMundo(race_id, nets, agentes, ge):
             output = nets[agentes.index(agente)].activate((idx_qtd_min, prob1, prob2, prob3 ))
             devoFazerBack = output[0] # Se ativado, faco aposta Back no favorito
             frac_apos = output[1] # Fracao a ser apostada no Back no favorito
-            #print("Saida=", output, agente.lucro_medio)
+            #print("Saida=", output, agente.idade)
             if devoFazerBack > 0.5 and frac_apos > 0:
                nome_melhor = melhores_odds[0][0] # O com menor odd
                odds_cavalo1 = melhores_odds[0][1] # Cavalo com menor odd
-               pl_back = agente.fazApostaBack(odd_back=odds_cavalo1, stack_back=20.0, wl_back=lista_wl[race_id][nome_melhor], fracao_aposta=frac_apos )
-               agente.patrimonio += pl_back
-               #print("Antes do Log:", frac_apos, pl_back, relu(pl_back) )
-               agente.cres_exp += log(1+ frac_apos*relu(pl_back) ) # Soma crescimento exponencial da banca
-               agente.idade += 1
-               agente.atualizaRetorno()
-               ge[x].fitness = agente.cres_exp # O que cresce exponencialmente na banca eh fitness
+               stack_back = agente.patrimonio * frac_apos
+               pl_back = agente.fazApostaBack(odd_back=odds_cavalo1, stack_back=stack_back, wl_back=lista_wl[race_id][nome_melhor], fracao_aposta=frac_apos )
+               if( pl_back is not None ):
+                  #print("minutos=", qtd_min, " race=", race_id)
+                  agente.patrimonio += pl_back
+                  agente.cres_exp += log(1+ frac_apos*relu(pl_back) ) # Soma crescimento exponencial da banca
+                  agente.idade += 1
+                  agente.atualizaRetorno()
+                  ge[x].fitness = agente.cres_exp # O que cresce exponencialmente na banca eh fitness
+                  agente.jaApostei = True # Uma vez apenas
       
       tempo_anterior = qtd_min
       odd_anterior = copy.deepcopy(lista_corridas[race_id])
@@ -193,6 +199,7 @@ def avalia_genomas(genomes, config):
    corridas = obtemCorridasAleatorias(qtd_corridas = qtd_corridas_treino)
    for corrida in corridas:
       processaOddsMundo(race_id=corrida, nets=nets, agentes=agentes, ge=ge)
+      [a.novaCorrida() for a in agentes] # Agora pode apostar
       
 def simula(config_file):
    #mundo = MeioAmbienteNeural(config_file)   # Crio mundo 
@@ -203,13 +210,13 @@ def simula(config_file):
                config_file)
    
    # Cria a populacao
-   #p = neat.Population(config)
-   p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-14') # Se for o caso continua
+   p = neat.Population(config)
+   #p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-9') # Se for o caso continua
    
    # Extraindo algum item que eu queira (tipo ID=36 nesse caso)
    #for x in p.population:
    #   print("P=", x, p.population[x].fitness )
-   #parece_boa = p.population[36] # Meio que se mantem de boas
+   #parece_boa = p.population[29] # Meio que se mantem de boas
    #with open('candidato.pkl', 'wb') as output:
    #   pickle.dump(parece_boa, output, 1) # Salva o vencedor
    #x  = 1/0
@@ -236,5 +243,5 @@ def simula(config_file):
 if __name__ == '__main__':
    local_dir = os.path.dirname(__file__)
    config_path = os.path.join(local_dir, 'config-feedforward.txt')
-   #simula(config_path)
-   validaModelo(nome_picke='candidato.pkl', config_file=config_path, qtd_corridas=qtd_corridas_validacao)
+   simula(config_path)
+   validaModelo(nome_picke='vencedor.pkl', config_file=config_path, qtd_corridas=qtd_corridas_validacao)

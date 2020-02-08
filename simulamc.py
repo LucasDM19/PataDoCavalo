@@ -94,7 +94,11 @@ class AgenteApostador():
       self.lucro_medio = 0.0 # Retorno do investimento
       self.idade = 0 # Um bebezito
       self.cres_exp = 0.0 # Crescimento exponencial da banca
-      
+      self.jaApostei = False
+   
+   def novaCorrida(self):
+      self.jaApostei = False
+   
    def estouVivo(self):
       if( self.patrimonio <= 0 ): return False
       return True
@@ -104,24 +108,24 @@ class AgenteApostador():
       
    # Faz apenas Back
    def fazApostaBack(self, odd_back, stack_back, wl_back, fracao_aposta=1.0, comissao = 0.065):
-      stack_back *= fracao_aposta # Aposto uma determinada fracao do Stack
-      if( stack_back < 2 ): return 0 # Sem condicao
+      #stack_back *= fracao_aposta # Aposto uma determinada fracao do Stack
+      if( stack_back < 2 ): return None # Sem condicao
       if( wl_back == 0 ): 
          pl_back = (-1*stack_back) 
       elif( wl_back == 1 ): 
          pl_back = stack_back*(odd_back)-stack_back
-      else: return 0 # WL invalido nao conta
+      else: return None # WL invalido nao conta
       if( pl_back > 0 ): 
          pl_back = pl_back*(1-comissao)
       self.somaStack += stack_back
-      print("Aposta back ", stack_back ," na odd ", odd_back , " teve PL=", round(pl_back,2), " e WL=", wl_back, ", frac=", fracao_aposta )   
-      input("Teve aposta.")      
+      #print("Aposta back ", round(stack_back,2) ," na odd ", odd_back , " teve PL=", round(pl_back,2), " e WL=", wl_back, ", frac=", round(fracao_aposta,2) )   
+      #input("Teve aposta.")      
       #if( self.somaStack != 0 ): print("Pat depois=", self.lucro_medio, " $=", self.patrimonio, " SS=", self.somaStack )
       return pl_back
       
    # Faz apenas Lay
    def fazApostaLay(self, odd_lay, stack_lay, wl_lay, fracao_aposta=1.0, comissao = 0.065):
-      stack_lay *= fracao_aposta # Aposto uma determinada fracao do Stack
+      #stack_lay *= fracao_aposta # Aposto uma determinada fracao do Stack
       if( stack_lay < 2 ): return 0 # Sem condicao
       if( wl_lay == 0 ): 
          pl_lay = (+1*stack_lay)
