@@ -94,6 +94,7 @@ class AgenteApostador():
       self.lucro_medio = 0.0 # Retorno do investimento
       self.idade = 0 # Um bebezito
       self.cres_exp = 0.0 # Crescimento exponencial da banca
+      self.pat_ant = self.patrimonio # Ve como estava de grana antes
       self.jaApostei = False
    
    def novaCorrida(self):

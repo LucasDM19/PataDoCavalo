@@ -9,9 +9,14 @@ import os
 import pickle
 from math import log # Log base natural mesmo
 
-qtd_corridas_treino = 5000
-qtd_corridas_validacao = 5000
-qtd_geracoes = 10
+qtd_corridas_treino = 15
+qtd_corridas_validacao = 15
+qtd_geracoes = 1000
+
+# Variaveis para todo o contexto
+nets = [] # Redes
+agentes = [] # Agentes apostadores
+ge = [] # Genomas
 
 def relu(input):
    if input > 0:
@@ -127,7 +132,7 @@ def processaOddsMundo(race_id, nets, agentes, ge):
       
       for x, agente in enumerate(agentes):
          if( agente.estouVivo() == False ): # Morreu
-            #print("MURRIO!")
+            print("MURRIO!")
             ge[x].fitness -= 5000 # Por ter morrido
             nets.pop(agentes.index(agente)) # Remove rede
             ge.pop(agentes.index(agente)) # Remove genoma
@@ -156,14 +161,21 @@ def processaOddsMundo(race_id, nets, agentes, ge):
                stack_back = agente.patrimonio * frac_apos
                pl_back = agente.fazApostaBack(odd_back=odds_cavalo1, stack_back=stack_back, wl_back=lista_wl[race_id][nome_melhor], fracao_aposta=frac_apos )
                if( pl_back is not None ):
-                  #print("minutos=", qtd_min, " race=", race_id)
+                  #print("minutos=", qtd_min, " race=", race_id )
                   agente.patrimonio += pl_back
+                  #if( agente.pat_ant > agente.patrimonio ):
+                  #   ge[x].fitness -= 3 # Ruim, ruim
+                  #else:
+                  #   ge[x].fitness += 1 # Bom, bom
+                  #print(", $$=", agente.patrimonio, " antes era=", agente.pat_ant, ", fit=", ge[x].fitness )
+                  #input("Olha a grana.")
                   agente.cres_exp += log(1+ frac_apos*relu(pl_back) ) # Soma crescimento exponencial da banca
                   agente.idade += 1
                   agente.atualizaRetorno()
-                  ge[x].fitness = agente.cres_exp # O que cresce exponencialmente na banca eh fitness
+                  #ge[x].fitness = agente.cres_exp # O que cresce exponencialmente na banca eh fitness
+                  ge[x].fitness = agente.patrimonio
                   agente.jaApostei = True # Uma vez apenas
-      
+                  agente.pat_ant = agente.patrimonio # Para lembrar
       tempo_anterior = qtd_min
       odd_anterior = copy.deepcopy(lista_corridas[race_id])
       winLose_anterior = copy.deepcopy(lista_wl[race_id])
@@ -184,22 +196,27 @@ def obtemCorridasAleatorias(qtd_corridas):
    return lista_corridas
 
 def avalia_genomas(genomes, config):
-   nets = [] # Redes
-   agentes = [] # Agentes apostadores
-   ge = [] # Genomas
-   for genome_id, genome in genomes:
-      genome.fitness = 0  # O fitness comeca com 0
-      net = neat.nn.FeedForwardNetwork.create(genome, config)
-      nets.append(net)
-      agente = AgenteNEAT()
-      agentes.append(agente)
-      ge.append(genome)
+   print("Avalio novamente!")
+   global nets, agentes, ge
+   if( len(agentes) == 0 ): # Faco apenas uma vez
+      for genome_id, genome in genomes:
+         genome.fitness = 0  # O fitness comeca com 0
+         net = neat.nn.FeedForwardNetwork.create(genome, config)
+         nets.append(net)
+         agente = AgenteNEAT()
+         agentes.append(agente)
+         ge.append(genome)
       
    # Agora os dados
    corridas = obtemCorridasAleatorias(qtd_corridas = qtd_corridas_treino)
    for corrida in corridas:
       processaOddsMundo(race_id=corrida, nets=nets, agentes=agentes, ge=ge)
       [a.novaCorrida() for a in agentes] # Agora pode apostar
+      
+   # Mostra as minhas estatisticas, depois da corrida
+   for x, agente in enumerate(agentes):
+      print("Agente=", agente.nome, ", $=", agente.patrimonio, ", fit=", ge[x].fitness )
+   #input("Olha a tabela-->.")
       
 def simula(config_file):
    #mundo = MeioAmbienteNeural(config_file)   # Crio mundo 
@@ -222,11 +239,11 @@ def simula(config_file):
    #x  = 1/0
    
    # Cria um Reporter StdOut
-   p.add_reporter(neat.StdOutReporter(True))
+   p.add_reporter(neat.StdOutReporter(show_species_detail=False)) # Se True mostra aquela tabela por especie
    stats = neat.StatisticsReporter()
    p.add_reporter(stats)
-   ckpoint = neat.Checkpointer(generation_interval=5, filename_prefix='neat-checkpoint-') #generation_interval=100, time_interval_seconds=300, filename_prefix='neat-checkpoint-'
-   p.add_reporter(ckpoint) 
+   #ckpoint = neat.Checkpointer(generation_interval=5, filename_prefix='neat-checkpoint-') #generation_interval=100, time_interval_seconds=300, filename_prefix='neat-checkpoint-'
+   #p.add_reporter(ckpoint) 
    
    # Executa 50 geracoes
    #winner = p.run(avalia_genomas, qtd_geracoes)
