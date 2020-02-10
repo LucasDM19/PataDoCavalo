@@ -96,9 +96,12 @@ class AgenteApostador():
       self.cres_exp = 0.0 # Crescimento exponencial da banca
       self.pat_ant = self.patrimonio # Ve como estava de grana antes
       self.jaApostei = False
+      self.relogio = 1 # Contabiliza ciclos
+      self.idx_aposta = 0.0 # Quanto ele aposta
    
    def novaCorrida(self):
       self.jaApostei = False
+      self.relogio += 1 # Contabiliza que essa corrida chegou para ele
    
    def estouVivo(self):
       if( self.patrimonio <= 0 ): return False

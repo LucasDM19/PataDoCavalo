@@ -9,14 +9,9 @@ import os
 import pickle
 from math import log # Log base natural mesmo
 
-qtd_corridas_treino = 15
-qtd_corridas_validacao = 15
-qtd_geracoes = 1000
-
-# Variaveis para todo o contexto
-nets = [] # Redes
-agentes = [] # Agentes apostadores
-ge = [] # Genomas
+qtd_corridas_treino = 10000
+qtd_corridas_validacao = 10000
+qtd_geracoes = 4
 
 def relu(input):
    if input > 0:
@@ -132,7 +127,7 @@ def processaOddsMundo(race_id, nets, agentes, ge):
       
       for x, agente in enumerate(agentes):
          if( agente.estouVivo() == False ): # Morreu
-            print("MURRIO!")
+            #print("MURRIO!")
             ge[x].fitness -= 5000 # Por ter morrido
             nets.pop(agentes.index(agente)) # Remove rede
             ge.pop(agentes.index(agente)) # Remove genoma
@@ -153,27 +148,33 @@ def processaOddsMundo(race_id, nets, agentes, ge):
             #print("Entrada=", idx_qtd_min, prob1, prob2, prob3 )
             output = nets[agentes.index(agente)].activate((idx_qtd_min, prob1, prob2, prob3 ))
             devoFazerBack = output[0] # Se ativado, faco aposta Back no favorito
-            frac_apos = output[1] # Fracao a ser apostada no Back no favorito
+            #frac_apos = output[1] # Fracao a ser apostada no Back no favorito
+            frac_apos = 1.0
             #print("Saida=", output, agente.idade)
             if devoFazerBack > 0.5 and frac_apos > 0:
                nome_melhor = melhores_odds[0][0] # O com menor odd
                odds_cavalo1 = melhores_odds[0][1] # Cavalo com menor odd
-               stack_back = agente.patrimonio * frac_apos
+               #stack_back = agente.patrimonio * frac_apos
+               stack_back = 20
                pl_back = agente.fazApostaBack(odd_back=odds_cavalo1, stack_back=stack_back, wl_back=lista_wl[race_id][nome_melhor], fracao_aposta=frac_apos )
                if( pl_back is not None ):
                   #print("minutos=", qtd_min, " race=", race_id )
                   agente.patrimonio += pl_back
-                  #if( agente.pat_ant > agente.patrimonio ):
-                  #   ge[x].fitness -= 3 # Ruim, ruim
-                  #else:
-                  #   ge[x].fitness += 1 # Bom, bom
+                  ge[x].fitness += agente.patrimonio # Quanto mais, melhor
+                  if( agente.pat_ant > agente.patrimonio ): ge[x].fitness -= 3 # Ruim, ruim
+                  else: ge[x].fitness += 1 # Bom, bom
+                  if( agente.lucro_medio < 0 ): ge[x].fitness -= 3 # Ruim, ruim
+                  else: ge[x].fitness += 1 # Bom, bom
+                  if( agente.relogio > 10 and agente.idx_aposta < 0.5) : ge[x].fitness -= 3
+                  else: ge[x].fitness += 1 # Bom, bom
                   #print(", $$=", agente.patrimonio, " antes era=", agente.pat_ant, ", fit=", ge[x].fitness )
                   #input("Olha a grana.")
                   agente.cres_exp += log(1+ frac_apos*relu(pl_back) ) # Soma crescimento exponencial da banca
                   agente.idade += 1
+                  agente.idx_aposta = 1.0*agente.idade/agente.relogio
                   agente.atualizaRetorno()
                   #ge[x].fitness = agente.cres_exp # O que cresce exponencialmente na banca eh fitness
-                  ge[x].fitness = agente.patrimonio
+                  #ge[x].fitness = agente.patrimonio
                   agente.jaApostei = True # Uma vez apenas
                   agente.pat_ant = agente.patrimonio # Para lembrar
       tempo_anterior = qtd_min
@@ -196,16 +197,16 @@ def obtemCorridasAleatorias(qtd_corridas):
    return lista_corridas
 
 def avalia_genomas(genomes, config):
-   print("Avalio novamente!")
-   global nets, agentes, ge
-   if( len(agentes) == 0 ): # Faco apenas uma vez
-      for genome_id, genome in genomes:
-         genome.fitness = 0  # O fitness comeca com 0
-         net = neat.nn.FeedForwardNetwork.create(genome, config)
-         nets.append(net)
-         agente = AgenteNEAT()
-         agentes.append(agente)
-         ge.append(genome)
+   nets = [] # Redes
+   agentes = [] # Agentes apostadores
+   ge = [] # Genomas
+   for genome_id, genome in genomes:
+      genome.fitness = 0  # O fitness comeca com 0
+      net = neat.nn.FeedForwardNetwork.create(genome, config)
+      nets.append(net)
+      agente = AgenteNEAT()
+      agentes.append(agente)
+      ge.append(genome)
       
    # Agora os dados
    corridas = obtemCorridasAleatorias(qtd_corridas = qtd_corridas_treino)
@@ -215,7 +216,7 @@ def avalia_genomas(genomes, config):
       
    # Mostra as minhas estatisticas, depois da corrida
    for x, agente in enumerate(agentes):
-      print("Agente=", agente.nome, ", $=", agente.patrimonio, ", fit=", ge[x].fitness )
+      print("Agente=", agente.nome, ", $=", round(agente.patrimonio,2), ", fit=", round(ge[x].fitness,4), ", idx=", round(agente.idx_aposta,4), ", apostas=", agente.idade )
    #input("Olha a tabela-->.")
       
 def simula(config_file):
