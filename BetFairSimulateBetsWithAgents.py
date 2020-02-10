@@ -9,9 +9,9 @@ import os
 import pickle
 from math import log # Log base natural mesmo
 
-qtd_corridas_treino = 10000
-qtd_corridas_validacao = 10000
-qtd_geracoes = 4
+qtd_corridas_treino = 30000
+qtd_corridas_validacao = 3535
+qtd_geracoes = 9
 
 def relu(input):
    if input > 0:
@@ -160,7 +160,7 @@ def processaOddsMundo(race_id, nets, agentes, ge):
                if( pl_back is not None ):
                   #print("minutos=", qtd_min, " race=", race_id )
                   agente.patrimonio += pl_back
-                  ge[x].fitness += agente.patrimonio # Quanto mais, melhor
+                  #ge[x].fitness += agente.patrimonio # Quanto mais, melhor
                   if( agente.pat_ant > agente.patrimonio ): ge[x].fitness -= 3 # Ruim, ruim
                   else: ge[x].fitness += 1 # Bom, bom
                   if( agente.lucro_medio < 0 ): ge[x].fitness -= 3 # Ruim, ruim
@@ -170,6 +170,8 @@ def processaOddsMundo(race_id, nets, agentes, ge):
                   #print(", $$=", agente.patrimonio, " antes era=", agente.pat_ant, ", fit=", ge[x].fitness )
                   #input("Olha a grana.")
                   agente.cres_exp += log(1+ frac_apos*relu(pl_back) ) # Soma crescimento exponencial da banca
+                  #ge[x].fitness += agente.cres_exp # Quanto mais, melhor
+                  ge[x].fitness += agente.patrimonio-1000 # Quanto mais, melhor
                   agente.idade += 1
                   agente.idx_aposta = 1.0*agente.idade/agente.relogio
                   agente.atualizaRetorno()
@@ -243,8 +245,8 @@ def simula(config_file):
    p.add_reporter(neat.StdOutReporter(show_species_detail=False)) # Se True mostra aquela tabela por especie
    stats = neat.StatisticsReporter()
    p.add_reporter(stats)
-   #ckpoint = neat.Checkpointer(generation_interval=5, filename_prefix='neat-checkpoint-') #generation_interval=100, time_interval_seconds=300, filename_prefix='neat-checkpoint-'
-   #p.add_reporter(ckpoint) 
+   ckpoint = neat.Checkpointer(generation_interval=5, filename_prefix='neat-checkpoint-') #generation_interval=100, time_interval_seconds=300, filename_prefix='neat-checkpoint-'
+   p.add_reporter(ckpoint) 
    
    # Executa 50 geracoes
    #winner = p.run(avalia_genomas, qtd_geracoes)
