@@ -126,6 +126,7 @@ def processaOddsMundo(race_id, nets, agentes, ge):
       #print(melhores_odds[0][0], melhores_odds[1][0], melhores_odds[2][0] ) # Nomes
       
       for x, agente in enumerate(agentes):
+         ge[x].fitness -= 1 # Desconta sempre
          if( agente.estouVivo() == False ): # Morreu
             #print("MURRIO!")
             ge[x].fitness -= 5000 # Por ter morrido
@@ -167,11 +168,13 @@ def processaOddsMundo(race_id, nets, agentes, ge):
                   else: ge[x].fitness += 1 # Bom, bom
                   if( agente.relogio > 10 and agente.idx_aposta < 0.5) : ge[x].fitness -= 3
                   else: ge[x].fitness += 1 # Bom, bom
+                  if( agente.idade == 0 ): ge[x].fitness -= 3 # Tem de apostar!
                   #print(", $$=", agente.patrimonio, " antes era=", agente.pat_ant, ", fit=", ge[x].fitness )
                   #input("Olha a grana.")
                   agente.cres_exp += log(1+ frac_apos*relu(pl_back) ) # Soma crescimento exponencial da banca
                   #ge[x].fitness += agente.cres_exp # Quanto mais, melhor
-                  ge[x].fitness += agente.patrimonio-1000 # Quanto mais, melhor
+                  #ge[x].fitness += agente.patrimonio-1000 # Quanto mais, melhor
+                  ge[x].fitness += pl_back # Retorninho
                   agente.idade += 1
                   agente.idx_aposta = 1.0*agente.idade/agente.relogio
                   agente.atualizaRetorno()
@@ -218,7 +221,7 @@ def avalia_genomas(genomes, config):
       
    # Mostra as minhas estatisticas, depois da corrida
    for x, agente in enumerate(agentes):
-      print("Agente=", agente.nome, ", $=", round(agente.patrimonio,2), ", fit=", round(ge[x].fitness,4), ", idx=", round(agente.idx_aposta,4), ", apostas=", agente.idade )
+      print("Agente=", agente.nome, ", $=", round(agente.patrimonio,2), ", fit=", round(ge[x].fitness,4), ", idx=", round(agente.idx_aposta,4), ", apostas=", agente.idade, ", exp=", round(agente.cres_exp,2), ", ret=", round(agente.lucro_medio,2) )
    #input("Olha a tabela-->.")
       
 def simula(config_file):
