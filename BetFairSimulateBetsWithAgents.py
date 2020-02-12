@@ -72,6 +72,7 @@ def processaOddsMundo(race_id, nets, agentes, ge):
    odd_anterior = {}
    winLose_anterior = {}
    bsp_anterior = {}
+   corridaJaFoi = None
    conn = sqlite3.connect('bf_gb_win_full.db')
    c = conn.cursor()
    c.execute(""" SELECT 
@@ -97,6 +98,7 @@ def processaOddsMundo(race_id, nets, agentes, ge):
       if( race_id not in lista_corridas ): 
          #print("Corrida nova!")
          lista_corridas[race_id], lista_bsp[race_id], lista_wl[race_id]  = obtemParticipantesDeCorrida(race_id)
+         corridaJaFoi = False
          #mundo.notificaNovaCorrida(race_id)   # Se preparem para apostar
       delta = datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') - datetime.strptime(data, '%Y-%m-%d %H:%M:%S')
       qtd_min = ((delta.seconds) // 60)
@@ -139,9 +141,10 @@ def processaOddsMundo(race_id, nets, agentes, ge):
             #agente.move()
             if( len(melhores_odds) < 3 ) : break #print("Deu merda!")
             if( qtd_min > 60 or qtd_min < 1 ): break # Apenas uma hora antes
-            #print( "Foi?=", agente.jaApostei)
+            if( corridaJaFoi == True ): break # Aposta apenas uma vez por corrida
             if( agente.jaApostei == True ): break # Ja apostei
-            #if( qtd_min > 60  ): break
+            corridaJaFoi = True
+            #print("DBG=", race_id, market_time, inplay_timestamp, market_name, market_venue, runner_id, nome_cavalo, win_lose, bsp, odd, data, qtd_min, corridaJaFoi)
             idx_qtd_min = 1.0*qtd_min/60 # Entre 0 e 1
             prob1 = 1.0/melhores_odds[0][1]
             prob2 = 1.0/melhores_odds[1][1]
