@@ -150,12 +150,15 @@ def processaOddsMundo(race_id, nets, agentes, ge):
             prob2 = 1.0/melhores_odds[1][1]
             prob3 = 1.0/melhores_odds[2][1]
             #print("Entrada=", idx_qtd_min, prob1, prob2, prob3 )
-            output = nets[agentes.index(agente)].activate((idx_qtd_min, prob1, prob2, prob3 ))
-            devoFazerBack = output[0] # Se ativado, faco aposta Back no favorito
+            #output = nets[agentes.index(agente)].activate((idx_qtd_min, prob1, prob2, prob3 ))
+            output = nets[agentes.index(agente)].activate((prob1, prob2, prob3 ))
+            devoFazerBack1 = output[0] # Se ativado, faco aposta Back no favorito
+            devoFazerBack2 = output[1] # Se ativado, faco aposta Back no favorito2
+            devoFazerBack3 = output[2] # Se ativado, faco aposta Back no favorito3
             #frac_apos = output[1] # Fracao a ser apostada no Back no favorito
             frac_apos = 1.0
             #print("Saida=", output, agente.idade)
-            if devoFazerBack > 0.5 and frac_apos > 0:
+            if devoFazerBack1 > 0.5 and frac_apos > 0:
                nome_melhor = melhores_odds[0][0] # O com menor odd
                odds_cavalo1 = melhores_odds[0][1] # Cavalo com menor odd
                #stack_back = agente.patrimonio * frac_apos
@@ -164,25 +167,43 @@ def processaOddsMundo(race_id, nets, agentes, ge):
                if( pl_back is not None ):
                   #print("minutos=", qtd_min, " race=", race_id )
                   agente.patrimonio += pl_back
-                  #ge[x].fitness += agente.patrimonio # Quanto mais, melhor
-                  if( agente.pat_ant > agente.patrimonio ): ge[x].fitness -= 3 # Ruim, ruim
-                  else: ge[x].fitness += 1 # Bom, bom
-                  if( agente.lucro_medio < 0 ): ge[x].fitness -= 3 # Ruim, ruim
-                  else: ge[x].fitness += 1 # Bom, bom
-                  if( agente.relogio > 10 and agente.idx_aposta < 0.5) : ge[x].fitness -= 3
-                  else: ge[x].fitness += 1 # Bom, bom
-                  if( agente.idade == 0 ): ge[x].fitness -= 3 # Tem de apostar!
-                  #print(", $$=", agente.patrimonio, " antes era=", agente.pat_ant, ", fit=", ge[x].fitness )
-                  #input("Olha a grana.")
                   agente.cres_exp += log(1+ frac_apos*relu(pl_back) ) # Soma crescimento exponencial da banca
-                  #ge[x].fitness += agente.cres_exp # Quanto mais, melhor
-                  #ge[x].fitness += agente.patrimonio-1000 # Quanto mais, melhor
                   ge[x].fitness += pl_back # Retorninho
                   agente.idade += 1
                   agente.idx_aposta = 1.0*agente.idade/agente.relogio
                   agente.atualizaRetorno()
-                  #ge[x].fitness = agente.cres_exp # O que cresce exponencialmente na banca eh fitness
-                  #ge[x].fitness = agente.patrimonio
+                  agente.jaApostei = True # Uma vez apenas
+                  agente.pat_ant = agente.patrimonio # Para lembrar
+            if devoFazerBack2 > 0.5 and frac_apos > 0:
+               nome_melhor2 = melhores_odds[1][0] # O com menor odd
+               odds_cavalo2 = melhores_odds[1][1] # Cavalo com menor odd
+               #stack_back = agente.patrimonio * frac_apos
+               stack_back = 20
+               pl_back = agente.fazApostaBack(odd_back=odds_cavalo2, stack_back=stack_back, wl_back=lista_wl[race_id][nome_melhor2], fracao_aposta=frac_apos )
+               if( pl_back is not None ):
+                  #print("minutos=", qtd_min, " race=", race_id )
+                  agente.patrimonio += pl_back
+                  agente.cres_exp += log(1+ frac_apos*relu(pl_back) ) # Soma crescimento exponencial da banca
+                  ge[x].fitness += pl_back # Retorninho
+                  agente.idade += 1
+                  agente.idx_aposta = 1.0*agente.idade/agente.relogio
+                  agente.atualizaRetorno()
+                  agente.jaApostei = True # Uma vez apenas
+                  agente.pat_ant = agente.patrimonio # Para lembrar
+            if devoFazerBack3 > 0.5 and frac_apos > 0:
+               nome_melhor3 = melhores_odds[2][0] # O com menor odd
+               odds_cavalo3 = melhores_odds[2][1] # Cavalo com menor odd
+               #stack_back = agente.patrimonio * frac_apos
+               stack_back = 20
+               pl_back = agente.fazApostaBack(odd_back=odds_cavalo3, stack_back=stack_back, wl_back=lista_wl[race_id][nome_melhor3], fracao_aposta=frac_apos )
+               if( pl_back is not None ):
+                  #print("minutos=", qtd_min, " race=", race_id )
+                  agente.patrimonio += pl_back
+                  agente.cres_exp += log(1+ frac_apos*relu(pl_back) ) # Soma crescimento exponencial da banca
+                  ge[x].fitness += pl_back # Retorninho
+                  agente.idade += 1
+                  agente.idx_aposta = 1.0*agente.idade/agente.relogio
+                  agente.atualizaRetorno()
                   agente.jaApostei = True # Uma vez apenas
                   agente.pat_ant = agente.patrimonio # Para lembrar
       tempo_anterior = qtd_min
