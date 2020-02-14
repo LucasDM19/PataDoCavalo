@@ -2,6 +2,7 @@
 import neat # pip install neat-python
 import os
 import pickle
+import math
 
 gen = 0
 
@@ -240,7 +241,7 @@ def eval_genomes(genomes, config):
       
       for x, agente in enumerate(agentes):
          #ge[x].fitness -= 0.1 # Punição para estimular a aposta
-         if( agente.estouVivo() == False or agente.patrimonio < 10 or agente.idx_aposta < 0.1 ): # Morreu ou quase falido
+         if( agente.estouVivo() == False or agente.patrimonio < 10 or agente.idx_aposta < 0.5 or math.isnan(round(agente.patrimonio,2)) or agente.lucro_medio < 0 ): # Morreu ou quase falido
             print("MURRIO!", agente.nome )
             ge[x].fitness -= 5000 # Por ter morrido
             nets.pop(agentes.index(agente)) # Remove rede
