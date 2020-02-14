@@ -33,6 +33,7 @@ class AgenteNEAT:
    def novaCorrida(self):
       self.jaApostei = False
       self.relogio += 1 # Contabiliza que essa corrida chegou para ele
+      if( self.relogio != 0 ): self.idx_aposta = 1.0*self.idade/self.relogio
    
    def estouVivo(self):
       if( self.patrimonio <= 0 ): return False
@@ -40,7 +41,7 @@ class AgenteNEAT:
    
    #def atualizaRetornos(self):
       #if( self.somaStack != 0 ): self.lucro_medio = 1.0*(self.patrimonio-1000.0)/self.somaStack
-      #if( agente.relogio != 0 ): agente.idx_aposta = 1.0*agente.idade/agente.relogio
+      #if( self.relogio != 0 ): self.idx_aposta = 1.0*self.idade/self.relogio
       
    # Faz apenas Back
    def fazApostaBack(self, odd_back, stack_back, wl_back, fracao_aposta=1.0, comissao = 0.065):
@@ -239,7 +240,7 @@ def eval_genomes(genomes, config):
       
       for x, agente in enumerate(agentes):
          #ge[x].fitness -= 0.1 # Punição para estimular a aposta
-         if( agente.estouVivo() == False or agente.patrimonio < 6 ): # Morreu ou quase falido
+         if( agente.estouVivo() == False or agente.patrimonio < 10 or agente.idx_aposta < 0.1 ): # Morreu ou quase falido
             print("MURRIO!", agente.nome )
             ge[x].fitness -= 5000 # Por ter morrido
             nets.pop(agentes.index(agente)) # Remove rede
