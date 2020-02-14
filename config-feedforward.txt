@@ -2,21 +2,21 @@
 fitness_criterion     = max
 fitness_threshold     = 1000000
 no_fitness_termination = False
-pop_size              = 20
+pop_size              = 200
 reset_on_extinction   = True
 
 [DefaultGenome]
 # node activation options
 activation_default      = tanh
 activation_mutate_rate  = 0.0
-#abs clamped cube exp gauss hat identity inv log relu elu lelu selu sigmoid sin softplus square tahn
-activation_options      = tanh 
+#tahn abs clamped cube exp gauss hat identity inv log relu elu lelu selu sigmoid sin softplus square 
+activation_options      = abs clamped cube exp gauss hat identity inv log relu elu lelu selu sigmoid sin softplus square tahn
 
 # node aggregation options
 aggregation_default     = sum
 aggregation_mutate_rate = 0.0
 #sum product min max mean median maxabs 
-aggregation_options     = sum
+aggregation_options     = sum product min max mean median maxabs 
 
 # node bias options
 bias_init_mean          = 0.0

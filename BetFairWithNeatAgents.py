@@ -299,7 +299,7 @@ def run(config_file):
    #p.add_reporter(ckpoint)
    
    # Executa até 50 gerações.
-   winner = p.run(eval_genomes, 500)
+   winner = p.run(eval_genomes, 5000)
    
    # Exibe as estatísticas finais
    print('\nMelhor genoma:\n{!s}'.format(winner))
