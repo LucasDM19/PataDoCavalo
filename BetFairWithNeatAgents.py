@@ -240,13 +240,14 @@ def eval_genomes(genomes, config):
       for x, agente in enumerate(agentes):
          #ge[x].fitness -= 0.1 # Punição para estimular a aposta
          if( agente.estouVivo() == False or agente.patrimonio < 6 ): # Morreu ou quase falido
-            #print("MURRIO!")
+            print("MURRIO!", agente.nome )
             ge[x].fitness -= 5000 # Por ter morrido
             nets.pop(agentes.index(agente)) # Remove rede
             ge.pop(agentes.index(agente)) # Remove genoma
             agentes.pop(agentes.index(agente)) # Remove agente
       
       corridas = banco.obtemCorridasAleatorias(1) # Apenas uma corrida por enquanto
+      [a.novaCorrida() for a in agentes] # Agora pode apostar
       nova_corrida = corridas[0] # Retorna apenas um id de corrida
       banco.efetuaConsultaCorrida(nova_corrida) # Faço a Query
       row = ""
@@ -271,7 +272,7 @@ def eval_genomes(genomes, config):
                         
       # Mostra o estado de todos os agentes   
       for x, agente in enumerate(agentes):
-         print("Geração", gen, "Agente=", agente.nome, ", $=", round(agente.patrimonio,2), ", fit=", round(ge[x].fitness,4), ", idx=", round(agente.idx_aposta,4), ", apostas=", agente.idade, ", exp=", round(agente.cres_exp,2), ", ret=", round(agente.lucro_medio,2) )
+         print("Geração", gen, "Agente=", agente.nome, ", $=", round(agente.patrimonio,2), ", fit=", round(ge[x].fitness,4), ", idx=", round(agente.idx_aposta,4), ", apostas=", agente.idade, ", corridas=", agente.relogio, ", exp=", round(agente.cres_exp,2), ", ret=", round(agente.lucro_medio,4) )
       #x = 1/0
    
    
