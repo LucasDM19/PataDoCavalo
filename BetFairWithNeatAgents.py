@@ -242,7 +242,7 @@ def eval_genomes(genomes, config):
       for x, agente in enumerate(agentes):
          #ge[x].fitness -= 0.1 # Punição para estimular a aposta
          if( agente.estouVivo() == False or agente.patrimonio < 10 or agente.idx_aposta < 0.5 or math.isnan(round(agente.patrimonio,2)) or agente.lucro_medio < 0 ): # Morreu ou quase falido
-            print("MURRIO!", agente.nome )
+            #print("MURRIO!", agente.nome )
             ge[x].fitness -= 5000 # Por ter morrido
             nets.pop(agentes.index(agente)) # Remove rede
             ge.pop(agentes.index(agente)) # Remove genoma
@@ -271,7 +271,13 @@ def eval_genomes(genomes, config):
                      if( pl_back is not None ): 
                         #agente.atualizaRetornos()
                         ge[x].fitness += pl_back # Retorninho
-                        
+      
+      for x, agente in enumerate(agentes):
+         if( agente.relogio > 3000 ):
+            with open('winner'+agente.nome+'.pkl', 'wb') as output:
+               pickle.dump(ge[x], output, 1)
+
+      
       # Mostra o estado de todos os agentes   
       for x, agente in enumerate(agentes):
          print("Geração", gen, "Agente=", agente.nome, ", $=", round(agente.patrimonio,2), ", fit=", round(ge[x].fitness,4), ", idx=", round(agente.idx_aposta,4), ", apostas=", agente.idade, ", corridas=", agente.relogio, ", exp=", round(agente.cres_exp,2), ", ret=", round(agente.lucro_medio,4) )
