@@ -273,8 +273,8 @@ def eval_genomes(genomes, config):
                         ge[x].fitness += pl_back # Retorninho
       
       for x, agente in enumerate(agentes):
-         if( agente.relogio > 3000 ):
-            with open('winner'+agente.nome+'.pkl', 'wb') as output:
+         if( agente.relogio > 10000 ):
+            with open('winner10_'+agente.nome+'.pkl', 'wb') as output:
                pickle.dump(ge[x], output, 1)
 
       
