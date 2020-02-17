@@ -12,6 +12,16 @@ def relu(input):
       return input
    else:
       return 0
+
+# Calcula indice de Sharpe
+def calc_sharpe(lista_retornos):
+   soma = sum(lista_retornos)
+   qtd_itens = len(lista_retornos)
+   media = 1.0*soma/qtd_itens
+   desvios = [ (r - media)**2 for r in lista_retornos]
+   desvpad = ( sum(desvios)/len(desvios) )**0.5
+   sh = media/desvpad
+   return sh
       
 import random, string
 from math import log # Log base natural mesmo
@@ -65,8 +75,9 @@ class AgenteNEAT:
       self.idade += 1
       if( self.relogio != 0 ): self.idx_aposta = 1.0*self.idade/self.relogio
       if( self.somaStack != 0 ): self.lucro_medio = 1.0*(self.patrimonio-1000.0)/self.somaStack
-      self.pl_hist.append( Decimal(pl_back) )
-      if( len(self.pl_hist) > 1 ): self.sharpe = mean(self.pl_hist)/stdev(self.pl_hist)
+      #self.pl_hist.append( Decimal(pl_back) )
+      #if( len(self.pl_hist) > 1 ): self.sharpe = float( mean(self.pl_hist)/stdev(self.pl_hist) )
+      #if( len(self.pl_hist) > 1 ): self.sharpe = calc_sharpe(self.pl_hist)
       #print("Aposta back ", round(stack_back,2) ," na odd ", odd_back , " teve PL=", round(pl_back,2), " e WL=", wl_back, ", frac=", round(fracao_aposta,2) )   
       #input("Teve aposta.")      
       #if( self.somaStack != 0 ): print("Pat depois=", self.lucro_medio, " $=", self.patrimonio, " SS=", self.somaStack )
@@ -276,7 +287,7 @@ def eval_genomes(genomes, config):
                      pl_back = agente.fazApostaBack(odd_back=odds_cavalo, stack_back=stack_back, wl_back=corrida.lista_wl[corrida.race_id][nome_melhor], fracao_aposta=frac_apos )
                      if( pl_back is not None ): 
                         #agente.atualizaRetornos()
-                        ge[x].fitness = float(agente.sharpe) # Retorninho
+                        ge[x].fitness = agente.lucro_medio # O importante é ficar positivo
       
       for x, agente in enumerate(agentes):
          if( agente.relogio > 10000 ):
@@ -286,7 +297,7 @@ def eval_genomes(genomes, config):
       
       # Mostra o estado de todos os agentes   
       for x, agente in enumerate(agentes):
-         print("Geração", gen, "Agente=", agente.nome, ", $=", round(agente.patrimonio,2), ", Sharpe=", round(agente.sharpe,4),", fit=", round(ge[x].fitness,4), ", idx=", round(agente.idx_aposta,4), ", apostas=", agente.idade, ", corridas=", agente.relogio, ", exp=", round(agente.cres_exp,2), ", ret=", round(agente.lucro_medio,4) )
+         print("Geração", gen, "Agente=", agente.nome, ", $=", round(agente.patrimonio,2), ", fit=", round(ge[x].fitness,4), ", idx=", round(agente.idx_aposta,4), ", apostas=", agente.idade, ", corridas=", agente.relogio, ", exp=", round(agente.cres_exp,2), ", ret=", round(agente.lucro_medio,4) )
       #x = 1/0
    
    
