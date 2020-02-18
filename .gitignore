@@ -128,3 +128,8 @@ Hush.py
 
 # Checkpoint do NEAT
 neat-checkpoint-*
+
+# Visualiza neural network
+*.svg
+*.gv
+*.gv.svg

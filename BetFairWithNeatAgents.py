@@ -3,6 +3,7 @@ import neat # pip install neat-python
 import os
 import pickle
 import math
+import visualize # arquivo vizualize.py
 
 gen = 0
 
@@ -287,7 +288,7 @@ def eval_genomes(genomes, config):
                      pl_back = agente.fazApostaBack(odd_back=odds_cavalo, stack_back=stack_back, wl_back=corrida.lista_wl[corrida.race_id][nome_melhor], fracao_aposta=frac_apos )
                      if( pl_back is not None ): 
                         #agente.atualizaRetornos()
-                        ge[x].fitness = agente.lucro_medio # O importante é ficar positivo
+                        ge[x].fitness += pl_back # O importante é ficar positivo
       
       for x, agente in enumerate(agentes):
          if( agente.relogio > 10000 ):
@@ -322,13 +323,18 @@ def run(config_file):
    #p.add_reporter(ckpoint)
    
    # Executa até 50 gerações.
-   winner = p.run(eval_genomes, 5000)
+   winner = p.run(eval_genomes, 1)
    
    # Exibe as estatísticas finais
    print('\nMelhor genoma:\n{!s}'.format(winner))
    
    with open('vencedor.pkl', 'wb') as output:
       pickle.dump(winner, output, 1) # Salva o vencedor
+      
+   node_names = {-1:'Input1', -2: 'Input2', -3:'Input3', -4:'Input4', 0:'Output1', 1:'Output2'}
+   visualize.draw_net(config, winner, True, node_names=node_names)
+   visualize.plot_stats(stats, ylog=False, view=True)
+   visualize.plot_species(stats, view=True)
 
 if __name__ == '__main__':
    local_dir = os.path.dirname(__file__)
