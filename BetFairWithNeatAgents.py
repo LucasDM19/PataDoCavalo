@@ -39,7 +39,7 @@ class AgenteNEAT:
       self.lucro_medio = 0.0 # Retorno do investimento
       self.idade = 0 # Um bebezito
       self.cres_exp = 0.0 # Crescimento exponencial da banca
-      self.pat_ant = self.patrimonio # Ve como estava de grana antes
+      self.max_patrimonio = self.patrimonio # Ve como estava de grana antes
       self.jaApostei = False
       self.relogio = 1 # Contabiliza ciclos
       self.idx_aposta = 0.0 # Quanto ele aposta
@@ -288,7 +288,9 @@ def eval_genomes(genomes, config):
                      pl_back = agente.fazApostaBack(odd_back=odds_cavalo, stack_back=stack_back, wl_back=corrida.lista_wl[corrida.race_id][nome_melhor], fracao_aposta=frac_apos )
                      if( pl_back is not None ): 
                         #agente.atualizaRetornos()
-                        ge[x].fitness += pl_back # O importante é ficar positivo
+                        if( agente.patrimonio > agente.max_patrimonio ):
+                           ge[x].fitness += 1 # Bateu recorde, é bom
+                           agente.max_patrimonio = agente.patrimonio
       
       for x, agente in enumerate(agentes):
          if( agente.relogio > 10000 ):
