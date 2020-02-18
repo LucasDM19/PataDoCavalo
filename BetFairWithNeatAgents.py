@@ -323,7 +323,7 @@ def run(config_file):
    #p.add_reporter(ckpoint)
    
    # Executa até 50 gerações.
-   winner = p.run(eval_genomes, 1)
+   winner = p.run(eval_genomes, 1000)
    
    # Exibe as estatísticas finais
    print('\nMelhor genoma:\n{!s}'.format(winner))
@@ -331,7 +331,7 @@ def run(config_file):
    with open('vencedor.pkl', 'wb') as output:
       pickle.dump(winner, output, 1) # Salva o vencedor
       
-   node_names = {-1:'Input1', -2: 'Input2', -3:'Input3', -4:'Input4', 0:'Output1', 1:'Output2'}
+   node_names = {-1:'Idx_Minutos', -2: 'Prob1', -3:'Prob2', -4:'Prob3', 0:'Frac_Back1', 1:'Frac_Back2', 2:'Frac_Back3' }
    visualize.draw_net(config, winner, True, node_names=node_names)
    visualize.plot_stats(stats, ylog=False, view=True)
    visualize.plot_species(stats, view=True)
