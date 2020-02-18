@@ -216,7 +216,8 @@ class AmbienteDaCorrida:
       self.melhores_odds = list(lista_corridas_ordenado.items())[0:3] # Top 3 odds
       
       if( len(self.melhores_odds) < 3 ) : return None #print("Deu merda!")
-      if( qtd_min > 60 or qtd_min < 1 ): return None # Apenas uma hora antes
+      #if( qtd_min > 60 or qtd_min < 1 ): return None # Apenas uma hora antes
+      if( qtd_min != 60 ): return None # Apenas com um determinado minuto
       #if( corridaJaFoi == True ): return None # Aposta apenas uma vez por corrida
       
       idx_qtd_min = 1.0*qtd_min/60 # Entre 0 e 1
@@ -288,9 +289,10 @@ def eval_genomes(genomes, config):
                      pl_back = agente.fazApostaBack(odd_back=odds_cavalo, stack_back=stack_back, wl_back=corrida.lista_wl[corrida.race_id][nome_melhor], fracao_aposta=frac_apos )
                      if( pl_back is not None ): 
                         #agente.atualizaRetornos()
-                        if( agente.patrimonio > agente.max_patrimonio ):
-                           ge[x].fitness += 1 # Bateu recorde, é bom
-                           agente.max_patrimonio = agente.patrimonio
+                        #if( agente.patrimonio > agente.max_patrimonio ):
+                           #ge[x].fitness += 1 # Bateu recorde, é bom
+                           #agente.max_patrimonio = agente.patrimonio
+                        ge[x].fitness = agente.relogio
       
       for x, agente in enumerate(agentes):
          if( agente.relogio > 10000 ):
