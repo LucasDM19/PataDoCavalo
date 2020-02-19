@@ -111,6 +111,7 @@ class AgenteNEAT:
       return pl
 
 import sqlite3
+import operator
 class BaseDeDados:
    """
    Representa o fluxo de odds se movimentando
@@ -181,49 +182,73 @@ class BaseDeDados:
          lista_bsp[runner_name] = BSP
          lista_wl[runner_name] = WinLose
       return lista_participantes, lista_bsp, lista_wl
-
-from datetime import datetime, timedelta
-import operator
-class AmbienteDaCorrida:
-   """
-   Representa as restrições, regras e conversões dos dados para simular uma quase API da BetFair
-   """
-   def __init__(self):
+      
+   def obtemMinutosDaCorrida(self, race_id):
+      lista_minutos = []
+      if( self.nomeBD is None ): return 1/0
+      self.idCorrida_minutos = race_id # Lembra qual foi a corrida dos minutos
+      conn = sqlite3.connect(self.nomeBD)
+      c = conn.cursor()
+      c.execute(""" SELECT  races.RaceId, 
+      Cast (( JulianDay(races.MarketTime) - JulianDay(odds.PublishedTime) ) * 24 * 60 As Integer ) as Dif_Min
+      FROM runners, races, odds
+      WHERE runners.RaceId = races.RaceId
+        AND odds.RaceId = races.RaceId
+        AND odds.RunnerId = runners.RunnerId
+        AND races.RaceId = ?
+        AND runners.BSP <> -1
+        AND runners.WinLose <> -1
+      GROUP BY races.RaceId, Dif_Min
+      ORDER BY races.RaceId, odds.PublishedTime ASC """, (race_id,) )
+      while True: 
+         row = c.fetchone()
+         if row == None: break  # Acabou o sqlite
+         runner_id, dif_min = row
+         lista_minutos.append( dif_min )
+      return lista_minutos   
+   
+   def obtemRegistroPorMinuto(self, minuto):
       self.lista_corridas = {} # Cada corrida tem uma lista de cavalos
       self.lista_bsp = {} # Para saber qual eh o BSP correspondente
       self.lista_wl = {} # Para saber quem foi Win e quem foi Lose
-      
-   def atualizaDados(self, row):
-      bd = BaseDeDados()
-      bd.nomeBD = 'bf_gb_win_full.db'
-      if( row is None ): return None
-      self.race_id, market_time, inplay_timestamp, market_name, market_venue, runner_id, nome_cavalo, win_lose, bsp, odd, data = row
-      if( self.race_id not in self.lista_corridas ): 
-         self.lista_corridas[self.race_id], self.lista_bsp[self.race_id], self.lista_wl[self.race_id] = bd.obtemParticipantesDeCorrida(self.race_id)
-      delta = datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') - datetime.strptime(data, '%Y-%m-%d %H:%M:%S')
-      qtd_min = ((delta.seconds) // 60)
-      if( datetime.strptime(data, '%Y-%m-%d %H:%M:%S') > datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') ) : # Corrida em andamento
-         delta = (datetime.strptime(data, '%Y-%m-%d %H:%M:%S') - datetime.strptime(market_time, '%Y-%m-%dT%H:%M:%S.000Z') )
-         qtd_min = -1 * ((delta.seconds) // 60)
-      self.lista_corridas[self.race_id][nome_cavalo] = odd #Atualiza as odds dessa corrida
-      self.lista_bsp[self.race_id][nome_cavalo] = bsp # Sabendo o BSP do cavalo
-      self.lista_wl[self.race_id][nome_cavalo] = win_lose # Sabendo o Win/Lose do cavalo
-      #favorito = min( lista_corridas[race_id], key=lista_corridas[race_id].get ) # Nome do cavalo com menor odd
-      #odd_favorito = lista_corridas[race_id][favorito]
-      #bsp_favorito = lista_bsp[race_id][favorito]
-      #wl_favorito = lista_wl[race_id][favorito]
-      lista_corridas_ordenado = dict( sorted( self.lista_corridas[self.race_id].items(), key=operator.itemgetter(1),reverse=False ) ) # Mostra igual no site. Odds menores primeiro.
-      self.melhores_odds = list(lista_corridas_ordenado.items())[0:3] # Top 3 odds
-      
-      if( len(self.melhores_odds) < 3 ) : return None #print("Deu merda!")
-      if( qtd_min > 60 or qtd_min < 1 ): return None # Apenas uma hora antes
-      #if( qtd_min != 60 ): return None # Apenas com um determinado minuto
-      #if( corridaJaFoi == True ): return None # Aposta apenas uma vez por corrida
-      
-      idx_qtd_min = 1.0*qtd_min/60 # Entre 0 e 1
-      prob1 = 1.0/self.melhores_odds[0][1]
-      prob2 = 1.0/self.melhores_odds[1][1]
-      prob3 = 1.0/self.melhores_odds[2][1]
+      if( self.nomeBD is None ): return 1/0
+      if( self.idCorrida_minutos is None ): return 1/0
+      conn = sqlite3.connect(self.nomeBD)
+      c = conn.cursor()
+      c.execute(""" SELECT  races.RaceId, races.MarketTime, races.InplayTimestamp, races.MarketName, races.MarketVenue,  
+      Cast (( JulianDay(races.MarketTime) - JulianDay(odds.PublishedTime) ) * 24 * 60 As Integer ) as Dif_Min
+      , runners.RunnerId, runners.RunnerName, runners.WinLose, runners.BSP,
+      odds.LastTradedPrice, odds.PublishedTime
+      FROM runners, races, odds
+      WHERE runners.RaceId = races.RaceId
+        AND odds.RaceId = races.RaceId
+        AND odds.RunnerId = runners.RunnerId
+        AND races.RaceId = ?
+        AND runners.BSP <> -1
+        AND runners.WinLose <> -1
+		AND Dif_Min=?
+      ORDER BY races.RaceId, odds.PublishedTime ASC """, (self.idCorrida_minutos, minuto) )
+      while True: 
+         row = c.fetchone()
+         if row == None: break  # Acabou o sqlite
+         #runner_id, market_time, published_time, dif_min, odds runner_name, win_lose, bsp = row
+         self.race_id, market_time, inplay_timestamp, market_name, market_venue, dif_min, runner_id, nome_cavalo, win_lose, bsp, odd, data = row
+         if( self.race_id not in self.lista_corridas ): 
+            self.lista_corridas[self.race_id], self.lista_bsp[self.race_id], self.lista_wl[self.race_id] = self.obtemParticipantesDeCorrida(self.race_id)
+         self.lista_corridas[self.race_id][nome_cavalo] = odd #Atualiza as odds dessa corrida
+         self.lista_bsp[self.race_id][nome_cavalo] = bsp # Sabendo o BSP do cavalo
+         self.lista_wl[self.race_id][nome_cavalo] = win_lose # Sabendo o Win/Lose do cavalo
+         lista_corridas_ordenado = dict( sorted( self.lista_corridas[self.race_id].items(), key=operator.itemgetter(1),reverse=False ) ) # Mostra igual no site. Odds menores primeiro.
+         self.melhores_odds = list(lista_corridas_ordenado.items())[0:3] # Top 3 odds
+         
+         if( len(self.melhores_odds) < 3 ) : return None #print("Deu merda!")
+         if( dif_min > 60 or dif_min < 1 ): return None # Apenas uma hora antes
+         
+         idx_qtd_min = 1.0*dif_min/60 # Entre 0 e 1
+         prob1 = 1.0/self.melhores_odds[0][1]
+         prob2 = 1.0/self.melhores_odds[1][1]
+         prob3 = 1.0/self.melhores_odds[2][1]
+      #print("Teste=", self.race_id, ", min=", dif_min, ", minuto=", minuto )
       return idx_qtd_min, prob1, prob2, prob3
    
 def eval_genomes(genomes, config):
@@ -251,12 +276,10 @@ def eval_genomes(genomes, config):
       
    banco = BaseDeDados()
    banco.conectaBaseDados('bf_gb_win_full.db')
-   corrida = AmbienteDaCorrida()
       
    score = 0 # Será que precisa?
    run = True # Para o "jogo financeiro"
    while run and len(agentes) > 0: # Enquanto o jogo não acaba e enquanto tem apostadores
-      #clock.tick(30) Contabilizo corridas?
       
       for x, agente in enumerate(agentes):
          #ge[x].fitness -= 0.1 # Punição para estimular a aposta
@@ -270,11 +293,10 @@ def eval_genomes(genomes, config):
       corridas = banco.obtemCorridasAleatorias(1) # Apenas uma corrida por enquanto
       [a.novaCorrida() for a in agentes] # Agora pode apostar
       nova_corrida = corridas[0] # Retorna apenas um id de corrida
-      banco.efetuaConsultaCorrida(nova_corrida) # Faço a Query
-      row = ""
-      while row is not None:
-         row = banco.proximoRegistroCorrida() # Proxima Odd
-         retorno = corrida.atualizaDados(row)
+      minutosCorrida = banco.obtemMinutosDaCorrida(nova_corrida) # Quais minutos tem eventos registrado de odds
+      
+      for minuto in minutosCorrida:
+         retorno = banco.obtemRegistroPorMinuto(minuto) # Todas as odds consolidadas
          if( retorno is not None ):
             idx_qtd_min, prob1, prob2, prob3 = retorno
             
@@ -284,9 +306,9 @@ def eval_genomes(genomes, config):
                   if( saida > 0):
                      frac_apos = saida
                      stack_back = agente.patrimonio * frac_apos / len(output) # Fração para apostar
-                     nome_melhor = corrida.melhores_odds[y][0]
-                     odds_cavalo = corrida.melhores_odds[y][1]
-                     pl_back = agente.fazApostaBack(odd_back=odds_cavalo, stack_back=stack_back, wl_back=corrida.lista_wl[corrida.race_id][nome_melhor], fracao_aposta=frac_apos )
+                     nome_melhor = banco.melhores_odds[y][0]
+                     odds_cavalo = banco.melhores_odds[y][1]
+                     pl_back = agente.fazApostaBack(odd_back=odds_cavalo, stack_back=stack_back, wl_back=banco.lista_wl[banco.race_id][nome_melhor], fracao_aposta=frac_apos )
                      if( pl_back is not None ): 
                         #agente.atualizaRetornos()
                         #if( agente.patrimonio > agente.max_patrimonio ):
