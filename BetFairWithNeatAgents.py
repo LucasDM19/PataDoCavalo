@@ -183,6 +183,38 @@ class BaseDeDados:
          lista_wl[runner_name] = WinLose
       return lista_participantes, lista_bsp, lista_wl
       
+   def obtemNomesDosMercados(self):
+      lista_mercados = []
+      if( self.nomeBD is None ): return 1/0
+      conn = sqlite3.connect(self.nomeBD)
+      c = conn.cursor()
+      c.execute(""" SELECT MarketName, COUNT(*) AS Total
+                     FROM races 
+                     GROUP BY MarketName
+                     ORDER BY Total DESC """ )       
+      while True: 
+         row = c.fetchone()
+         if row == None: break  # Acabou o sqlite
+         market_name, total_market = row
+         lista_mercados.append( market_name )
+      return lista_mercados
+      
+   def obtemLocaisDosMercados(self):
+      lista_mercados = []
+      if( self.nomeBD is None ): return 1/0
+      conn = sqlite3.connect(self.nomeBD)
+      c = conn.cursor()
+      c.execute(""" SELECT MarketVenue, COUNT(*) AS Total
+                     FROM races 
+                     GROUP BY MarketVenue
+                     ORDER BY Total DESC """ )       
+      while True: 
+         row = c.fetchone()
+         if row == None: break  # Acabou o sqlite
+         market_venue, total_market = row
+         lista_mercados.append( market_venue )
+      return lista_mercados
+      
    def obtemMinutosDaCorrida(self, race_id):
       lista_minutos = []
       if( self.nomeBD is None ): return 1/0
