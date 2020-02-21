@@ -7,7 +7,7 @@ def obtemDistanciaDaPista(nome_mercado):
    milha_milha = 1.0 # Padrão será em milhas
    #furlong_metro = 201.168 # Quantos metros tem um furlong
    furlong_milha = 0.125 # Quantos furlongs tem uma milha
-   print("Nome=", nome_mercado)
+   #print("Nome=", nome_mercado)
    for punm in nome_mercado.split():
       try:
          qtd_miles = ''
@@ -38,7 +38,7 @@ def obtemDistanciaDaPista(nome_mercado):
                distancia_milhas = furlong_milha*qtd_fur
             else:
                distancia_milhas += furlong_milha*qtd_fur
-         else: print("Mist=", punm)
+         #else: print("Mist=", punm)
       except ValueError:
          pass
          #print(punm, " deu ruim")
@@ -54,46 +54,72 @@ def obtemExtremosDistancias(nomes_mercados):
    return dist_maxima, dist_minima
 
 def obtemCaracteristicasDaCorrida(nome_mercado):
-   handicap, novice, hurdle, maiden, stakes, claiming, amateur, trotting, listed, national_hunt_flat, steeplechase, hunt, nursery, listed, conditions = 0
+   handicap = 0
+   novice = 0
+   hurdle = 0
+   maiden = 0
+   stakes = 0
+   claiming = 0
+   amateur = 0
+   trotting = 0
+   listed = 0
+   national_hunt_flat = 0
+   steeplechase = 0
+   hunt = 0
+   nursery = 0
+   listed = 0
+   conditions = 0
+   group1 = 0
+   group2 = 0
+   group3 = 0
+   selling = 0
+   apprentice = 0
+   tres_anos = 0
+   tres_anos_ou_mais = 0
+   quatro_anos_ou_mais = 0
+   quatro_anos = 0
+   cinco_anos_ou_mais = 0
+   cinco_anos = 0
+   charity = 0
+   mare = 0
    if('Hcap' in nome_mercado ): handicap = 1 # Iguala o peso com base na vantagem
    if('Nov' in nome_mercado ): novice = 1 # 2 anos de idade que não ganharam mais de uma vez
-   if('Hrd' in nome_mercado ): hurdle = 1 # Com aquelas barreiras para pular
+   if('Hrd' in nome_mercado or 'Hurdle' in nome_mercado ): hurdle = 1 # Com aquelas barreiras para pular
    if('Mdn' in nome_mercado ): maiden = 1 # Nunca correu na vida
-   if('Stks' in nome_mercado ): stakes = 1 # Sem o handicap
+   if('Stks' in nome_mercado or 'Stakes' in nome_mercado ): stakes = 1 # Sem o handicap
    if('Claim' in nome_mercado ): claiming = 1 # Todos tem o mesmo preço (Claiming Price) inicial igual antes da corrida
    if('Amateur' in nome_mercado or 'Amat' in nome_mercado ): amateur = 1 # Amador?
    if('Trot' in nome_mercado ): trotting = 1 # Corrida com mini biga / charrete
    if('Listed' in nome_mercado ): listed = 1 # 	Just below group class
    if('NHF' in nome_mercado ): national_hunt_flat = 1 # No piso mesmo Flat racing / Bumper races
-   if('Chs' in nome_mercado ): steeplechase = 1 # Pula mureta e fossa
-   if('Hunt' in nome_mercado ): hunt = 1 # Pula mureta e fossa
+   if('Chs' in nome_mercado or 'Chase' in nome_mercado ): steeplechase = 1 # Pula mureta e fossa
+   if('Hunt' in nome_mercado or 'Hnt' in nome_mercado ): hunt = 1 # Pula mureta e fossa
    if('Nursery' in nome_mercado or 'Juv' in nome_mercado ): nursery = 1 # Exclusiva para cavalos com dois anos de idade
-   if('Listed' in nome_mercado ): listed = 1 # Abaixo do Grupo 3 de ranking
+   if('Listed' in nome_mercado or 'List' in nome_mercado ): listed = 1 # Abaixo do Grupo 3 de ranking
    if('Cond' in nome_mercado ): conditions = 1 # Tem peso de acordo com o sexo, idade e habilidade do cavalo
-   #if(
-   """
-   M
-   S
-   R8
-   R7
-   PA
-   3yo+
-   4yo+
-   Plt
-   Pace
-   Grd
-   Grp1
-   Grp3
-   Magnolia
-   Charity
-   Sell
-   """
-   
+   if('Grp1' in nome_mercado or 'Grp 1' in nome_mercado ): group1 = 1
+   if('Grp2' in nome_mercado or 'Grp 2' in nome_mercado ): group2 = 1
+   if('Grp3' in nome_mercado or 'Grp 3' in nome_mercado ): group3 = 1
+   if('Sell' in nome_mercado or 'Selling' in nome_mercado ): selling = 1 # Cavalo de baixa classe. O vencedor é vendido.
+   if('App' in nome_mercado ): apprentice = 1 # Apenas para jóqueis aprendizes (novatos)
+   if('3yo+' in nome_mercado ): tres_anos_ou_mais = 1 # Correm os cavalos com três anos ou mais
+   if('3yo' in nome_mercado and '3yo+' not in nome_mercado ): tres_anos = 1 # Correm cavalos com três anos de idade
+   if('4yo+' in nome_mercado ): quatro_anos_ou_mais = 1 # Correm os cavalos com quatro anos ou mais
+   if('4yo' in nome_mercado and '4yo+' not in nome_mercado ): quatro_anos = 1 # Correm os cavalos com quatro anos de idade
+   if('5yo+' in nome_mercado ): cinco_anos_ou_mais = 1 # Correm os cavalos com cinco anos ou mais
+   if('5yo' in nome_mercado and '5yo+' not in nome_mercado ): cinco_anos = 1 # Correm os cavalos com cinco anos de idade
+   if('Charity' in nome_mercado ): charity = 1 # Corrida para a Caridade
+   if('Mare' in nome_mercado or 'Mares' in nome_mercado ): mare = 1 # Éguas acima de três anos de idade
+   if( sum([handicap, novice, hurdle, maiden, stakes, claiming, amateur, trotting, listed, national_hunt_flat, steeplechase, hunt, nursery, listed, conditions, group1, group2, group3, selling, apprentice]) == 0 ):
+      print("Falta:", nome_mercado)
+   return handicap, novice, hurdle, maiden, stakes, claiming, amateur, trotting, listed, national_hunt_flat, steeplechase, hunt, nursery, listed, conditions, group1, group2, group3, selling, apprentice
 
 if __name__ == '__main__':   
    banco = BaseDeDados()
    banco.conectaBaseDados('bf_gb_win_full.db')
    
    nomes_mercados = banco.obtemNomesDosMercados()
+   for nm in nomes_mercados:
+      lista = obtemCaracteristicasDaCorrida(nm)
    dist_maxima, dist_minima = obtemExtremosDistancias(nomes_mercados)
    print("Distância Máxima:", dist_maxima, ", distância mínima:", dist_minima)
