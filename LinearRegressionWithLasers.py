@@ -1,5 +1,6 @@
 #coding: utf-8
 from BDUtils import BaseDeDados
+from sklearn.linear_model import LinearRegression
 
 def obtemDistanciaDaPista(nome_mercado):
    distancia_milhas = '' 
@@ -110,9 +111,8 @@ def obtemCaracteristicasDaCorrida(nome_mercado):
    if('5yo' in nome_mercado and '5yo+' not in nome_mercado ): cinco_anos = 1 # Correm os cavalos com cinco anos de idade
    if('Charity' in nome_mercado ): charity = 1 # Corrida para a Caridade
    if('Mare' in nome_mercado or 'Mares' in nome_mercado ): mare = 1 # Éguas acima de três anos de idade
-   if( sum([handicap, novice, hurdle, maiden, stakes, claiming, amateur, trotting, listed, national_hunt_flat, steeplechase, hunt, nursery, listed, conditions, group1, group2, group3, selling, apprentice]) == 0 ):
-      print("Falta:", nome_mercado)
-   return handicap, novice, hurdle, maiden, stakes, claiming, amateur, trotting, listed, national_hunt_flat, steeplechase, hunt, nursery, listed, conditions, group1, group2, group3, selling, apprentice
+   if( sum([handicap, novice, hurdle, maiden, stakes, claiming, amateur, trotting, listed, national_hunt_flat, steeplechase, hunt, nursery, listed, conditions, group1, group2, group3, selling, apprentice, tres_anos_ou_mais, tres_anos, quatro_anos_ou_mais, quatro_anos, cinco_anos_ou_mais, cinco_anos, charity, mare ]) == 0 ): print("Falta:", nome_mercado)
+   return handicap, novice, hurdle, maiden, stakes, claiming, amateur, trotting, listed, national_hunt_flat, steeplechase, hunt, nursery, listed, conditions, group1, group2, group3, selling, apprentice, tres_anos_ou_mais, tres_anos, quatro_anos_ou_mais, quatro_anos, cinco_anos_ou_mais, cinco_anos, charity, mare
 
 if __name__ == '__main__':   
    banco = BaseDeDados()

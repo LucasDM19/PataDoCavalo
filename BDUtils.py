@@ -116,6 +116,25 @@ class BaseDeDados:
          data_inicial, data_final, total_corridas = row
       return data_inicial, data_final, total_corridas
    
+   def obtemCorridasDoCavalo(self, idCavalo):
+      lista_corridas = []
+      if( self.nomeBD is None ): return 1/0
+      conn = sqlite3.connect(self.nomeBD)
+      c = conn.cursor()
+      c.execute("""SELECT runners.RunnerId, runners.RunnerName, races.MarketTime, races.RaceId
+                     FROM runners, races
+                    WHERE runners.RaceId = races.RaceId
+                      AND runners.RunnerId = ?
+                      AND runners.BSP <> -1 
+                      AND runners.WinLose <> -1  
+                    ORDER BY runners.RunnerId, races.MarketTime""", (idCavalo,) )
+      while True: 
+         row = c.fetchone()
+         if row == None: break  # Acabou o sqlite
+         runner_id, runner_name, market_time, race_id = row
+         lista_corridas.append( race_id )
+      return lista_corridas
+   
    def obtemMinutosDaCorrida(self, race_id):
       lista_minutos = []
       if( self.nomeBD is None ): return 1/0
