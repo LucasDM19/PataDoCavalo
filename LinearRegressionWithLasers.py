@@ -7,6 +7,7 @@ def obtemDistanciaDaPista(nome_mercado):
    milha_milha = 1.0 # Padrão será em milhas
    #furlong_metro = 201.168 # Quantos metros tem um furlong
    furlong_milha = 0.125 # Quantos furlongs tem uma milha
+   print("Nome=", nome_mercado)
    for punm in nome_mercado.split():
       try:
          qtd_miles = ''
@@ -53,7 +54,7 @@ def obtemExtremosDistancias(nomes_mercados):
    return dist_maxima, dist_minima
 
 def obtemCaracteristicasDaCorrida(nome_mercado):
-   handicap, novice, hurdle, maiden, stakes, claiming, amateur, trotting, listed = 0
+   handicap, novice, hurdle, maiden, stakes, claiming, amateur, trotting, listed, national_hunt_flat, steeplechase, hunt, nursery, listed, conditions = 0
    if('Hcap' in nome_mercado ): handicap = 1 # Iguala o peso com base na vantagem
    if('Nov' in nome_mercado ): novice = 1 # 2 anos de idade que não ganharam mais de uma vez
    if('Hrd' in nome_mercado ): hurdle = 1 # Com aquelas barreiras para pular
@@ -61,8 +62,15 @@ def obtemCaracteristicasDaCorrida(nome_mercado):
    if('Stks' in nome_mercado ): stakes = 1 # Sem o handicap
    if('Claim' in nome_mercado ): claiming = 1 # Todos tem o mesmo preço (Claiming Price) inicial igual antes da corrida
    if('Amateur' in nome_mercado or 'Amat' in nome_mercado ): amateur = 1 # Amador?
-   if('Trot' in nome_mercado ): trotting = 1 # Corrida com mini biga
+   if('Trot' in nome_mercado ): trotting = 1 # Corrida com mini biga / charrete
    if('Listed' in nome_mercado ): listed = 1 # 	Just below group class
+   if('NHF' in nome_mercado ): national_hunt_flat = 1 # No piso mesmo Flat racing / Bumper races
+   if('Chs' in nome_mercado ): steeplechase = 1 # Pula mureta e fossa
+   if('Hunt' in nome_mercado ): hunt = 1 # Pula mureta e fossa
+   if('Nursery' in nome_mercado or 'Juv' in nome_mercado ): nursery = 1 # Exclusiva para cavalos com dois anos de idade
+   if('Listed' in nome_mercado ): listed = 1 # Abaixo do Grupo 3 de ranking
+   if('Cond' in nome_mercado ): conditions = 1 # Tem peso de acordo com o sexo, idade e habilidade do cavalo
+   #if(
    """
    M
    S
@@ -79,7 +87,6 @@ def obtemCaracteristicasDaCorrida(nome_mercado):
    Magnolia
    Charity
    Sell
-   Nursery
    """
    
 

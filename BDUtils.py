@@ -102,7 +102,20 @@ class BaseDeDados:
          market_venue, total_market = row
          lista_mercados.append( market_venue )
       return lista_mercados
-      
+   
+   def obtemSumarioDasCorridas(self):
+      if( self.nomeBD is None ): return 1/0
+      self.idCorrida_minutos = race_id # Lembra qual foi a corrida dos minutos
+      conn = sqlite3.connect(self.nomeBD)
+      c = conn.cursor()
+      c.execute("""SELECT min(races.MarketTime) as data_inicial, MAX(races.MarketTime) as data_final, COUNT(*) as total_corridas 
+      FROM races ORDER BY total_corridas DESC, data_inicial ASC""")
+      while True: 
+         row = c.fetchone()
+         if row == None: break  # Acabou o sqlite
+         data_inicial, data_final, total_corridas = row
+      return data_inicial, data_final, total_corridas
+   
    def obtemMinutosDaCorrida(self, race_id):
       lista_minutos = []
       if( self.nomeBD is None ): return 1/0
