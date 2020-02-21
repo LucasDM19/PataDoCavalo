@@ -37,6 +37,7 @@ def obtemDistanciaDaPista(nome_mercado):
                distancia_milhas = furlong_milha*qtd_fur
             else:
                distancia_milhas += furlong_milha*qtd_fur
+         else: print("Mist=", punm)
       except ValueError:
          pass
          #print(punm, " deu ruim")
@@ -50,6 +51,37 @@ def obtemExtremosDistancias(nomes_mercados):
    dist_maxima = max([ obtemDistanciaDaPista(nm) for nm in nomes_mercados  if obtemDistanciaDaPista(nm) is not None] )
    dist_minima = min([ obtemDistanciaDaPista(nm) for nm in nomes_mercados  if obtemDistanciaDaPista(nm) is not None] )
    return dist_maxima, dist_minima
+
+def obtemCaracteristicasDaCorrida(nome_mercado):
+   handicap, novice, hurdle, maiden, stakes, claiming, amateur, trotting, listed = 0
+   if('Hcap' in nome_mercado ): handicap = 1 # Iguala o peso com base na vantagem
+   if('Nov' in nome_mercado ): novice = 1 # 2 anos de idade que não ganharam mais de uma vez
+   if('Hrd' in nome_mercado ): hurdle = 1 # Com aquelas barreiras para pular
+   if('Mdn' in nome_mercado ): maiden = 1 # Nunca correu na vida
+   if('Stks' in nome_mercado ): stakes = 1 # Sem o handicap
+   if('Claim' in nome_mercado ): claiming = 1 # Todos tem o mesmo preço (Claiming Price) inicial igual antes da corrida
+   if('Amateur' in nome_mercado or 'Amat' in nome_mercado ): amateur = 1 # Amador?
+   if('Trot' in nome_mercado ): trotting = 1 # Corrida com mini biga
+   if('Listed' in nome_mercado ): listed = 1 # 	Just below group class
+   """
+   M
+   S
+   R8
+   R7
+   PA
+   3yo+
+   4yo+
+   Plt
+   Pace
+   Grd
+   Grp1
+   Grp3
+   Magnolia
+   Charity
+   Sell
+   Nursery
+   """
+   
 
 if __name__ == '__main__':   
    banco = BaseDeDados()
