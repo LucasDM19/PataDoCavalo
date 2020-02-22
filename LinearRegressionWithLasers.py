@@ -122,10 +122,23 @@ def coletaInformacoesSobreCorridas():
    dist_maxima, dist_minima = obtemExtremosDistancias(nomes_mercados)
    print("Distância Máxima:", dist_maxima, ", distância mínima:", dist_minima)
 
+def fazApostaBack(odd_back, stack_back, wl_back, comissao = 0.065):
+   if( stack_back < 2 ): return None # Sem condicao
+   if( wl_back == 0 ): 
+      pl_back = (-1*stack_back) 
+   elif( wl_back == 1 ): 
+      pl_back = stack_back*(odd_back)-stack_back
+   else: return None # WL invalido nao conta
+   if( pl_back > 0 ): 
+      pl_back = pl_back*(1-comissao)
+   if( self.somaStack != 0 ): self.lucro_medio = 1.0*(self.patrimonio-1000.0)/self.somaStack
+   return pl_back
+
 if __name__ == '__main__':   
    banco = BaseDeDados()
    banco.conectaBaseDados('bf_gb_win_full.db')
-   
+   min_back = 60 
+   min_lay_bsp = 30 
    corridas = banco.obtemCorridas(qtd_corridas=1, ordem="ASC") # ASC - Antigas primeiro, DESC - Recentes primeiro
    for corrida in corridas:
       minutosCorrida = banco.obtemMinutosDaCorrida(corrida) # Quais minutos tem eventos registrado de odds
@@ -134,4 +147,5 @@ if __name__ == '__main__':
          if( retorno is not None ):
             melhores_odds = retorno # Obtenho lista ordenada das odds dos cavalos participantes
             print("Minuto=", minuto, ", Odds=", melhores_odds)
-   
+            if( minuto == min_back ):
+               pl = fazApostaBack(odd_back=, stack_back=20, wl_back=, comissao = 0.065

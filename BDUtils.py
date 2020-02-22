@@ -211,7 +211,13 @@ class BaseDeDados:
          #self.melhores_odds = list(lista_corridas_ordenado.items())[0:3] # Top 3 odds
          
       return lista_corridas_ordenado
+   
+   def obtemBSPAtual(self, nome_cavalo):
+      return self.lista_bsp[self.race_id][nome_cavalo]
       
+   def obtemWinLoseAtual(self, nome_cavalo):
+      return self.lista_wl[self.race_id][nome_cavalo]
+   
    def obtemRegistroPorMinuto(self, minuto): # Da rede neural
       self.lista_corridas = {} # Cada corrida tem uma lista de cavalos
       self.lista_bsp = {} # Para saber qual eh o BSP correspondente
