@@ -114,12 +114,24 @@ def obtemCaracteristicasDaCorrida(nome_mercado):
    if( sum([handicap, novice, hurdle, maiden, stakes, claiming, amateur, trotting, listed, national_hunt_flat, steeplechase, hunt, nursery, listed, conditions, group1, group2, group3, selling, apprentice, tres_anos_ou_mais, tres_anos, quatro_anos_ou_mais, quatro_anos, cinco_anos_ou_mais, cinco_anos, charity, mare ]) == 0 ): print("Falta:", nome_mercado)
    return handicap, novice, hurdle, maiden, stakes, claiming, amateur, trotting, listed, national_hunt_flat, steeplechase, hunt, nursery, listed, conditions, group1, group2, group3, selling, apprentice, tres_anos_ou_mais, tres_anos, quatro_anos_ou_mais, quatro_anos, cinco_anos_ou_mais, cinco_anos, charity, mare
 
-if __name__ == '__main__':   
-   banco = BaseDeDados()
-   banco.conectaBaseDados('bf_gb_win_full.db')
-   
+# Só para manter o backup
+def coletaInformacoesSobreCorridas():
    nomes_mercados = banco.obtemNomesDosMercados()
    for nm in nomes_mercados:
       lista = obtemCaracteristicasDaCorrida(nm)
    dist_maxima, dist_minima = obtemExtremosDistancias(nomes_mercados)
    print("Distância Máxima:", dist_maxima, ", distância mínima:", dist_minima)
+
+if __name__ == '__main__':   
+   banco = BaseDeDados()
+   banco.conectaBaseDados('bf_gb_win_full.db')
+   
+   corridas = banco.obtemCorridas(qtd_corridas=1, ordem="ASC") # ASC - Antigas primeiro, DESC - Recentes primeiro
+   for corrida in corridas:
+      minutosCorrida = banco.obtemMinutosDaCorrida(corrida) # Quais minutos tem eventos registrado de odds
+      for minuto in minutosCorrida:
+         retorno = banco.obtemOddsPorMinuto(minuto) # Todas as odds consolidadas
+         if( retorno is not None ):
+            melhores_odds = retorno # Obtenho lista ordenada das odds dos cavalos participantes
+            print("Minuto=", minuto, ", Odds=", melhores_odds)
+   

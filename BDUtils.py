@@ -38,6 +38,23 @@ class BaseDeDados:
       
    def chegouFimRegistroCorrida(self):
       return self.fimRegistro
+   
+   def obtemCorridas(self, qtd_corridas, ordem="ASC"):
+      if( self.nomeBD is None ): return 1/0
+      lista_corridas = []
+      conn = sqlite3.connect(self.nomeBD)
+      c_corrida = conn.cursor()
+      if( ordem != "ASC" and ordem != "DESC" ): return 1/0
+      if( ordem == "ASC" ):
+         c_corrida.execute(""" SELECT * FROM races ORDER BY MarketTime ASC LIMIT ?; """, (qtd_corridas,) )
+      if( ordem == "DESC" ):
+         c_corrida.execute(""" SELECT * FROM races ORDER BY MarketTime DESC LIMIT ?; """, (qtd_corridas,) )
+      while True: 
+         row = c_corrida.fetchone()
+         if row == None: break  # Acabou o sqlite
+         race_id, market_time, inplay_timestamp, market_name, market_venue = row
+         lista_corridas.append(race_id)
+      return lista_corridas
       
    def obtemCorridasAleatorias(self, qtd_corridas):   
       if( self.nomeBD is None ): return 1/0
@@ -139,6 +156,9 @@ class BaseDeDados:
       lista_minutos = []
       if( self.nomeBD is None ): return 1/0
       self.idCorrida_minutos = race_id # Lembra qual foi a corrida dos minutos
+      self.lista_corridas = {} # Cada corrida tem uma lista de cavalos
+      self.lista_bsp = {} # Para saber qual eh o BSP correspondente
+      self.lista_wl = {} # Para saber quem foi Win e quem foi Lose
       conn = sqlite3.connect(self.nomeBD)
       c = conn.cursor()
       c.execute(""" SELECT  races.RaceId, 
@@ -159,7 +179,40 @@ class BaseDeDados:
          lista_minutos.append( dif_min )
       return lista_minutos   
    
-   def obtemRegistroPorMinuto(self, minuto):
+   def obtemOddsPorMinuto(self, minuto, params=[] ):
+      if( self.nomeBD is None ): return 1/0
+      if( self.idCorrida_minutos is None ): return 1/0
+      conn = sqlite3.connect(self.nomeBD)
+      c = conn.cursor()
+      c.execute(""" SELECT  races.RaceId, races.MarketTime, races.InplayTimestamp, races.MarketName, races.MarketVenue,  
+      Cast (( JulianDay(races.MarketTime) - JulianDay(odds.PublishedTime) ) * 24 * 60 As Integer ) as Dif_Min
+      , runners.RunnerId, runners.RunnerName, runners.WinLose, runners.BSP,
+      odds.LastTradedPrice, odds.PublishedTime
+      FROM runners, races, odds
+      WHERE runners.RaceId = races.RaceId
+        AND odds.RaceId = races.RaceId
+        AND odds.RunnerId = runners.RunnerId
+        AND races.RaceId = ?
+        AND runners.BSP <> -1
+        AND runners.WinLose <> -1
+		AND Dif_Min=?
+      ORDER BY races.RaceId, odds.PublishedTime ASC """, (self.idCorrida_minutos, minuto) )
+      while True: 
+         row = c.fetchone()
+         if row == None: break  # Acabou o sqlite
+         #runner_id, market_time, published_time, dif_min, odds runner_name, win_lose, bsp = row
+         self.race_id, market_time, inplay_timestamp, market_name, market_venue, dif_min, runner_id, nome_cavalo, win_lose, bsp, odd, data = row
+         if( self.race_id not in self.lista_corridas ): 
+            self.lista_corridas[self.race_id], self.lista_bsp[self.race_id], self.lista_wl[self.race_id] = self.obtemParticipantesDeCorrida(self.race_id)
+         self.lista_corridas[self.race_id][nome_cavalo] = odd #Atualiza as odds dessa corrida
+         self.lista_bsp[self.race_id][nome_cavalo] = bsp # Sabendo o BSP do cavalo
+         self.lista_wl[self.race_id][nome_cavalo] = win_lose # Sabendo o Win/Lose do cavalo
+         lista_corridas_ordenado = dict( sorted( self.lista_corridas[self.race_id].items(), key=operator.itemgetter(1),reverse=False ) ) # Mostra igual no site. Odds menores primeiro.
+         #self.melhores_odds = list(lista_corridas_ordenado.items())[0:3] # Top 3 odds
+         
+      return lista_corridas_ordenado
+      
+   def obtemRegistroPorMinuto(self, minuto): # Da rede neural
       self.lista_corridas = {} # Cada corrida tem uma lista de cavalos
       self.lista_bsp = {} # Para saber qual eh o BSP correspondente
       self.lista_wl = {} # Para saber quem foi Win e quem foi Lose
