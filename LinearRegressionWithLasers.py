@@ -144,22 +144,31 @@ def fazApostaLay(odd_lay, stack_lay, wl_lay, comissao = 0.065):
       pl_lay = pl_lay*(1-comissao)
    return pl_lay
 
+class Estrategia():
+   def __init__(self, min_back, min_lay, max_cavalo):
+      self.min_back = min_back
+      self.min_lay = min_lay
+      self.max_cavalo = max_cavalo
+      self.saldo = 1000
+      self.total_back = 0
+      self.total_lay = 0
+
 if __name__ == '__main__':   
    banco = BaseDeDados()
    banco.conectaBaseDados('bf_gb_win_full.db')
-   minutos_back = []
-   minutos_lay = []
-   maximo_cavalos = []
+   #minutos_back = []
+   #minutos_lay = []
+   #maximo_cavalos = []
+   estrategias = []
    for minutos1 in range(1,60+1):
       for minutos2 in range(1,60+1):
          for tantos_cavalos in range(3):
-            minutos_back.append(minutos1)
-            minutos_lay.append(minutos2)
-            maximo_cavalos.append(tantos_cavalos)
-   print("Estratégias=", len(minutos_back))
-   saldos = [1000 for s in range(len(minutos_back))]
-   totais_back = [0 for b in range(len(minutos_back))]
-   totais_lay = [0 for l in range(len(minutos_back))]
+            est = Estrategia(min_back=minutos1, min_lay=minutos2, max_cavalo=tantos_cavalos)
+            estrategias.append(est)
+   print("Estratégias=", len(estrategias))
+   #saldos = [1000 for s in range(len(minutos_back))]
+   #totais_back = [0 for b in range(len(minutos_back))]
+   #totais_lay = [0 for l in range(len(minutos_back))]
    data_inicial, data_final, total_corridas = banco.obtemSumarioDasCorridas()
    total_corridas = 2
    corridas = banco.obtemCorridas(qtd_corridas=total_corridas, ordem="ASC") # ASC - Antigas primeiro, DESC - Recentes primeiro
@@ -177,29 +186,28 @@ if __name__ == '__main__':
             #if( minuto in minutosCorrida ): print("Minuto", minuto, " tem atualização", ", Odds=", melhores_odds)
             #else: print("Minuto=", minuto, ", Odds=", melhores_odds)
             #print("Minuto=", minuto, ", Odds=", melhores_odds)
-            if( minuto in minutos_back ):
-               idx = minutos_back.index(minuto)
-               print("Passou", idx, maximo_cavalos[idx])
-               for y in range(maximo_cavalos[idx]):
+            estrategias_com_minutos_back = [e for e in estrategias if e.min_back==minuto]
+            for em in estrategias_com_minutos_back:
+               #print("Passou", em.max_cavalo)
+               for y in range(em.max_cavalo):
                   nome_melhor = melhores_odds[y][0]
                   odds_cavalo = melhores_odds[y][1]
                   pl = fazApostaBack(odd_back=odds_cavalo, stack_back=20, wl_back=banco.obtemWinLoseAtual(nome_melhor), comissao = 0.065)
                   if(pl is not None): 
-                     #print(idx, "Aposta Back retornou=", pl)
-                     totais_back[idx] += 1
-                     saldos[idx] += pl
-            if( minuto in minutos_lay ):
-               idx = minutos_lay.index(minuto)
-               for y in range(maximo_cavalos[idx]):
+                     print("Aposta Back retornou=", pl)
+                     em.total_back += 1
+                     em.saldo += pl
+            estrategias_com_minutos_lay = [e for e in estrategias if e.min_lay==minuto]
+            for em in estrategias_com_minutos_lay:
+               for y in range(em.max_cavalo):
                   nome_melhor = melhores_odds[y][0]
                   odds_cavalo = melhores_odds[y][1]
                   #pl = fazApostaLay(odd_lay=banco.obtemBSPAtual(nome_melhor), stack_lay=20, wl_lay=banco.obtemWinLoseAtual(nome_melhor), comissao = 0.065)
                   pl = fazApostaLay(odd_lay=odds_cavalo, stack_lay=20, wl_lay=banco.obtemWinLoseAtual(nome_melhor), comissao = 0.065)
                   if(pl is not None): 
-                     #print(idx, "Aposta Lay retornou=", pl)
-                     totais_lay[idx] += 1
-                     saldos[idx] += pl
-   maior_saldo = max(saldos)
-   idx_final = saldos.index(maior_saldo)
+                     print("Aposta Lay retornou=", pl)
+                     em.total_lay += 1
+                     em.saldo += pl  
+   memlhor_saldo = [es for es in estrategias if es.saldo==max([e.saldo for e in estrategias])][0]
    #for idx_final, saldo in enumerate(saldos): print("Fiz", totais_back[idx_final], "Backs e ", totais_lay[idx_final], "Lays. Saldo final:", round(saldos[idx_final],2) )
-   print("Fiz", totais_back[idx_final], "Backs e ", totais_lay[idx_final], "Lays. Saldo final:", round(saldos[idx_final],2) )
+   print("Fiz", memlhor_saldo.total_back, "Backs e ", memlhor_saldo.total_lay, "Lays. Saldo final:", round(memlhor_saldo.saldo,2) )
