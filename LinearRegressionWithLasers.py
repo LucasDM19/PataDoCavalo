@@ -131,21 +131,58 @@ def fazApostaBack(odd_back, stack_back, wl_back, comissao = 0.065):
    else: return None # WL invalido nao conta
    if( pl_back > 0 ): 
       pl_back = pl_back*(1-comissao)
-   if( self.somaStack != 0 ): self.lucro_medio = 1.0*(self.patrimonio-1000.0)/self.somaStack
    return pl_back
+   
+def fazApostaLay(odd_lay, stack_lay, wl_lay, comissao = 0.065):
+   if( stack_lay < 2 ): return 0 # Sem condicao
+   if( wl_lay == 0 ): 
+      pl_lay = (+1*stack_lay)
+   elif( wl_lay == 1 ): 
+      pl_lay = (-1*(stack_lay*(odd_lay-1)))
+   else: return None # WL invalido nao conta
+   if( pl_lay > 0 ): 
+      pl_lay = pl_lay*(1-comissao)
+   return pl_lay
 
 if __name__ == '__main__':   
    banco = BaseDeDados()
    banco.conectaBaseDados('bf_gb_win_full.db')
    min_back = 60 
-   min_lay_bsp = 30 
-   corridas = banco.obtemCorridas(qtd_corridas=1, ordem="ASC") # ASC - Antigas primeiro, DESC - Recentes primeiro
+   min_lay_bsp = 30
+   saldo = 1000
+   total_back = 0
+   total_lay = 0
+   data_inicial, data_final, total_corridas = banco.obtemSumarioDasCorridas()
+   corridas = banco.obtemCorridas(qtd_corridas=total_corridas, ordem="ASC") # ASC - Antigas primeiro, DESC - Recentes primeiro
    for corrida in corridas:
+      print("Corrida=", corrida)
       minutosCorrida = banco.obtemMinutosDaCorrida(corrida) # Quais minutos tem eventos registrado de odds
-      for minuto in minutosCorrida:
-         retorno = banco.obtemOddsPorMinuto(minuto) # Todas as odds consolidadas
+      if(len(minutosCorrida) != 0): todos_minutos = range(max(minutosCorrida),min(minutosCorrida)-1,-1) 
+      else: todos_minutos = []
+      for minuto in todos_minutos:
+         if( minuto in minutosCorrida ): # Tem atualização
+            retorno = banco.obtemOddsPorMinuto(minuto) # Todas as odds consolidadas
          if( retorno is not None ):
-            melhores_odds = retorno # Obtenho lista ordenada das odds dos cavalos participantes
-            print("Minuto=", minuto, ", Odds=", melhores_odds)
+            lista_ordenada = retorno # Obtenho lista ordenada das odds dos cavalos participantes
+            melhores_odds = list(lista_ordenada.items())
+            #if( minuto in minutosCorrida ): print("Minuto", minuto, " tem atualização", ", Odds=", melhores_odds)
+            #else: print("Minuto=", minuto, ", Odds=", melhores_odds)
             if( minuto == min_back ):
-               pl = fazApostaBack(odd_back=, stack_back=20, wl_back=, comissao = 0.065
+               y=0 # Primeiro
+               nome_melhor = melhores_odds[y][0]
+               odds_cavalo = melhores_odds[y][1]
+               pl = fazApostaBack(odd_back=odds_cavalo, stack_back=20, wl_back=banco.obtemWinLoseAtual(nome_melhor), comissao = 0.065)
+               if(pl is not None): 
+                  #print("Aposta Back retornou=", pl)
+                  total_back += 1
+                  saldo += pl
+            if( minuto == min_lay_bsp ):
+               y=0 # Primeiro
+               nome_melhor = melhores_odds[y][0]
+               odds_cavalo = melhores_odds[y][1]
+               pl = fazApostaLay(odd_lay=banco.obtemBSPAtual(nome_melhor), stack_lay=20, wl_lay=banco.obtemWinLoseAtual(nome_melhor), comissao = 0.065)
+               if(pl is not None): 
+                  #print("Aposta Lay retornou=", pl)
+                  total_lay += 1
+                  saldo += pl
+   print("Fiz", total_back, "Backs e ", total_lay, "Lays. Saldo final:", round(saldo,2) )

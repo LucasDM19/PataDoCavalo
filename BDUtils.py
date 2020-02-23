@@ -122,7 +122,6 @@ class BaseDeDados:
    
    def obtemSumarioDasCorridas(self):
       if( self.nomeBD is None ): return 1/0
-      self.idCorrida_minutos = race_id # Lembra qual foi a corrida dos minutos
       conn = sqlite3.connect(self.nomeBD)
       c = conn.cursor()
       c.execute("""SELECT min(races.MarketTime) as data_inicial, MAX(races.MarketTime) as data_final, COUNT(*) as total_corridas 
@@ -182,6 +181,7 @@ class BaseDeDados:
    def obtemOddsPorMinuto(self, minuto, params=[] ):
       if( self.nomeBD is None ): return 1/0
       if( self.idCorrida_minutos is None ): return 1/0
+      lista_corridas_ordenado = None
       conn = sqlite3.connect(self.nomeBD)
       c = conn.cursor()
       c.execute(""" SELECT  races.RaceId, races.MarketTime, races.InplayTimestamp, races.MarketName, races.MarketVenue,  
