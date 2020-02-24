@@ -92,6 +92,10 @@ c.execute("DROP INDEX IF EXISTS idx_odds_RaceId")
 c.execute("CREATE INDEX idx_odds_RaceId ON odds ( RaceId ASC )")
 c.execute("DROP INDEX IF EXISTS idx_odds_RunnerId")
 c.execute("CREATE INDEX idx_odds_RunnerId ON odds ( RunnerId )")
+c.execute("DROP INDEX IF EXISTS idx_odds_RunnerId_PublishedTime")
+c.execute("CREATE INDEX idx_odds_RunnerId_PublishedTime ON odds (RunnerId, PublishedTime)")
+c.execute("DROP INDEX IF EXISTS idx_races_RaceId_MarketTime")
+c.execute("CREATE INDEX idx_races_RaceId_MarketTime ON races (RaceId, MarketTime)")
 conn.commit() # Agora sim grava tudo
 
 # E ainda faz aquela limpeza geral
