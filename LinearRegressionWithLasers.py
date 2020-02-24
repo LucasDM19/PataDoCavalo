@@ -191,14 +191,15 @@ if __name__ == '__main__':
             estrategias_com_minutos_back = [e for e in estrategias if e.min_back==minuto]
             for em in estrategias_com_minutos_back:
                pl = None
-               for y in range(em.max_cavalo+1):
-                  nome_melhor = melhores_odds[y][0]
-                  odds_cavalo = melhores_odds[y][1]
-                  pl = fazApostaBack(odd_back=odds_cavalo, stack_back=20, wl_back=banco.obtemWinLoseAtual(nome_melhor), comissao = 0.065)                  
-                  if(pl is not None): 
-                     em.total_back += 1
-                     em.saldo += pl
-                  #print("Aposta Back retornou=", pl, ", ", str(em), ", minuto=", minuto, ", odds=", odds_cavalo, ", W/L=", banco.obtemWinLoseAtual(nome_melhor) )
+               if( len(lista_ordenada) >= em.max_cavalo  ): # Não tem cavalo suficiente para essa estratégia
+                  for y in range(em.max_cavalo+1):
+                     nome_melhor = melhores_odds[y][0]
+                     odds_cavalo = melhores_odds[y][1]
+                     pl = fazApostaBack(odd_back=odds_cavalo, stack_back=20, wl_back=banco.obtemWinLoseAtual(nome_melhor), comissao = 0.065)                  
+                     if(pl is not None): 
+                        em.total_back += 1
+                        em.saldo += pl
+                     #print("Aposta Back retornou=", pl, ", ", str(em), ", minuto=", minuto, ", odds=", odds_cavalo, ", W/L=", banco.obtemWinLoseAtual(nome_melhor) )
             estrategias_com_minutos_lay = [e for e in estrategias if e.min_lay==minuto]
             for em in estrategias_com_minutos_lay:
                for y in range(em.max_cavalo+1):
