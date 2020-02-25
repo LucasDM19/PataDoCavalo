@@ -174,6 +174,7 @@ if __name__ == '__main__':
    data_inicial, data_final, total_corridas = banco.obtemSumarioDasCorridas()
    #total_corridas = 2
    corridas = banco.obtemCorridas(qtd_corridas=total_corridas, ordem="ASC") # ASC - Antigas primeiro, DESC - Recentes primeiro
+   #corridas = ['1.123344088',]
    for corrida in corridas:
       print("Corrida=", corrida)
       minutosCorrida = banco.obtemMinutosDaCorrida(corrida) # Quais minutos tem eventos registrado de odds
@@ -190,8 +191,8 @@ if __name__ == '__main__':
             #print("Minuto=", minuto, ", Odds=", melhores_odds)
             estrategias_com_minutos_back = [e for e in estrategias if e.min_back==minuto]
             for em in estrategias_com_minutos_back:
-               pl = None
-               if( len(lista_ordenada) >= em.max_cavalo  ): # Não tem cavalo suficiente para essa estratégia
+               #print("Odds=", len(melhores_odds), "cavalo=", em.max_cavalo)
+               if( len(melhores_odds) > em.max_cavalo  ): # Não tem cavalo suficiente para essa estratégia
                   for y in range(em.max_cavalo+1):
                      nome_melhor = melhores_odds[y][0]
                      odds_cavalo = melhores_odds[y][1]
@@ -202,15 +203,16 @@ if __name__ == '__main__':
                      #print("Aposta Back retornou=", pl, ", ", str(em), ", minuto=", minuto, ", odds=", odds_cavalo, ", W/L=", banco.obtemWinLoseAtual(nome_melhor) )
             estrategias_com_minutos_lay = [e for e in estrategias if e.min_lay==minuto]
             for em in estrategias_com_minutos_lay:
-               for y in range(em.max_cavalo+1):
-                  nome_melhor = melhores_odds[y][0]
-                  odds_cavalo = melhores_odds[y][1]
-                  #pl = fazApostaLay(odd_lay=banco.obtemBSPAtual(nome_melhor), stack_lay=20, wl_lay=banco.obtemWinLoseAtual(nome_melhor), comissao = 0.065)
-                  pl = fazApostaLay(odd_lay=odds_cavalo, stack_lay=20, wl_lay=banco.obtemWinLoseAtual(nome_melhor), comissao = 0.065)
-                  if(pl is not None): 
-                     em.total_lay += 1
-                     em.saldo += pl  
-                  #print("Aposta Lay retornou=", pl, ", ", str(em), ", minuto=", minuto, ", odds=", odds_cavalo, ", W/L=", banco.obtemWinLoseAtual(nome_melhor) )                  
+               if( len(melhores_odds) > em.max_cavalo  ): # Não tem cavalo suficiente para essa estratégia
+                  for y in range(em.max_cavalo+1):
+                     nome_melhor = melhores_odds[y][0]
+                     odds_cavalo = melhores_odds[y][1]
+                     #pl = fazApostaLay(odd_lay=banco.obtemBSPAtual(nome_melhor), stack_lay=20, wl_lay=banco.obtemWinLoseAtual(nome_melhor), comissao = 0.065)
+                     pl = fazApostaLay(odd_lay=odds_cavalo, stack_lay=20, wl_lay=banco.obtemWinLoseAtual(nome_melhor), comissao = 0.065)
+                     if(pl is not None): 
+                        em.total_lay += 1
+                        em.saldo += pl  
+                     #print("Aposta Lay retornou=", pl, ", ", str(em), ", minuto=", minuto, ", odds=", odds_cavalo, ", W/L=", banco.obtemWinLoseAtual(nome_melhor) )                  
    newlist = sorted(estrategias, key=lambda x: x.saldo, reverse=True) # Ordeno a lista de acordo com o saldo
    for item_es in newlist: 
       print("Esse:", str(item_es) )
