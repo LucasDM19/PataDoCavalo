@@ -178,6 +178,27 @@ class BaseDeDados:
          lista_minutos.append( dif_min )
       return lista_minutos   
    
+   def obtemExtremosDosMinutos(self): # Demora meia hora para executar. max=4544	e min=-229, na base atual
+      minuto_maximo = None
+      minuto_minimo = None
+      if( self.nomeBD is None ): return 1/0
+      conn = sqlite3.connect(self.nomeBD)
+      c = conn.cursor()
+      c.execute("""SELECT  
+              max(Cast (( JulianDay(races.MarketTime) - JulianDay(odds.PublishedTime) ) * 24 * 60 As Integer )) as maximo
+              ,min(Cast (( JulianDay(races.MarketTime) - JulianDay(odds.PublishedTime) ) * 24 * 60 As Integer )) as minimo
+                  FROM runners, races, odds
+                  WHERE runners.RaceId = races.RaceId
+                    AND odds.RaceId = races.RaceId
+                    AND odds.RunnerId = runners.RunnerId
+                    AND runners.BSP <> -1
+                    AND runners.WinLose <> -1""")
+      while True: 
+         row = c.fetchone()
+         if row == None: break  # Acabou o sqlite
+         minuto_maximo, minuto_minimo = row
+      return minuto_maximo, minuto_minimo 
+   
    def obtemOddsPorMinuto(self, minuto, params=[] ):
       if( self.nomeBD is None ): return 1/0
       if( self.idCorrida_minutos is None ): return 1/0
