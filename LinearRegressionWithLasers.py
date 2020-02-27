@@ -156,13 +156,10 @@ class Estrategia():
    def __str__(self):
       return "nome=" + str(self.nome)+ ", saldo=" + str(round(self.saldo,2)) + ", min_back=" + str(self.min_back) + ", min_lay=" + str(self.min_lay) + ", max_cavalo=" + str(self.max_cavalo) + ", qtd_back=" + str(self.total_back) + ", qtd_lay=" + str(self.total_lay)
 
-if __name__ == '__main__':   
+def fazProspeccaoEstrategias(min_minutos = 1, max_minutos = 60, max_cavalos = 3): # Demora cerca de 42 horas na configuração padrão
    banco = BaseDeDados()
    banco.conectaBaseDados('bf_gb_win_full.db')
    estrategias = []
-   min_minutos = 1
-   max_minutos = 60
-   max_cavalos = 3
    contador_id = 0
    for minutos1 in range(min_minutos,max_minutos+1):
       for minutos2 in range(min_minutos,max_minutos+1):
@@ -216,4 +213,7 @@ if __name__ == '__main__':
    newlist = sorted(estrategias, key=lambda x: x.saldo, reverse=True) # Ordeno a lista de acordo com o saldo
    for item_es in newlist: 
       print("Esse:", str(item_es) )
-   
+
+if __name__ == '__main__':   
+   #fazProspeccaoEstrategias(min_minutos = 1, max_minutos = 60, max_cavalos = 3): # Demora cerca de 42 horas na configuração padrão
+   print("Vida nova!")
