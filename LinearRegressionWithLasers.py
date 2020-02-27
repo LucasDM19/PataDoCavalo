@@ -156,13 +156,13 @@ class Estrategia():
    def __str__(self):
       return "nome=" + str(self.nome)+ ", saldo=" + str(round(self.saldo,2)) + ", min_back=" + str(self.min_back) + ", min_lay=" + str(self.min_lay) + ", max_cavalo=" + str(self.max_cavalo) + ", qtd_back=" + str(self.total_back) + ", qtd_lay=" + str(self.total_lay)
 
-def fazProspeccaoEstrategias(min_minutos = 1, max_minutos = 60, max_cavalos = 3): # Demora cerca de 42 horas na configuração padrão
+def fazProspeccaoEstrategias(min_minutos_back = 1, max_minutos_back = 60, min_minutos_lay = 1, max_minutos_lay = 60, max_cavalos = 3): # Demora cerca de 42 horas na configuração padrão
    banco = BaseDeDados()
    banco.conectaBaseDados('bf_gb_win_full.db')
    estrategias = []
    contador_id = 0
-   for minutos1 in range(min_minutos,max_minutos+1):
-      for minutos2 in range(min_minutos,max_minutos+1):
+   for minutos1 in range(min_minutos_back,max_minutos_back+1):
+      for minutos2 in range(min_minutos_lay,max_minutos_lay+1):
          for tantos_cavalos in range(max_cavalos):
             est = Estrategia(nome=contador_id, min_back=minutos1, min_lay=minutos2, max_cavalo=tantos_cavalos)
             estrategias.append(est)
@@ -215,5 +215,5 @@ def fazProspeccaoEstrategias(min_minutos = 1, max_minutos = 60, max_cavalos = 3)
       print("Esse:", str(item_es) )
 
 if __name__ == '__main__':   
-   #fazProspeccaoEstrategias(min_minutos = 1, max_minutos = 60, max_cavalos = 3): # Demora cerca de 42 horas na configuração padrão
-   print("Vida nova!")
+   fazProspeccaoEstrategias(min_minutos_back = 9999, max_minutos_back = 9999, min_minutos_lay = 1, max_minutos_lay = 60, max_cavalos = 3) # Demora cerca de 42 horas na configuração padrão
+   print("Fim do processamento!")
