@@ -215,5 +215,6 @@ def fazProspeccaoEstrategias(min_minutos_back = 1, max_minutos_back = 60, min_mi
       print("Esse:", str(item_es) )
 
 if __name__ == '__main__':   
+   #fazProspeccaoEstrategias(min_minutos_back = 1, max_minutos_back = 60, min_minutos_lay = 9999, max_minutos_lay = 9999, max_cavalos = 3) # Demora cerca de 42 horas na configuração padrão
    fazProspeccaoEstrategias(min_minutos_back = 9999, max_minutos_back = 9999, min_minutos_lay = 1, max_minutos_lay = 60, max_cavalos = 3) # Demora cerca de 42 horas na configuração padrão
    print("Fim do processamento!")
