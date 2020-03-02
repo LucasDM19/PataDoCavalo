@@ -3,6 +3,7 @@ from BDUtils import BaseDeDados
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
 
 def obtemDistanciaDaPista(nome_mercado):
    distancia_milhas = '' 
@@ -224,7 +225,7 @@ def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_tr
    dist_maxima, dist_minima = obtemExtremosDistancias(nomes_mercados) # Extremos de distâncias (se precisar de normatizar)
    qtd_corridas_treino = int(frac_treino * total_corridas) # Uso uma parte para treino. O resto é para validação
    #print("QTD=", qtd_corridas_treino, total_corridas )
-   corridas = banco.obtemCorridas(qtd_corridas=total_corridas, ordem="ASC") # ASC - Antigas primeiro, DESC - Recentes primeiro
+   corridas = banco.obtemCorridas(qtd_corridas=qtd_corridas_treino, ordem="ASC") # ASC - Antigas primeiro, DESC - Recentes primeiro
    lista_treino = [] # Será uma lista de lista
    for corrida in corridas:
       dados_corrida = [] # Linha sobre a corrida em si
@@ -273,7 +274,7 @@ def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_tr
                         else: 
                            pl_total += pl # Concatena
                            total_stack = 40
-                     print("Aposta Lay retornou=", pl, ", minuto=", minuto, ", odds=", odds_cavalo_lay, ", W/L=", banco.obtemWinLoseAtual(nome_melhor) )
+                     #print("Aposta Lay retornou=", pl, ", minuto=", minuto, ", odds=", odds_cavalo_lay, ", W/L=", banco.obtemWinLoseAtual(nome_melhor) )
       # Fim da corrida
       if(pl_total is not None): # Dados serão válidos para treino
          nome_mercado = banco.obtemNomeMercadoDaCorrida(corrida)
@@ -301,13 +302,33 @@ def calculaRegressaoLinear(df):
    df=df.sample(frac=1.0, random_state=1)
    qtd_colunas_x = len(df.columns)-1 # Tem apenas um Y
    qtd_registros = len(df)
-   X=df.iloc[qtd_registros:,:qtd_colunas_x].values
-   Y=df.iloc[qtd_registros:,-1:].values
+   X=df.iloc[:, :-1].values # Todos menos o último
+   print("X=", X)
+   Y=df.iloc[:,-1].values # Apenas o último
+   print("Y=", Y)
+   reg=LinearRegression().fit(X, Y)
    Y_reg=reg.predict(df.iloc[:qtd_registros,:qtd_colunas_x].values) # Y da Regressão Linear
+   print('Coeficientes: \n', reg.coef_)
+   print('Mean squared error: %.2f' % mean_squared_error(Y, Y_reg))
    print('LR:', sum(np.log(1+y*y_pred) for y_pred,y in zip(Y_reg,Y) if y_pred>0) )
 
 if __name__ == '__main__':   
    #fazProspeccaoEstrategias(min_minutos_back = 9999, max_minutos_back = 9999, min_minutos_lay = 26, max_minutos_lay = 26, max_cavalos = 1) # Demora cerca de 42 horas na configuração padrão
-   df = obtemDadosTreinoDaEstrategia(minutos_back = 9999, minutos_lay=26, qtd_cavalos=1, frac_treino=0.001) # Estratégia vencedora, por enquanto
+   df = obtemDadosTreinoDaEstrategia(minutos_back = 9999, minutos_lay=26, qtd_cavalos=1, frac_treino=0.30) # Estratégia vencedora, por enquanto
+   #lista_treino = []
+   #lista_treino.append( [2.42, 1.875, -1.42] )
+   #lista_treino.append( [2.48, 2.375, 0.9350000000000002] )
+   #lista_treino.append( [1.76, 2.5, -0.76] )
+   #lista_treino.append( [3.45, 3.25, 0.9350000000000002] )
+   #lista_treino.append( [6, 1.0, 0.9350000000000002] )
+   #lista_treino.append( [4, 2.375, -3.0] )
+   #lista_treino.append( [2.04, 2.125, -1.04] )
+   #lista_treino.append( [1.78, 2.0, 0.9350000000000002] )
+   #lista_treino.append( [4.4, 2.625, 0.9350000000000002] )
+   #lista_treino.append( [3.6, 0.75, -2.6] )
+   #lista_treino.append( [7.8, 2.5, 0.9350000000000002] )
+   #lista_treino.append( [1.39, 3.125, -0.3899999999999999] )
+   #df = pd.DataFrame(lista_treino, columns = ['odds_lay', 'dist', 'pl'])
+   #print(df)
    calculaRegressaoLinear(df)
    print("Fim do processamento!")
