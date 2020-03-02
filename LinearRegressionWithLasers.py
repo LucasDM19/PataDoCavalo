@@ -1,5 +1,7 @@
 #coding: utf-8
 from BDUtils import BaseDeDados
+import pandas as pd
+import numpy as np
 from sklearn.linear_model import LinearRegression
 
 def obtemDistanciaDaPista(nome_mercado):
@@ -226,6 +228,7 @@ def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_tr
    lista_treino = [] # Será uma lista de lista
    for corrida in corridas:
       dados_corrida = [] # Linha sobre a corrida em si
+      nomes_colunas = []
       pl_total = None # Contabiliza o Back e o Lay como um só
       total_stack = None # Soma o Stack, para fazer retorno unitário
       pl_unitario = None # Retorno por unidade (item a ser maximizado)
@@ -277,15 +280,34 @@ def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_tr
          handicap, novice, hurdle, maiden, stakes, claiming, amateur, trotting, listed, national_hunt_flat, steeplechase, hunt, nursery, listed, conditions, group1, group2, group3, selling, apprentice, tres_anos_ou_mais, tres_anos, quatro_anos_ou_mais, quatro_anos, cinco_anos_ou_mais, cinco_anos, charity, mare = obtemCaracteristicasDaCorrida(nome_mercado)
          distancia = obtemDistanciaDaPista(nome_mercado)
          pl_unitario = 1.0*pl_total/total_stack # Retorno unitário da corrida
-         if( odds_cavalo_back is not None ): dados_corrida.append( odds_cavalo_back )
-         if( odds_cavalo_lay is not None ): dados_corrida.append( odds_cavalo_lay )
+         if( odds_cavalo_back is not None ): 
+            dados_corrida.append( odds_cavalo_back )
+            nomes_colunas.append('odds_back')
+         if( odds_cavalo_lay is not None ): 
+            dados_corrida.append( odds_cavalo_lay )
+            nomes_colunas.append('odds_lay')
          dados_corrida.append(distancia)
+         nomes_colunas.append('dist')
          dados_corrida.append(pl_unitario)
-         print("Linha_corrida=", dados_corrida)
-      lista_treino.append(dados_corrida) # Lista de lista
-   print("Encerrou tudo")
+         nomes_colunas.append('pl')
+         print("Linha_corrida=", dados_corrida, ", colunas=", nomes_colunas, ", tam=", len(lista_treino) )
+         lista_treino.append(dados_corrida) # Lista de lista
+   df = pd.DataFrame(lista_treino, columns = nomes_colunas)
+   print("Dados coletados")
+   return df
+
+def calculaRegressaoLinear(df):
+   #Embaralha o dataframe, apartir de um estado predefindo
+   df=df.sample(frac=1.0, random_state=1)
+   qtd_colunas_x = len(df.columns)-1 # Tem apenas um Y
+   qtd_registros = len(df)
+   X=df.iloc[qtd_registros:,:qtd_colunas_x].values
+   Y=df.iloc[qtd_registros:,-1:].values
+   Y_reg=reg.predict(df.iloc[:qtd_registros,:qtd_colunas_x].values) # Y da Regressão Linear
+   print('LR:', sum(np.log(1+y*y_pred) for y_pred,y in zip(Y_reg,Y) if y_pred>0) )
 
 if __name__ == '__main__':   
    #fazProspeccaoEstrategias(min_minutos_back = 9999, max_minutos_back = 9999, min_minutos_lay = 26, max_minutos_lay = 26, max_cavalos = 1) # Demora cerca de 42 horas na configuração padrão
-   obtemDadosTreinoDaEstrategia(minutos_back = 9999, minutos_lay=26, qtd_cavalos=1, frac_treino=0.9) # Estratégia vencedora, por enquanto
+   df = obtemDadosTreinoDaEstrategia(minutos_back = 9999, minutos_lay=26, qtd_cavalos=1, frac_treino=0.001) # Estratégia vencedora, por enquanto
+   calculaRegressaoLinear(df)
    print("Fim do processamento!")
