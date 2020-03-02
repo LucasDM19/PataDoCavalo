@@ -214,7 +214,78 @@ def fazProspeccaoEstrategias(min_minutos_back = 1, max_minutos_back = 60, min_mi
    for item_es in newlist: 
       print("Esse:", str(item_es) )
 
+def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_treino):
+   banco = BaseDeDados()
+   banco.conectaBaseDados('bf_gb_win_full.db')
+   data_inicial, data_final, total_corridas = banco.obtemSumarioDasCorridas()
+   nomes_mercados = banco.obtemNomesDosMercados()
+   dist_maxima, dist_minima = obtemExtremosDistancias(nomes_mercados) # Extremos de distâncias (se precisar de normatizar)
+   qtd_corridas_treino = int(frac_treino * total_corridas) # Uso uma parte para treino. O resto é para validação
+   #print("QTD=", qtd_corridas_treino, total_corridas )
+   corridas = banco.obtemCorridas(qtd_corridas=total_corridas, ordem="ASC") # ASC - Antigas primeiro, DESC - Recentes primeiro
+   lista_treino = [] # Será uma lista de lista
+   for corrida in corridas:
+      dados_corrida = [] # Linha sobre a corrida em si
+      pl_total = None # Contabiliza o Back e o Lay como um só
+      total_stack = None # Soma o Stack, para fazer retorno unitário
+      pl_unitario = None # Retorno por unidade (item a ser maximizado)
+      odds_cavalo_back = None
+      odds_cavalo_lay = None
+      print("Corrida=", corrida)
+      minutosCorrida = banco.obtemMinutosDaCorrida(corrida) # Quais minutos tem eventos registrado de odds
+      if(len(minutosCorrida) != 0): todos_minutos = range(max(minutosCorrida),min(minutosCorrida)-1,-1) 
+      else: todos_minutos = []
+      tempo_minimo = min(minutos_back, minutos_lay) # Vendo até onde precisa de ir
+      minutos_validos = [minuto for minuto in todos_minutos if minuto >= tempo_minimo ] # Minutos até o necessário
+      for minuto in minutos_validos:
+         if( minuto in minutosCorrida ): # Tem atualização
+            retorno = banco.obtemOddsPorMinuto(minuto) # Todas as odds consolidadas
+         if( retorno is not None ):
+            lista_ordenada = retorno # Obtenho lista ordenada das odds dos cavalos participantes
+            melhores_odds = list(lista_ordenada.items())
+            if( minutos_back == minuto ):
+               if( len(melhores_odds) > qtd_cavalos  ): # Não tem cavalo suficiente para essa estratégia
+                  for y in range(qtd_cavalos):
+                     nome_melhor = melhores_odds[y][0]
+                     odds_cavalo_back = melhores_odds[y][1]
+                     pl = fazApostaBack(odd_back=odds_cavalo_back, stack_back=20, wl_back=banco.obtemWinLoseAtual(nome_melhor), comissao = 0.065)                  
+                     if(pl is not None): 
+                        if( pl_total is None ): 
+                           pl_total = pl # Primeira vez
+                           total_stack = 20
+                        else: 
+                           pl_total += pl # Concatena
+                           total_stack = 40
+                     #print("Aposta Back retornou=", pl, ", minuto=", minuto, ", odds=", odds_cavalo_back, ", W/L=", banco.obtemWinLoseAtual(nome_melhor) )
+            if( minutos_lay == minuto ): 
+               if( len(melhores_odds) > qtd_cavalos  ): # Não tem cavalo suficiente para essa estratégia
+                  for y in range(qtd_cavalos):
+                     nome_melhor = melhores_odds[y][0]
+                     odds_cavalo_lay = melhores_odds[y][1]
+                     pl = fazApostaLay(odd_lay=odds_cavalo_lay, stack_lay=20, wl_lay=banco.obtemWinLoseAtual(nome_melhor), comissao = 0.065)
+                     if(pl is not None): 
+                        if( pl_total is None ): 
+                           pl_total = pl # Primeira vez
+                           total_stack = 20
+                        else: 
+                           pl_total += pl # Concatena
+                           total_stack = 40
+                     print("Aposta Lay retornou=", pl, ", minuto=", minuto, ", odds=", odds_cavalo_lay, ", W/L=", banco.obtemWinLoseAtual(nome_melhor) )
+      # Fim da corrida
+      if(pl_total is not None): # Dados serão válidos para treino
+         nome_mercado = banco.obtemNomeMercadoDaCorrida(corrida)
+         handicap, novice, hurdle, maiden, stakes, claiming, amateur, trotting, listed, national_hunt_flat, steeplechase, hunt, nursery, listed, conditions, group1, group2, group3, selling, apprentice, tres_anos_ou_mais, tres_anos, quatro_anos_ou_mais, quatro_anos, cinco_anos_ou_mais, cinco_anos, charity, mare = obtemCaracteristicasDaCorrida(nome_mercado)
+         distancia = obtemDistanciaDaPista(nome_mercado)
+         pl_unitario = 1.0*pl_total/total_stack # Retorno unitário da corrida
+         if( odds_cavalo_back is not None ): dados_corrida.append( odds_cavalo_back )
+         if( odds_cavalo_lay is not None ): dados_corrida.append( odds_cavalo_lay )
+         dados_corrida.append(distancia)
+         dados_corrida.append(pl_unitario)
+         print("Linha_corrida=", dados_corrida)
+      lista_treino.append(dados_corrida) # Lista de lista
+   print("Encerrou tudo")
+
 if __name__ == '__main__':   
-   #fazProspeccaoEstrategias(min_minutos_back = 1, max_minutos_back = 60, min_minutos_lay = 9999, max_minutos_lay = 9999, max_cavalos = 3) # Demora cerca de 42 horas na configuração padrão
-   fazProspeccaoEstrategias(min_minutos_back = 9999, max_minutos_back = 9999, min_minutos_lay = 1, max_minutos_lay = 60, max_cavalos = 3) # Demora cerca de 42 horas na configuração padrão
+   #fazProspeccaoEstrategias(min_minutos_back = 9999, max_minutos_back = 9999, min_minutos_lay = 26, max_minutos_lay = 26, max_cavalos = 1) # Demora cerca de 42 horas na configuração padrão
+   obtemDadosTreinoDaEstrategia(minutos_back = 9999, minutos_lay=26, qtd_cavalos=1, frac_treino=0.9) # Estratégia vencedora, por enquanto
    print("Fim do processamento!")

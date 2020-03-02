@@ -56,6 +56,19 @@ class BaseDeDados:
          lista_corridas.append(race_id)
       return lista_corridas
       
+   def obtemNomeMercadoDaCorrida(self, race_id):
+      if( self.nomeBD is None ): return 1/0
+      nome_mercado = ''
+      conn = sqlite3.connect(self.nomeBD)
+      c_corrida = conn.cursor()
+      c_corrida.execute(""" SELECT * FROM races WHERE RaceId=?; """, (race_id,) )
+      while True: 
+         row = c_corrida.fetchone()
+         if row == None: break  # Acabou o sqlite
+         race_id, market_time, inplay_timestamp, market_name, market_venue = row
+         nome_mercado = market_name
+      return nome_mercado
+      
    def obtemCorridasAleatorias(self, qtd_corridas):   
       if( self.nomeBD is None ): return 1/0
       lista_corridas = []
