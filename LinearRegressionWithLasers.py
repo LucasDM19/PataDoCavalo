@@ -224,7 +224,7 @@ def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_tr
    nomes_mercados = banco.obtemNomesDosMercados()
    dist_maxima, dist_minima = obtemExtremosDistancias(nomes_mercados) # Extremos de distâncias (se precisar de normatizar)
    qtd_corridas_treino = int(frac_treino * total_corridas) # Uso uma parte para treino. O resto é para validação
-   #print("QTD=", qtd_corridas_treino, total_corridas )
+   print("QTD=", qtd_corridas_treino, total_corridas )
    corridas = banco.obtemCorridas(qtd_corridas=qtd_corridas_treino, ordem="ASC") # ASC - Antigas primeiro, DESC - Recentes primeiro
    lista_treino = [] # Será uma lista de lista
    nomes_colunas = [] # Usa uma vez só
@@ -283,14 +283,14 @@ def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_tr
          pl_unitario = 1.0*pl_total/total_stack # Retorno unitário da corrida
          if( odds_cavalo_back is not None ): 
             dados_corrida.append( odds_cavalo_back )
-            nomes_colunas.append('odds_back')
+            if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('odds_back')
          if( odds_cavalo_lay is not None ): 
             dados_corrida.append( odds_cavalo_lay )
-            nomes_colunas.append('odds_lay')
+            if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('odds_lay')
          dados_corrida.append(distancia)
-         nomes_colunas.append('dist')
+         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('dist')
          dados_corrida.append(pl_unitario)
-         nomes_colunas.append('pl')
+         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('pl')
          print("Linha_corrida=", dados_corrida, ", colunas=", nomes_colunas, ", tam=", len(lista_treino) )
          lista_treino.append(dados_corrida) # Lista de lista
    df = pd.DataFrame(lista_treino, columns = nomes_colunas)
