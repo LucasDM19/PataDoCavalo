@@ -227,9 +227,9 @@ def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_tr
    #print("QTD=", qtd_corridas_treino, total_corridas )
    corridas = banco.obtemCorridas(qtd_corridas=qtd_corridas_treino, ordem="ASC") # ASC - Antigas primeiro, DESC - Recentes primeiro
    lista_treino = [] # Será uma lista de lista
+   nomes_colunas = [] # Usa uma vez só
    for corrida in corridas:
       dados_corrida = [] # Linha sobre a corrida em si
-      nomes_colunas = []
       pl_total = None # Contabiliza o Back e o Lay como um só
       total_stack = None # Soma o Stack, para fazer retorno unitário
       pl_unitario = None # Retorno por unidade (item a ser maximizado)
