@@ -330,5 +330,7 @@ if __name__ == '__main__':
    #lista_treino.append( [1.39, 3.125, -0.3899999999999999] )
    #df = pd.DataFrame(lista_treino, columns = ['odds_lay', 'dist', 'pl'])
    #print(df)
+   df.to_csv('out.csv', index=False) # Salvando para fuçar depois
+   df = pd.read_csv('out.csv') # Lendo para fazer a regressão
    calculaRegressaoLinear(df)
    print("Fim do processamento!")
