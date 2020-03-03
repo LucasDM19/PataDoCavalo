@@ -1,5 +1,6 @@
 #coding: utf-8
 from BDUtils import BaseDeDados
+from datetime import datetime
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
@@ -236,7 +237,7 @@ def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_tr
       pl_unitario = None # Retorno por unidade (item a ser maximizado)
       odds_cavalo_back = None
       odds_cavalo_lay = None
-      print("Corrida=", corrida)
+      print("Corrida=", corrida, ", são=", datetime.now().time() )
       minutosCorrida = banco.obtemMinutosDaCorrida(corrida) # Quais minutos tem eventos registrado de odds
       if(len(minutosCorrida) != 0): todos_minutos = range(max(minutosCorrida),min(minutosCorrida)-1,-1) 
       else: todos_minutos = []
