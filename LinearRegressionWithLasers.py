@@ -355,7 +355,7 @@ def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_tr
    print("Dados coletados")
    return df
 
-def calculaRegressaoLinear(df, campos_ignorar=[]):
+def calculaRegressaoLinear(df, campos_ignorar=[], percentil_ignora=0):
    SomaLogs=[] 
    qtd_colunas_x = len(df.columns)-1 # Tem apenas um Y
    qtd_registros = len(df)
@@ -373,6 +373,15 @@ def calculaRegressaoLinear(df, campos_ignorar=[]):
       #Embaralha o dataframe, apartir de um estado predefindo
       df=df.sample(frac=1.0, random_state=i)
       df_teste, df_treino = df[:qtd_teste], df[qtd_teste:]
+      
+      #Filta o dataframe por intervalo de alguns campos que podem melhorar a regressão
+      min_odd_lay = df.odds_lay.quantile(percentil_ignora)
+      max_odd_lay = df.odds_lay.quantile(1-percentil_ignora)
+      df_treino=df_treino[(df_treino.odds_lay<=max_odd_lay)&(df_treino.odds_lay>=min_odd_lay)]
+      df_teste=df_teste[(df_teste.odds_lay<=max_odd_lay)&(df_teste.odds_lay>=min_odd_lay)]
+      del df_treino['odds_lay'] # Uso apenas para filtrar
+      del df_teste['odds_lay'] # Uso apenas para filtrar
+      print(df_treino.columns)
       
       #Os Xs são todas as colunas exceto a PL que será o Y
       X_treino, Y_treino = df_treino.loc[:,(df_treino.columns!='pl')], df_treino.pl
@@ -400,6 +409,6 @@ if __name__ == '__main__':
    #df.to_csv('out_dev_full.csv', index=False) # Salvando para fuçar depois
    
    df = pd.read_csv('out_new.csv') # Lendo para fazer a regressão
-   sem_esses = ['charity', 'cinco_anos_ou_mais', 'tres_anos_ou_mais', 'quatro_anos_ou_mais',  'hunt', 'odds_lay', 'selling', 'national_hunt_flat', 'steeplechase', 'hurdle', 'stakes', 'handicap', 'amateur', 'group1', 'novice', 'maiden', 'listed', 'group3', 'nursery', 'conditions', 'claiming', 'apprentice', 'group2', 'mare', ]
-   calculaRegressaoLinear(df, campos_ignorar=sem_esses )
+   sem_esses = ['charity', 'cinco_anos_ou_mais', 'tres_anos_ou_mais', 'quatro_anos_ou_mais', 'hunt', 'selling', 'national_hunt_flat', 'steeplechase', 'hurdle', 'stakes', 'handicap', 'amateur', 'group1', 'novice', 'maiden', 'listed', 'group3', 'nursery', 'conditions', 'claiming', 'apprentice', 'group2', 'mare', ]
+   calculaRegressaoLinear(df, campos_ignorar=sem_esses, percentil_ignora=0.05 )
    print("Fim do processamento!")
