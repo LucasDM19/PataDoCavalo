@@ -282,6 +282,7 @@ def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_tr
          nome_mercado = banco.obtemNomeMercadoDaCorrida(corrida)
          handicap, novice, hurdle, maiden, stakes, claiming, amateur, trotting, listed, national_hunt_flat, steeplechase, hunt, nursery, listed, conditions, group1, group2, group3, selling, apprentice, tres_anos_ou_mais, tres_anos, quatro_anos_ou_mais, quatro_anos, cinco_anos_ou_mais, cinco_anos, charity, mare = obtemCaracteristicasDaCorrida(nome_mercado)
          distancia = obtemDistanciaDaPista(nome_mercado)
+         if( distancia is None ): distancia = 0 # Sem distância fica como 0?
          if(total_stack is None): pl_unitario = 0.0 # Aposta devolvida
          else: pl_unitario = 1.0*pl_total/total_stack # Retorno unitário da corrida
          if( odds_cavalo_back is not None ): 
@@ -367,6 +368,8 @@ def calculaRegressaoLinear(df):
    print("X=", X)
    Y=df.iloc[:,-1].values # Apenas o último
    print("Y=", Y)
+   #print([np.where(np.isnan(X))]) # Mostra índices que tem Nan
+   #X = np.nan_to_num(X) # Para trocar Nan por 0 e Infinity por número
    reg=LinearRegression().fit(X, Y)
    Y_reg=reg.predict(df.iloc[:qtd_registros,:qtd_colunas_x].values) # Y da Regressão Linear
    print('Coeficientes: \n', reg.coef_)
