@@ -139,7 +139,7 @@ def fazApostaBack(odd_back, stack_back, wl_back, comissao = 0.065):
    
 def fazApostaLay(odd_lay, stack_lay, wl_lay, comissao = 0.065):
    if( stack_lay < 2 ): return 0 # Sem condicao
-   if( wl_back == -1 ): return 0.0 # Cavalo eliminado, aposta devolvida
+   if( wl_lay == -1 ): return 0.0 # Cavalo eliminado, aposta devolvida
    if( wl_lay == 0 ): 
       pl_lay = (+1*stack_lay)
    elif( wl_lay == 1 ): 
@@ -373,7 +373,7 @@ def calculaRegressaoLinear(df):
 if __name__ == '__main__':   
    #fazProspeccaoEstrategias(min_minutos_back = 9999, max_minutos_back = 9999, min_minutos_lay = 26, max_minutos_lay = 26, max_cavalos = 1) # Demora cerca de 42 horas na configuração padrão
    df = obtemDadosTreinoDaEstrategia(minutos_back = 9999, minutos_lay=26, qtd_cavalos=1, frac_treino=1.0) # Estratégia vencedora, por enquanto
-   df.to_csv('out_full2.csv', index=False) # Salvando para fuçar depois
+   df.to_csv('out_dev_full.csv', index=False) # Salvando para fuçar depois
    #df = pd.read_csv('out_full.csv') # Lendo para fazer a regressão
    #calculaRegressaoLinear(df)
    print("Fim do processamento!")
