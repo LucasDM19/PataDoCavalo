@@ -67,7 +67,6 @@ def obtemCaracteristicasDaCorrida(nome_mercado):
    claiming = 0
    amateur = 0
    trotting = 0
-   listed = 0
    national_hunt_flat = 0
    steeplechase = 0
    hunt = 0
@@ -95,12 +94,11 @@ def obtemCaracteristicasDaCorrida(nome_mercado):
    if('Claim' in nome_mercado ): claiming = 1 # Todos tem o mesmo preço (Claiming Price) inicial igual antes da corrida
    if('Amateur' in nome_mercado or 'Amat' in nome_mercado ): amateur = 1 # Amador?
    if('Trot' in nome_mercado ): trotting = 1 # Corrida com mini biga / charrete
-   if('Listed' in nome_mercado ): listed = 1 # 	Just below group class
    if('NHF' in nome_mercado ): national_hunt_flat = 1 # No piso mesmo Flat racing / Bumper races
    if('Chs' in nome_mercado or 'Chase' in nome_mercado ): steeplechase = 1 # Pula mureta e fossa
    if('Hunt' in nome_mercado or 'Hnt' in nome_mercado ): hunt = 1 # Pula mureta e fossa
    if('Nursery' in nome_mercado or 'Juv' in nome_mercado ): nursery = 1 # Exclusiva para cavalos com dois anos de idade
-   if('Listed' in nome_mercado or 'List' in nome_mercado ): listed = 1 # Abaixo do Grupo 3 de ranking
+   if('Listed' in nome_mercado or 'List' in nome_mercado ): listed = 1 # Abaixo do Grupo 3 de ranking # 	Just below group class
    if('Cond' in nome_mercado ): conditions = 1 # Tem peso de acordo com o sexo, idade e habilidade do cavalo
    if('Grp1' in nome_mercado or 'Grp 1' in nome_mercado ): group1 = 1
    if('Grp2' in nome_mercado or 'Grp 2' in nome_mercado ): group2 = 1
@@ -115,8 +113,8 @@ def obtemCaracteristicasDaCorrida(nome_mercado):
    if('5yo' in nome_mercado and '5yo+' not in nome_mercado ): cinco_anos = 1 # Correm os cavalos com cinco anos de idade
    if('Charity' in nome_mercado ): charity = 1 # Corrida para a Caridade
    if('Mare' in nome_mercado or 'Mares' in nome_mercado ): mare = 1 # Éguas acima de três anos de idade
-   if( sum([handicap, novice, hurdle, maiden, stakes, claiming, amateur, trotting, listed, national_hunt_flat, steeplechase, hunt, nursery, listed, conditions, group1, group2, group3, selling, apprentice, tres_anos_ou_mais, tres_anos, quatro_anos_ou_mais, quatro_anos, cinco_anos_ou_mais, cinco_anos, charity, mare ]) == 0 ): print("Falta:", nome_mercado)
-   return handicap, novice, hurdle, maiden, stakes, claiming, amateur, trotting, listed, national_hunt_flat, steeplechase, hunt, nursery, listed, conditions, group1, group2, group3, selling, apprentice, tres_anos_ou_mais, tres_anos, quatro_anos_ou_mais, quatro_anos, cinco_anos_ou_mais, cinco_anos, charity, mare
+   if( sum([handicap, novice, hurdle, maiden, stakes, claiming, amateur, trotting, national_hunt_flat, steeplechase, hunt, nursery, listed, conditions, group1, group2, group3, selling, apprentice, tres_anos_ou_mais, tres_anos, quatro_anos_ou_mais, quatro_anos, cinco_anos_ou_mais, cinco_anos, charity, mare ]) == 0 ): print("Falta:", nome_mercado)
+   return handicap, novice, hurdle, maiden, stakes, claiming, amateur, trotting, national_hunt_flat, steeplechase, hunt, nursery, listed, conditions, group1, group2, group3, selling, apprentice, tres_anos_ou_mais, tres_anos, quatro_anos_ou_mais, quatro_anos, cinco_anos_ou_mais, cinco_anos, charity, mare
 
 # Só para manter o backup
 def coletaInformacoesSobreCorridas():
@@ -280,7 +278,7 @@ def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_tr
       # Fim da corrida
       if(pl_total is not None): # Dados serão válidos para treino
          nome_mercado = banco.obtemNomeMercadoDaCorrida(corrida)
-         handicap, novice, hurdle, maiden, stakes, claiming, amateur, trotting, listed, national_hunt_flat, steeplechase, hunt, nursery, listed, conditions, group1, group2, group3, selling, apprentice, tres_anos_ou_mais, tres_anos, quatro_anos_ou_mais, quatro_anos, cinco_anos_ou_mais, cinco_anos, charity, mare = obtemCaracteristicasDaCorrida(nome_mercado)
+         handicap, novice, hurdle, maiden, stakes, claiming, amateur, trotting, national_hunt_flat, steeplechase, hunt, nursery, listed, conditions, group1, group2, group3, selling, apprentice, tres_anos_ou_mais, tres_anos, quatro_anos_ou_mais, quatro_anos, cinco_anos_ou_mais, cinco_anos, charity, mare = obtemCaracteristicasDaCorrida(nome_mercado)
          distancia = obtemDistanciaDaPista(nome_mercado)
          if( distancia is None ): distancia = 0 # Sem distância fica como 0?
          if(total_stack is None): pl_unitario = 0.0 # Aposta devolvida
@@ -311,8 +309,6 @@ def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_tr
          if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('amateur')
          dados_corrida.append(trotting)
          if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('trotting')
-         dados_corrida.append(listed)
-         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('listed')
          dados_corrida.append(national_hunt_flat)
          if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('national_hunt_flat')
          dados_corrida.append(steeplechase)
@@ -359,27 +355,50 @@ def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_tr
    print("Dados coletados")
    return df
 
-def calculaRegressaoLinear(df):
-   #Embaralha o dataframe, apartir de um estado predefindo
-   df=df.sample(frac=1.0, random_state=1)
+def calculaRegressaoLinear(df, campos_ignorar=[]):
+   SomaLogs=[] 
    qtd_colunas_x = len(df.columns)-1 # Tem apenas um Y
    qtd_registros = len(df)
-   X=df.iloc[:, :-1].values # Todos menos o último
-   print("X=", X)
-   Y=df.iloc[:,-1].values # Apenas o último
-   print("Y=", Y)
+   prop_treino = 0.666 # Quanto fica para treino. O resto será teste
+   qtd_treino = int(qtd_registros*prop_treino)
+   qtd_teste = qtd_registros-qtd_treino
+   colunas = [col for col in df.columns if col not in campos_ignorar]
+
+   #Fitra o df baseado nas colunas
+   df=df[colunas]
+   
+   #df['dist'] = df['dist'].fillna(0) # Se tiver algum valor Nan 
    #print([np.where(np.isnan(X))]) # Mostra índices que tem Nan
+   for i in range(100):
+      #Embaralha o dataframe, apartir de um estado predefindo
+      df=df.sample(frac=1.0, random_state=i)
+      df_teste, df_treino = df[:qtd_teste], df[qtd_teste:]
+      
+      #Os Xs são todas as colunas exceto a PL que será o Y
+      X_treino, Y_treino = df_treino.loc[:,(df_treino.columns!='pl')], df_treino.pl
+      X_teste, Y_teste = df_teste.loc[:,(df_teste.columns!='pl')], df_teste.pl
+      
+      # Treina a regressão com os dados de treinamento
+      reg=LinearRegression().fit(X_treino, Y_treino)
+      #print('\n Coeficientes #'+str(i)+':')
+      #for idx_c in range(len(reg.coef_)): print("Coef do campo", df.columns[idx_c], ":", reg.coef_[idx_c] )
+      
+      # Verifica a lucratividade nos dados de teste
+      SomaLogs.append( [sum(np.log(1+y*y_pred) for y_pred,y in zip(reg.predict(X_teste),Y_teste) if y_pred>0 ) ] )
+      #print('Mean squared error: %.2f' % mean_squared_error(Y, Y_reg))
+   #X=df.iloc[:, :-1].values # Todos menos o último #print("X=", X)
+   #Y=df.iloc[:,-1].values # Apenas o último #print("Y=", Y)
    #X = np.nan_to_num(X) # Para trocar Nan por 0 e Infinity por número
-   reg=LinearRegression().fit(X, Y)
-   Y_reg=reg.predict(df.iloc[:qtd_registros,:qtd_colunas_x].values) # Y da Regressão Linear
-   print('Coeficientes: \n', reg.coef_)
-   print('Mean squared error: %.2f' % mean_squared_error(Y, Y_reg))
-   print('LR:', sum(np.log(1+y*y_pred) for y_pred,y in zip(Y_reg,Y) if y_pred>0) )
+   #print("Todas as somas:", SomaLogs)
+   for idx_c in range(len(reg.coef_)): print("Coef do campo", df.columns[idx_c], ":", reg.coef_[idx_c] )
+   print("Soma dos logs sem o valor", campos_ignorar,":", round(np.nanmean(SomaLogs),2)  ) #nanmean ignora valores Nan
 
 if __name__ == '__main__':   
    #fazProspeccaoEstrategias(min_minutos_back = 9999, max_minutos_back = 9999, min_minutos_lay = 26, max_minutos_lay = 26, max_cavalos = 1) # Demora cerca de 42 horas na configuração padrão
+   
    df = obtemDadosTreinoDaEstrategia(minutos_back = 9999, minutos_lay=26, qtd_cavalos=1, frac_treino=1.0) # Estratégia vencedora, por enquanto
    df.to_csv('out_dev_full.csv', index=False) # Salvando para fuçar depois
-   #df = pd.read_csv('out_full.csv') # Lendo para fazer a regressão
-   #calculaRegressaoLinear(df)
+   
+   #df = pd.read_csv('out_new.csv') # Lendo para fazer a regressão
+   #calculaRegressaoLinear(df, campos_ignorar=['dist', 'quatro_anos_ou_mais', 'cinco_anos_ou_mais', 'charity', 'tres_anos_ou_mais', 'hunt', 'odds_lay', ] )
    print("Fim do processamento!")
