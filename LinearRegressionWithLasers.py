@@ -258,10 +258,10 @@ def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_tr
                      if(pl is not None): 
                         if( pl_total is None ): 
                            pl_total = pl # Primeira vez
-                           total_stack = 20
+                           if( pl != 0 ): total_stack = 20 # Soma Stack apenas quando não devolve aposta
                         else: 
                            pl_total += pl # Concatena
-                           total_stack = 40
+                           if( pl != 0 ): total_stack += 20
                      #print("Aposta Back retornou=", pl, ", minuto=", minuto, ", odds=", odds_cavalo_back, ", W/L=", banco.obtemWinLoseAtual(nome_melhor) )
             if( minutos_lay == minuto ): 
                if( len(melhores_odds) > qtd_cavalos  ): # Não tem cavalo suficiente para essa estratégia
@@ -272,17 +272,18 @@ def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_tr
                      if(pl is not None): 
                         if( pl_total is None ): 
                            pl_total = pl # Primeira vez
-                           total_stack = 20
+                           if( pl != 0 ): total_stack = 20 # Soma Stack apenas quando não devolve aposta
                         else: 
                            pl_total += pl # Concatena
-                           total_stack = 40
+                           if( pl != 0 ): total_stack += 20
                      #print("Aposta Lay retornou=", pl, ", minuto=", minuto, ", odds=", odds_cavalo_lay, ", W/L=", banco.obtemWinLoseAtual(nome_melhor) )
       # Fim da corrida
       if(pl_total is not None): # Dados serão válidos para treino
          nome_mercado = banco.obtemNomeMercadoDaCorrida(corrida)
          handicap, novice, hurdle, maiden, stakes, claiming, amateur, trotting, listed, national_hunt_flat, steeplechase, hunt, nursery, listed, conditions, group1, group2, group3, selling, apprentice, tres_anos_ou_mais, tres_anos, quatro_anos_ou_mais, quatro_anos, cinco_anos_ou_mais, cinco_anos, charity, mare = obtemCaracteristicasDaCorrida(nome_mercado)
          distancia = obtemDistanciaDaPista(nome_mercado)
-         pl_unitario = 1.0*pl_total/total_stack # Retorno unitário da corrida
+         if(total_stack is None): pl_unitario = 0.0 # Aposta devolvida
+         else: pl_unitario = 1.0*pl_total/total_stack # Retorno unitário da corrida
          if( odds_cavalo_back is not None ): 
             dados_corrida.append( odds_cavalo_back )
             if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('odds_back')
