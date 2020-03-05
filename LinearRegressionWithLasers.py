@@ -291,6 +291,8 @@ def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_tr
             if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('odds_lay')
          dados_corrida.append(distancia)
          if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('dist')
+         dados_corrida.append( len(melhores_odds) )
+         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('qtd_cav')
          dados_corrida.append(handicap)
          if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('handicap')
          dados_corrida.append(novice)
