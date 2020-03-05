@@ -396,9 +396,10 @@ def calculaRegressaoLinear(df, campos_ignorar=[]):
 if __name__ == '__main__':   
    #fazProspeccaoEstrategias(min_minutos_back = 9999, max_minutos_back = 9999, min_minutos_lay = 26, max_minutos_lay = 26, max_cavalos = 1) # Demora cerca de 42 horas na configuração padrão
    
-   df = obtemDadosTreinoDaEstrategia(minutos_back = 9999, minutos_lay=26, qtd_cavalos=1, frac_treino=1.0) # Estratégia vencedora, por enquanto
-   df.to_csv('out_dev_full.csv', index=False) # Salvando para fuçar depois
+   #df = obtemDadosTreinoDaEstrategia(minutos_back = 9999, minutos_lay=26, qtd_cavalos=1, frac_treino=1.0) # Estratégia vencedora, por enquanto
+   #df.to_csv('out_dev_full.csv', index=False) # Salvando para fuçar depois
    
-   #df = pd.read_csv('out_new.csv') # Lendo para fazer a regressão
-   #calculaRegressaoLinear(df, campos_ignorar=['dist', 'quatro_anos_ou_mais', 'cinco_anos_ou_mais', 'charity', 'tres_anos_ou_mais', 'hunt', 'odds_lay', ] )
+   df = pd.read_csv('out_new.csv') # Lendo para fazer a regressão
+   sem_esses = ['charity', 'cinco_anos_ou_mais', 'tres_anos_ou_mais', 'quatro_anos_ou_mais',  'hunt', 'odds_lay', 'selling', 'national_hunt_flat', 'steeplechase', 'hurdle', 'stakes', 'handicap', 'amateur', 'group1', 'novice', 'maiden', 'listed', 'group3', 'nursery', 'conditions', 'claiming', 'apprentice', 'group2', 'mare', ]
+   calculaRegressaoLinear(df, campos_ignorar=sem_esses )
    print("Fim do processamento!")
