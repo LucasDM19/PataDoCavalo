@@ -3,6 +3,7 @@ from BDUtils import BaseDeDados
 from datetime import datetime
 import pandas as pd
 import numpy as np
+import random
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 
@@ -375,13 +376,12 @@ def calculaRegressaoLinear(df, campos_ignorar=[], percentil_ignora=0):
       df_teste, df_treino = df[:qtd_teste], df[qtd_teste:]
       
       #Filta o dataframe por intervalo de alguns campos que podem melhorar a regressão
-      min_odd_lay = df.odds_lay.quantile(percentil_ignora)
-      max_odd_lay = df.odds_lay.quantile(1-percentil_ignora)
-      df_treino=df_treino[(df_treino.odds_lay<=max_odd_lay)&(df_treino.odds_lay>=min_odd_lay)]
-      df_teste=df_teste[(df_teste.odds_lay<=max_odd_lay)&(df_teste.odds_lay>=min_odd_lay)]
-      del df_treino['odds_lay'] # Uso apenas para filtrar
-      del df_teste['odds_lay'] # Uso apenas para filtrar
-      print(df_treino.columns)
+      #min_odd_lay = df.odds_lay.quantile(percentil_ignora)
+      #max_odd_lay = df.odds_lay.quantile(1-percentil_ignora)
+      #df_treino=df_treino[(df_treino.odds_lay<=max_odd_lay)&(df_treino.odds_lay>=min_odd_lay)]
+      #df_teste=df_teste[(df_teste.odds_lay<=max_odd_lay)&(df_teste.odds_lay>=min_odd_lay)]
+      #if('odd_lay' in campos_ignorar): del df_treino['odds_lay'] # Uso apenas para filtrar
+      #if('odd_lay' in campos_ignorar): del df_teste['odds_lay'] # Uso apenas para filtrar
       
       #Os Xs são todas as colunas exceto a PL que será o Y
       X_treino, Y_treino = df_treino.loc[:,(df_treino.columns!='pl')], df_treino.pl
@@ -399,8 +399,32 @@ def calculaRegressaoLinear(df, campos_ignorar=[], percentil_ignora=0):
    #Y=df.iloc[:,-1].values # Apenas o último #print("Y=", Y)
    #X = np.nan_to_num(X) # Para trocar Nan por 0 e Infinity por número
    #print("Todas as somas:", SomaLogs)
-   for idx_c in range(len(reg.coef_)): print("Coef do campo", df.columns[idx_c], ":", reg.coef_[idx_c] )
-   print("Soma dos logs sem o valor", campos_ignorar,":", round(np.nanmean(SomaLogs),2)  ) #nanmean ignora valores Nan
+   for idx_c in range(len(reg.coef_)): print("Coef do campo", df_teste.columns[idx_c], ":", reg.coef_[idx_c] )
+   #print("Soma dos logs sem o valor", campos_ignorar,":", round(np.nanmean(SomaLogs),2)  ) #nanmean ignora valores Nan
+   return SomaLogs
+
+def randomWalkerParametros(df):
+   config_testadas = [[],] # Para evitar fazer a mesma coisa repetidamente
+   colunas_total = [col for col in df.columns if col != 'pl'] # Antes de tudo
+   max_configs = 2**len(colunas_total) # O máximo de configurações (Power Set)
+   melhor_valor = None # Melhor valor de crescimento exponencial da banca
+   melhor_config = [] # Colunas que geram o melhor valor
+   colunas_ignorar = []
+   chegou_fim = False
+   while not chegou_fim:
+      if( len(config_testadas) == max_configs-1 ): chegou_fim = True # Encerra se atingiu o máximo
+      config_nova = []
+      while (config_nova in config_testadas):
+         config_nova = [random.randint(0,1) for c in range(len(colunas_total)) ]
+      config_testadas.append(config_nova)
+      colunas_ignorar = [colunas_total[idx_con] for idx_con in range(len(config_nova)) if config_nova[idx_con]==0]
+      sl = calculaRegressaoLinear(df, campos_ignorar=colunas_ignorar )
+      m_val = round(np.nanmean(sl),2)
+      print("Soma dos logs sem o valor", colunas_ignorar,":", round(np.nanmean(sl),2)  ) #nanmean ignora valores Nan
+      if( melhor_valor is None or m_val > melhor_valor ): 
+         melhor_valor = m_val
+         melhor_config = colunas_ignorar
+      print("Melhor valor:", melhor_valor, ", ", melhor_config, ", qtd_hist=", len(config_testadas) )   
 
 if __name__ == '__main__':   
    #fazProspeccaoEstrategias(min_minutos_back = 9999, max_minutos_back = 9999, min_minutos_lay = 26, max_minutos_lay = 26, max_cavalos = 1) # Demora cerca de 42 horas na configuração padrão
@@ -409,6 +433,8 @@ if __name__ == '__main__':
    #df.to_csv('out_dev_full.csv', index=False) # Salvando para fuçar depois
    
    df = pd.read_csv('out_new.csv') # Lendo para fazer a regressão
-   sem_esses = ['charity', 'cinco_anos_ou_mais', 'tres_anos_ou_mais', 'quatro_anos_ou_mais', 'hunt', 'selling', 'national_hunt_flat', 'steeplechase', 'hurdle', 'stakes', 'handicap', 'amateur', 'group1', 'novice', 'maiden', 'listed', 'group3', 'nursery', 'conditions', 'claiming', 'apprentice', 'group2', 'mare', ]
-   calculaRegressaoLinear(df, campos_ignorar=sem_esses, percentil_ignora=0.05 )
+   #sem_esses = ['charity', 'cinco_anos_ou_mais', 'tres_anos_ou_mais', 'quatro_anos_ou_mais', 'hunt', 'selling', 'national_hunt_flat', 'steeplechase', 'hurdle', 'stakes', 'handicap', 'amateur', 'group1', 'novice', 'maiden', 'listed', 'group3', 'nursery', 'conditions', 'claiming', 'apprentice', 'group2', 'mare', ]
+   #sl = calculaRegressaoLinear(df, campos_ignorar=sem_esses, percentil_ignora=0 )
+   #print("Soma dos logs sem o valor", sem_esses,":", round(np.nanmean(sl),2)  ) #nanmean ignora valores Nan
+   randomWalkerParametros(df)
    print("Fim do processamento!")
