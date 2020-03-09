@@ -259,14 +259,15 @@ def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_tr
                         odds_cavalo_back = melhores_odds[y+d][1]
                         d += 1
                         #print("Alternativo", nome_melhor, odds_cavalo_lay)
-                     pl = fazApostaBack(odd_back=odds_cavalo_back, stack_back=20, wl_back=banco.obtemWinLoseAtual(nome_melhor), comissao = 0.065)                  
+                     stack_back = 20*round(1/(odds_cavalo_back-1),2) # Stack proporcional
+                     pl = fazApostaBack(odd_back=odds_cavalo_back, stack_back=odds_cavalo_back, wl_back=banco.obtemWinLoseAtual(nome_melhor), comissao = 0.065)                  
                      if(pl is not None): 
                         if( pl_total is None ): 
                            pl_total = pl # Primeira vez
-                           if( pl != 0 ): total_stack = 20 # Soma Stack apenas quando não devolve aposta
+                           if( pl != 0 ): total_stack = stack_back # Soma Stack apenas quando não devolve aposta
                         else: 
                            pl_total += pl # Concatena
-                           if( pl != 0 ): total_stack += 20
+                           if( pl != 0 ): total_stack += stack_back
                      #print("Aposta Back retornou=", pl, ", minuto=", minuto, ", odds=", odds_cavalo_back, ", W/L=", banco.obtemWinLoseAtual(nome_melhor) )
             if( minutos_lay == minuto ): 
                if( len(melhores_odds) > qtd_cavalos  ): # Não tem cavalo suficiente para essa estratégia
@@ -279,15 +280,16 @@ def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_tr
                         odds_cavalo_lay = melhores_odds[y+d][1]
                         d += 1
                         #print("Alternativo", nome_melhor, odds_cavalo_lay)
-                     pl = fazApostaLay(odd_lay=odds_cavalo_lay, stack_lay=20, wl_lay=banco.obtemWinLoseAtual(nome_melhor), comissao = 0.065)
+                     stack_lay = 20*round(1/(odds_cavalo_lay-1),2) # Stack proporcional
+                     pl = fazApostaLay(odd_lay=odds_cavalo_lay, stack_lay=stack_lay, wl_lay=banco.obtemWinLoseAtual(nome_melhor), comissao = 0.065)
                      if(pl is not None): 
                         if( pl_total is None ): 
                            pl_total = pl # Primeira vez
-                           if( pl != 0 ): total_stack = 20 # Soma Stack apenas quando não devolve aposta
+                           if( pl != 0 ): total_stack = stack_lay # Soma Stack apenas quando não devolve aposta
                         else: 
                            pl_total += pl # Concatena
-                           if( pl != 0 ): total_stack += 20
-                     #print("Aposta Lay retornou=", pl, ", minuto=", minuto, ", odds=", odds_cavalo_lay, ", W/L=", banco.obtemWinLoseAtual(nome_melhor) )
+                           if( pl != 0 ): total_stack += stack_lay
+                     print("Aposta Lay retornou=", pl, ", minuto=", minuto, ", odds=", odds_cavalo_lay, ", W/L=", banco.obtemWinLoseAtual(nome_melhor), ", stack=", stack_lay )
       # Fim da corrida
       if(pl_total is not None): # Dados serão válidos para treino
          nome_mercado = banco.obtemNomeMercadoDaCorrida(corrida)
