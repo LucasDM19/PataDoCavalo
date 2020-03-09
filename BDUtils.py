@@ -96,7 +96,7 @@ class BaseDeDados:
          row = c.fetchone()
          if row == None: break  # Acabou o sqlite
          runner_id, race_id2, runner_name, WinLose, BSP = row
-         lista_participantes[runner_name] = 1.01 # Odd inicial
+         lista_participantes[runner_name] = -1.01 # Odd inicial
          lista_bsp[runner_name] = BSP
          lista_wl[runner_name] = WinLose
       return lista_participantes, lista_bsp, lista_wl

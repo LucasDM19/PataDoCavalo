@@ -253,6 +253,12 @@ def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_tr
                   for y in range(qtd_cavalos):
                      nome_melhor = melhores_odds[y][0]
                      odds_cavalo_back = melhores_odds[y][1]
+                     d = 0 # Deslocamento
+                     while( odds_cavalo_back == -1.01 and d < len(melhores_odds) ):
+                        nome_melhor = melhores_odds[y+d][0]
+                        odds_cavalo_back = melhores_odds[y+d][1]
+                        d += 1
+                        #print("Alternativo", nome_melhor, odds_cavalo_lay)
                      pl = fazApostaBack(odd_back=odds_cavalo_back, stack_back=20, wl_back=banco.obtemWinLoseAtual(nome_melhor), comissao = 0.065)                  
                      if(pl is not None): 
                         if( pl_total is None ): 
@@ -267,6 +273,12 @@ def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_tr
                   for y in range(qtd_cavalos):
                      nome_melhor = melhores_odds[y][0]
                      odds_cavalo_lay = melhores_odds[y][1]
+                     d = 0 # Deslocamento
+                     while( odds_cavalo_lay == -1.01 and d < len(melhores_odds) ):
+                        nome_melhor = melhores_odds[y+d][0]
+                        odds_cavalo_lay = melhores_odds[y+d][1]
+                        d += 1
+                        #print("Alternativo", nome_melhor, odds_cavalo_lay)
                      pl = fazApostaLay(odd_lay=odds_cavalo_lay, stack_lay=20, wl_lay=banco.obtemWinLoseAtual(nome_melhor), comissao = 0.065)
                      if(pl is not None): 
                         if( pl_total is None ): 
@@ -429,12 +441,12 @@ def randomWalkerParametros(df):
 if __name__ == '__main__':   
    #fazProspeccaoEstrategias(min_minutos_back = 9999, max_minutos_back = 9999, min_minutos_lay = 26, max_minutos_lay = 26, max_cavalos = 1) # Demora cerca de 42 horas na configuração padrão
    
-   #df = obtemDadosTreinoDaEstrategia(minutos_back = 9999, minutos_lay=26, qtd_cavalos=1, frac_treino=1.0) # Estratégia vencedora, por enquanto
-   #df.to_csv('out_dev_full.csv', index=False) # Salvando para fuçar depois
+   df = obtemDadosTreinoDaEstrategia(minutos_back = 9999, minutos_lay=26, qtd_cavalos=1, frac_treino=1.0) # Estratégia vencedora, por enquanto
+   df.to_csv('out_dev_full.csv', index=False) # Salvando para fuçar depois
    
-   df = pd.read_csv('out_new.csv') # Lendo para fazer a regressão
+   #df = pd.read_csv('out_dev_full.csv') # Lendo para fazer a regressão
    #sem_esses = ['charity', 'cinco_anos_ou_mais', 'tres_anos_ou_mais', 'quatro_anos_ou_mais', 'hunt', 'selling', 'national_hunt_flat', 'steeplechase', 'hurdle', 'stakes', 'handicap', 'amateur', 'group1', 'novice', 'maiden', 'listed', 'group3', 'nursery', 'conditions', 'claiming', 'apprentice', 'group2', 'mare', ]
    #sl = calculaRegressaoLinear(df, campos_ignorar=sem_esses, percentil_ignora=0 )
    #print("Soma dos logs sem o valor", sem_esses,":", round(np.nanmean(sl),2)  ) #nanmean ignora valores Nan
-   randomWalkerParametros(df)
+   #randomWalkerParametros(df)
    print("Fim do processamento!")
