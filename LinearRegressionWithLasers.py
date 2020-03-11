@@ -407,7 +407,7 @@ def calculaRegressaoLinear(df, campos_ignorar=[], percentil_ignora=0):
       #for idx_c in range(len(reg.coef_)): print("Coef do campo", df.columns[idx_c], ":", reg.coef_[idx_c] )
       
       # Verifica a lucratividade nos dados de teste
-      SomaLogs.append( [sum(np.log(1+y*y_pred) for y_pred,y in zip(reg.predict(X_teste),Y_teste) if y_pred>0 ) ] )
+      SomaLogs.append( [sum(np.log(10+y*y_pred) for y_pred,y in zip(reg.predict(X_teste),Y_teste) if y_pred>0 ) ] )
       #print('Mean squared error: %.2f' % mean_squared_error(Y, Y_reg))
    #X=df.iloc[:, :-1].values # Todos menos o último #print("X=", X)
    #Y=df.iloc[:,-1].values # Apenas o último #print("Y=", Y)
@@ -440,14 +440,49 @@ def randomWalkerParametros(df):
          melhor_config = colunas_ignorar
       print("Melhor valor:", melhor_valor, ", ", melhor_config, ", qtd_hist=", len(config_testadas) )   
 
+def criterioDeKelly(df, campos_ignorar=[], comissao = 0.065):
+   media_pls = []
+   qtd_colunas_x = len(df.columns)-1 # Tem apenas um Y
+   qtd_registros = len(df)
+   prop_treino = 0.666 # Quanto fica para treino. O resto será teste
+   qtd_treino = int(qtd_registros*prop_treino)
+   qtd_teste = qtd_registros-qtd_treino
+   colunas = [col for col in df.columns if col not in campos_ignorar]
+
+   #Fitra o df baseado nas colunas
+   df_f=df[colunas]
+
+   for i in range(100):
+      #Embaralha o dataframe, apartir de um estado predefindo
+      df_s=df_f.sample(frac=1.0, random_state=i)
+      df_teste, df_treino = df_s[:qtd_teste], df_s[qtd_teste:]
+      
+      #Os Xs são todas as colunas exceto a PL que será o Y
+      X_treino, Y_treino = df_treino.loc[:,(df_treino.columns!='pl')], df_treino.pl
+      X_teste, Y_teste = df_teste.loc[:,(df_teste.columns!='pl')], df_teste.pl
+      
+      # Treina a regressão com os dados de treinamento
+      reg=LinearRegression().fit(X_treino, Y_treino)
+      
+      # Logo depois do reg=
+      media_pls.append( sum(y_pred for y_pred,y in zip(reg.predict(X_teste),Y_teste) if y_pred>0) )
+   
+   # Depois do laço
+   m_pl = sum(m for m in media_pls)/len(media_pls)
+   kelly = (df.odds_lay.mean()*(1-comissao)-1)/m_pl # Confirmar a fórmula
+   return kelly
+
 if __name__ == '__main__':   
    #fazProspeccaoEstrategias(min_minutos_back = 9999, max_minutos_back = 9999, min_minutos_lay = 26, max_minutos_lay = 26, max_cavalos = 1) # Demora cerca de 42 horas na configuração padrão
    
-   df = obtemDadosTreinoDaEstrategia(minutos_back = 9999, minutos_lay=26, qtd_cavalos=1, frac_treino=1.0) # Estratégia vencedora, por enquanto
-   df.to_csv('out_dev_full.csv', index=False) # Salvando para fuçar depois
+   #df = obtemDadosTreinoDaEstrategia(minutos_back = 9999, minutos_lay=26, qtd_cavalos=1, frac_treino=1.0) # Estratégia vencedora, por enquanto
+   #df.to_csv('out_dev_full.csv', index=False) # Salvando para fuçar depois
    
-   #df = pd.read_csv('out_dev_full.csv') # Lendo para fazer a regressão
+   df = pd.read_csv('out_dev_full.csv') # Lendo para fazer a regressão
+   sem_esses = ['odds_lay', 'handicap', 'novice', 'hurdle', 'maiden', 'stakes', 'amateur', 'trotting', 'listed', 'national_hunt_flat', 'steeplechase', 'hunt', 'conditions', 'group1', 'group2', 'group3', 'selling', 'apprentice', 'tres_anos', 'quatro_anos_ou_mais', 'cinco_anos_ou_mais'] # Esse gerou 1.98 no antigo
    #sem_esses = ['charity', 'cinco_anos_ou_mais', 'tres_anos_ou_mais', 'quatro_anos_ou_mais', 'hunt', 'selling', 'national_hunt_flat', 'steeplechase', 'hurdle', 'stakes', 'handicap', 'amateur', 'group1', 'novice', 'maiden', 'listed', 'group3', 'nursery', 'conditions', 'claiming', 'apprentice', 'group2', 'mare', ]
+   frac_banca = criterioDeKelly(df, campos_ignorar=sem_esses )
+   print("Hello, my Kelly!", frac_banca)
    #sl = calculaRegressaoLinear(df, campos_ignorar=sem_esses, percentil_ignora=0 )
    #print("Soma dos logs sem o valor", sem_esses,":", round(np.nanmean(sl),2)  ) #nanmean ignora valores Nan
    #randomWalkerParametros(df)
