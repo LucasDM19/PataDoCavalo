@@ -35,7 +35,7 @@ def somaLog(codigo_genetico):
 
 
     SLs=[] 
-    for i in range(10):
+    for i in range(100):
         #Embaralha o dataframe baseado no random_state i 
         df_=df_.sample(frac=1, random_state=i)
 
@@ -79,7 +79,7 @@ for _ in range(TAM_POP):
 
 
 #Evolução da população
-for n_gera in range(100):
+for n_gera in range(500):
     codes=[]
     
     #Para cada 2 indivudos gera novos 2 codigos genéticos a através do cruzamentos dada taxa de reprodução
