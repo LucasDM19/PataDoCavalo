@@ -469,6 +469,7 @@ def criterioDeKelly(df, campos_ignorar=[], comissao = 0.065):
    
    # Depois do laço
    m_pl = sum(m for m in media_pls)/len(media_pls)
+   print("Media PL=", m_pl)
    kelly = (df.odds_lay.mean()*(1-comissao)-1)/m_pl # Confirmar a fórmula
    return kelly
 
