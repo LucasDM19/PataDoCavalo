@@ -133,3 +133,6 @@ neat-checkpoint-*
 *.svg
 *.gv
 *.gv.svg
+
+# Arquivos CSV para Regressão Linear
+*.csv
