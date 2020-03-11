@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
-from AG import *
 
 
 #máximo da banca em um uma única aposta
@@ -18,7 +17,7 @@ df.pl=np.where(df.pl>0, 0.935/(df.odds_lay-1), -1)
 
 
 
-#todas as colunas exceta a ultima, que o pl
+#todas as colunas exceto a ultima, que o pl
 todas_colunas=df.columns[:-1]
 
 
@@ -55,11 +54,6 @@ def somaLog(codigo_genetico):
     #print(SLs)
     #Mostra a lucrativida média e colunas selecionadas que deram origem a essa lucratividade
     return np.mean(SLs)
-
-print(somaLog('111111111110111111111111011111') )
-
-
-
 
 
 #Configurações
@@ -104,8 +98,8 @@ for n_gera in range(500):
 
     #Embaralha os individuos da população
     np.random.shuffle(pop)
-
-    print('Gera#:',n_gera,'Melhor fit:', max([ ind['fit'] for ind in pop ] )  )
+    
+    print('Gera#:',n_gera,'Melhor fit:', max([ ind['fit'] for ind in pop ] ), 'Individuo:', [ [todas_colunas[i] for i,e in enumerate([int(c) for c in ind['code'] ]) if e] for ind in pop if ind['fit']==max([ ind['fit'] for ind in pop ]) ] )
 
 
 
