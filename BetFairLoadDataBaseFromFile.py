@@ -6,16 +6,18 @@ import json
 from shutil import copyfile
 import sqlite3
 
-def iniciaBanco():
-   conn = sqlite3.connect('bf_gb_win_full.db')
+def iniciaBanco(nome_banco):
+   conn = sqlite3.connect(nome_banco)
    c = conn.cursor()
 
    c.execute('create table if not exists odds (RunnerId, RaceId, LastTradedPrice, PublishedTime)')
    c.execute('create table if not exists races (RaceId, MarketTime, InplayTimestamp, MarketName, MarketVenue)')
    c.execute('create table if not exists afs (RunnerId, RaceId, AdjustmentFactor, PublishedTime)')
    c.execute('create table if not exists runners (RunnerId, RaceId, RunnerName, WinLose, BSP)')
+   return c, conn
 
 def insere_bz2_sqlite(arquivo_bz2, arquivo):
+   global c, conn
    with bz2.open(arquivo_bz2, "rt") as bz_file:
       md=json.loads( next(bz_file)  )['mc'][0]['marketDefinition']
       race_id=arquivo.replace('.bz2','')
@@ -65,7 +67,7 @@ def processa_bz2(arquivo_bz2, arquivo):
       except json.decoder.JSONDecodeError:
          pass
 
-def verificaDiretorios():      
+def verificaDiretorios():  
    #Verificando recursivamente os diretorios. Para quando encontra um arquivo.
    while( len(caminhos_or) > 0 ):
       caminho = caminhos_or.pop()
@@ -80,6 +82,7 @@ def verificaDiretorios():
    print("Carga completa")
 
 def recriaIndices():
+   global c, conn
    # Quando acaba tudo, cria (ou recria) os indices
    c.execute("DROP INDEX IF EXISTS idx_races_RaceId")
    c.execute("CREATE INDEX idx_races_RaceId ON races ( RaceId ASC )")
@@ -96,9 +99,10 @@ def recriaIndices():
    conn.commit() # Agora sim grava tudo
 
 def removeDuplicatas():
+   global c, conn
    # Eliminar duplicatas
    for nome_tabela in ['races', 'runners', 'odds', 'afs']: # Todas as tabelas do BD
-       print("Agora arrumando tabela", nome_tabela)
+      print("Agora arrumando tabela", nome_tabela)
       c.execute("DROP TABLE IF EXISTS temp_table")
       c.execute("CREATE TABLE temp_table as SELECT DISTINCT * FROM " + nome_tabela)
       c.execute("DELETE FROM " + nome_tabela)
@@ -107,12 +111,13 @@ def removeDuplicatas():
    print("Duplicatas removidas")
 
 def fazLimpeza():
+   global c, conn
    # E ainda faz aquela limpeza geral
    c.execute("VACUUM")
    conn.commit() # Agora sim grava tudo
 
 if __name__ == '__main__':   
-   iniciaBanco()
+   c, conn = iniciaBanco('bf_gb_win_carna.db')
    verificaDiretorios()
    recriaIndices()
    removeDuplicatas()
