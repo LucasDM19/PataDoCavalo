@@ -23,12 +23,12 @@ df=df[df.dist<20]
 df['D1']=np.log(1+df.dist)
 df['D2']=np.log(1+df.D1)
 df['D3']=np.log(1+df.D2)
-df['Q1']=np.log(1+df.qtd_cav
+df['Q1']=np.log(1+df.qtd_cav)
 df['Q2']=np.log(1+df.Q1)
 df['Q3']=np.log(1+df.Q2)
 
 #todas as colunas exceto a ultima, que o pl
-todas_colunas=df.columns[:-1]
+todas_colunas=df.loc[:, df.columns != 'pl'].columns
 
 
 
@@ -68,7 +68,7 @@ def somaLog(codigo_genetico):
 
 #Configurações
 TAM_POP=20  #Tamano da população (número para para não zuar o barraco, ok :)
-N_BITS=len(todas_colunas)  #´Números de 0s e 1s do cromossomo
+N_BITS=len(todas_colunas)  #Qtd de 0s e 1s do cromossomo
 TAXA_DE_REPRODUCAO=0.95
 TAXA_DE_MUTACAO=0.05
 
