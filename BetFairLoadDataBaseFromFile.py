@@ -77,16 +77,6 @@ while( len(caminhos_or) > 0 ):
          caminhos_or.append(caminho + '\\'+pasta)
 print("Carga completa")
 
-# Eliminar duplicatas
-for nome_tabela in ['races', 'runners', 'odds', 'afs']: # Todas as tabelas do BD
-    print("Agora arrumando tabela", nome_tabela)
-   c.execute("DROP TABLE IF EXISTS temp_table")
-   c.execute("CREATE TABLE temp_table as SELECT DISTINCT * FROM " + nome_tabela)
-   c.execute("DELETE FROM " + nome_tabela)
-   c.execute("INSERT INTO " + nome_tabela + " SELECT * FROM temp_table")
-   conn.commit() # Agora sim grava tudo
-print("Duplicatas removidas")
-   
 # Quando acaba tudo, cria (ou recria) os indices
 c.execute("DROP INDEX IF EXISTS idx_races_RaceId")
 c.execute("CREATE INDEX idx_races_RaceId ON races ( RaceId ASC )")
@@ -101,6 +91,16 @@ c.execute("CREATE INDEX idx_odds_RunnerId_PublishedTime ON odds (RunnerId, Publi
 c.execute("DROP INDEX IF EXISTS idx_races_RaceId_MarketTime")
 c.execute("CREATE INDEX idx_races_RaceId_MarketTime ON races (RaceId, MarketTime)")
 conn.commit() # Agora sim grava tudo
+
+# Eliminar duplicatas
+for nome_tabela in ['races', 'runners', 'odds', 'afs']: # Todas as tabelas do BD
+    print("Agora arrumando tabela", nome_tabela)
+   c.execute("DROP TABLE IF EXISTS temp_table")
+   c.execute("CREATE TABLE temp_table as SELECT DISTINCT * FROM " + nome_tabela)
+   c.execute("DELETE FROM " + nome_tabela)
+   c.execute("INSERT INTO " + nome_tabela + " SELECT * FROM temp_table")
+   conn.commit() # Agora sim grava tudo
+print("Duplicatas removidas")
 
 # E ainda faz aquela limpeza geral
 c.execute("VACUUM")
