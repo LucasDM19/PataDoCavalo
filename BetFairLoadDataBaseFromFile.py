@@ -29,26 +29,30 @@ def insere_bz2_sqlite(arquivo_bz2, arquivo):
          race_id=obj['mc'][0]['id']
          time=obj['pt']/1000.0
          if 'rc' in obj['mc'][0]:
-             for odd in obj['mc'][0]['rc']:
+            print("Tem odds", obj['mc'][0]['rc'][0]['id'], race_id, obj['mc'][0]['rc'][0]['ltp'], time )
+            for odd in obj['mc'][0]['rc']:
                c.execute("insert or replace into  odds values (?,?,?,datetime(?,'unixepoch'))", [odd['id'], race_id, odd['ltp'], time ])
          
          if 'marketDefinition' in obj['mc'][0]:
              md=obj['mc'][0]['marketDefinition']                
              
              if inplay_timestamp==0 and md['inPlay']==True:
-                 inplay_timestamp=time        
-                 c.execute("insert or replace into races values (?,?,datetime(?,'unixepoch'),?,?)", [race_id, md['marketTime'], inplay_timestamp,md['name'], md['venue'] ])
+               print("Tem races", race_id, md['marketTime'], inplay_timestamp,md['name'], md['venue'])
+               inplay_timestamp=time        
+               c.execute("insert or replace into races values (?,?,datetime(?,'unixepoch'),?,?)", [race_id, md['marketTime'], inplay_timestamp,md['name'], md['venue'] ])
 
              if md['inPlay']==False :
-                 for runner in md['runners']:
-                     try:
-                        c.execute("insert or replace into  afs values (?,?,?,datetime(?,'unixepoch'))", [runner['id'], race_id, runner['adjustmentFactor'], time ])
-                     except KeyError:
-                        pass
+               print("Tem afs", md['runners'][0]['id'], race_id, md['runners'][0]['adjustmentFactor'], time)
+               for runner in md['runners']:
+                  try:
+                     c.execute("insert or replace into  afs values (?,?,?,datetime(?,'unixepoch'))", [runner['id'], race_id, runner['adjustmentFactor'], time ])
+                  except KeyError:
+                     pass
              
              if md['status']=='CLOSED':
-                 for runner in md['runners']:
-                     c.execute("insert or replace into runners values (?,?,?,?,?)", [runner['id'], race_id, runner['name'],1 if runner['status']=='WINNER' else (0 if runner['status']=='LOSER' else -1), runner['bsp'] if 'bsp' in runner else -1 ])
+               print("Tem runners", runner['id'], race_id, runner['name'],1 if runner['status']=='WINNER' else (0 if runner['status']=='LOSER' else -1), runner['bsp'] if 'bsp' in runner else -1 )
+               for runner in md['runners']:
+                  c.execute("insert or replace into runners values (?,?,?,?,?)", [runner['id'], race_id, runner['name'],1 if runner['status']=='WINNER' else (0 if runner['status']=='LOSER' else -1), runner['bsp'] if 'bsp' in runner else -1 ])
 
       conn.commit()
 
@@ -73,7 +77,7 @@ def verificaDiretorios():
       caminho = caminhos_or.pop()
       for pasta in listdir(caminho):
          if(path.isfile(caminho+'\\'+pasta)):
-            print("Arquivo!", caminho+'\\'+pasta)
+            #print("Arquivo!", caminho+'\\'+pasta)
             #if(pasta == '1.166872140.bz2'): print("Arquivo!", caminho+'\\'+pasta)
             processa_bz2(arquivo_bz2=caminho+'\\'+pasta, arquivo=pasta)
          if(path.isdir(caminho+'\\'+pasta)):
@@ -119,6 +123,6 @@ def fazLimpeza():
 if __name__ == '__main__':   
    c, conn = iniciaBanco('bf_gb_win_carna.db')
    verificaDiretorios()
-   recriaIndices()
-   removeDuplicatas()
-   fazLimpeza()
+   #recriaIndices()
+   #removeDuplicatas()
+   #fazLimpeza()

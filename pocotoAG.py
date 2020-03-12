@@ -5,6 +5,7 @@ from sklearn.linear_model import LinearRegression
 
 #máximo da banca em um uma única aposta
 MAX_BANCA=0.33
+COMISSAO=0.065
 
 
 df=pd.read_csv('out_dev_full.csv')
@@ -13,9 +14,18 @@ df=pd.read_csv('out_dev_full.csv')
 df=df[df.pl!=0]
 
 #Faz o ajuste da odds como se fosse um back
-df.pl=np.where(df.pl>0, 0.935/(df.odds_lay-1), -1)
+df.pl=np.where(df.pl>0, (1-COMISSAO)/(df.odds_lay-1), -1)
 
+#Só deixa corrida cujs distancia seja inferior a 20
+df=df[df.dist<20]
 
+#campos adicionais
+df['D1']=np.log(1+df.dist)
+df['D2']=np.log(1+df.D1)
+df['D3']=np.log(1+df.D2)
+df['Q1']=np.log(1+df.qtd_cav
+df['Q2']=np.log(1+df.Q1)
+df['Q3']=np.log(1+df.Q2)
 
 #todas as colunas exceto a ultima, que o pl
 todas_colunas=df.columns[:-1]
