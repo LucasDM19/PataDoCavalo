@@ -6,13 +6,14 @@ import json
 from shutil import copyfile
 import sqlite3
 
-conn = sqlite3.connect('bf_gb_win_full.db')
-c = conn.cursor()
+def iniciaBanco():
+   conn = sqlite3.connect('bf_gb_win_full.db')
+   c = conn.cursor()
 
-c.execute('create table if not exists odds (RunnerId, RaceId, LastTradedPrice, PublishedTime)')
-c.execute('create table if not exists races (RaceId, MarketTime, InplayTimestamp, MarketName, MarketVenue)')
-c.execute('create table if not exists afs (RunnerId, RaceId, AdjustmentFactor, PublishedTime)')
-c.execute('create table if not exists runners (RunnerId, RaceId, RunnerName, WinLose, BSP)')
+   c.execute('create table if not exists odds (RunnerId, RaceId, LastTradedPrice, PublishedTime)')
+   c.execute('create table if not exists races (RaceId, MarketTime, InplayTimestamp, MarketName, MarketVenue)')
+   c.execute('create table if not exists afs (RunnerId, RaceId, AdjustmentFactor, PublishedTime)')
+   c.execute('create table if not exists runners (RunnerId, RaceId, RunnerName, WinLose, BSP)')
 
 def insere_bz2_sqlite(arquivo_bz2, arquivo):
    with bz2.open(arquivo_bz2, "rt") as bz_file:
@@ -63,45 +64,56 @@ def processa_bz2(arquivo_bz2, arquivo):
         pass
       except json.decoder.JSONDecodeError:
          pass
-      
-#Verificando recursivamente os diretorios. Para quando encontra um arquivo.
-while( len(caminhos_or) > 0 ):
-   caminho = caminhos_or.pop()
-   for pasta in listdir(caminho):
-      if(path.isfile(caminho+'\\'+pasta)):
-         print("Arquivo!", caminho+'\\'+pasta)
-         #if(pasta == '1.166872140.bz2'): print("Arquivo!", caminho+'\\'+pasta)
-         processa_bz2(arquivo_bz2=caminho+'\\'+pasta, arquivo=pasta)
-      if(path.isdir(caminho+'\\'+pasta)):
-         #print("dir=", caminho + '\\'+pasta)
-         caminhos_or.append(caminho + '\\'+pasta)
-print("Carga completa")
 
-# Quando acaba tudo, cria (ou recria) os indices
-c.execute("DROP INDEX IF EXISTS idx_races_RaceId")
-c.execute("CREATE INDEX idx_races_RaceId ON races ( RaceId ASC )")
-c.execute("DROP INDEX IF EXISTS idx_runners_RaceId")
-c.execute("CREATE INDEX idx_runners_RaceId ON runners ( RaceId )")
-c.execute("DROP INDEX IF EXISTS idx_odds_RaceId")
-c.execute("CREATE INDEX idx_odds_RaceId ON odds ( RaceId ASC )")
-c.execute("DROP INDEX IF EXISTS idx_odds_RunnerId")
-c.execute("CREATE INDEX idx_odds_RunnerId ON odds ( RunnerId )")
-c.execute("DROP INDEX IF EXISTS idx_odds_RunnerId_PublishedTime")
-c.execute("CREATE INDEX idx_odds_RunnerId_PublishedTime ON odds (RunnerId, PublishedTime)")
-c.execute("DROP INDEX IF EXISTS idx_races_RaceId_MarketTime")
-c.execute("CREATE INDEX idx_races_RaceId_MarketTime ON races (RaceId, MarketTime)")
-conn.commit() # Agora sim grava tudo
+def verificaDiretorios():      
+   #Verificando recursivamente os diretorios. Para quando encontra um arquivo.
+   while( len(caminhos_or) > 0 ):
+      caminho = caminhos_or.pop()
+      for pasta in listdir(caminho):
+         if(path.isfile(caminho+'\\'+pasta)):
+            print("Arquivo!", caminho+'\\'+pasta)
+            #if(pasta == '1.166872140.bz2'): print("Arquivo!", caminho+'\\'+pasta)
+            processa_bz2(arquivo_bz2=caminho+'\\'+pasta, arquivo=pasta)
+         if(path.isdir(caminho+'\\'+pasta)):
+            #print("dir=", caminho + '\\'+pasta)
+            caminhos_or.append(caminho + '\\'+pasta)
+   print("Carga completa")
 
-# Eliminar duplicatas
-for nome_tabela in ['races', 'runners', 'odds', 'afs']: # Todas as tabelas do BD
-    print("Agora arrumando tabela", nome_tabela)
-   c.execute("DROP TABLE IF EXISTS temp_table")
-   c.execute("CREATE TABLE temp_table as SELECT DISTINCT * FROM " + nome_tabela)
-   c.execute("DELETE FROM " + nome_tabela)
-   c.execute("INSERT INTO " + nome_tabela + " SELECT * FROM temp_table")
+def recriaIndices():
+   # Quando acaba tudo, cria (ou recria) os indices
+   c.execute("DROP INDEX IF EXISTS idx_races_RaceId")
+   c.execute("CREATE INDEX idx_races_RaceId ON races ( RaceId ASC )")
+   c.execute("DROP INDEX IF EXISTS idx_runners_RaceId")
+   c.execute("CREATE INDEX idx_runners_RaceId ON runners ( RaceId )")
+   c.execute("DROP INDEX IF EXISTS idx_odds_RaceId")
+   c.execute("CREATE INDEX idx_odds_RaceId ON odds ( RaceId ASC )")
+   c.execute("DROP INDEX IF EXISTS idx_odds_RunnerId")
+   c.execute("CREATE INDEX idx_odds_RunnerId ON odds ( RunnerId )")
+   c.execute("DROP INDEX IF EXISTS idx_odds_RunnerId_PublishedTime")
+   c.execute("CREATE INDEX idx_odds_RunnerId_PublishedTime ON odds (RunnerId, PublishedTime)")
+   c.execute("DROP INDEX IF EXISTS idx_races_RaceId_MarketTime")
+   c.execute("CREATE INDEX idx_races_RaceId_MarketTime ON races (RaceId, MarketTime)")
    conn.commit() # Agora sim grava tudo
-print("Duplicatas removidas")
 
-# E ainda faz aquela limpeza geral
-c.execute("VACUUM")
-conn.commit() # Agora sim grava tudo
+def removeDuplicatas():
+   # Eliminar duplicatas
+   for nome_tabela in ['races', 'runners', 'odds', 'afs']: # Todas as tabelas do BD
+       print("Agora arrumando tabela", nome_tabela)
+      c.execute("DROP TABLE IF EXISTS temp_table")
+      c.execute("CREATE TABLE temp_table as SELECT DISTINCT * FROM " + nome_tabela)
+      c.execute("DELETE FROM " + nome_tabela)
+      c.execute("INSERT INTO " + nome_tabela + " SELECT * FROM temp_table")
+      conn.commit() # Agora sim grava tudo
+   print("Duplicatas removidas")
+
+def fazLimpeza():
+   # E ainda faz aquela limpeza geral
+   c.execute("VACUUM")
+   conn.commit() # Agora sim grava tudo
+
+if __name__ == '__main__':   
+   iniciaBanco()
+   verificaDiretorios()
+   recriaIndices()
+   removeDuplicatas()
+   fazLimpeza()
