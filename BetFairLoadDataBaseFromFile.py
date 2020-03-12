@@ -58,6 +58,9 @@ def processa_bz2(arquivo_bz2, arquivo):
          if marketType=='WIN' and countryCode=='GB':
             #copyfile(arquivo_bz2, caminho_destino_bz2 +'\\'+arquivo) #Copiar fisicamente em algum lugar
             insere_bz2_sqlite(arquivo_bz2, arquivo)
+      except KeyError:
+        print("CountryCode?", obj['mc'][0]['marketDefinition'] )
+        pass
       except json.decoder.JSONDecodeError:
          pass
       
@@ -76,6 +79,7 @@ print("Carga completa")
 
 # Eliminar duplicatas
 for nome_tabela in ['races', 'runners', 'odds', 'afs']: # Todas as tabelas do BD
+    print("Agora arrumando tabela", nome_tabela)
    c.execute("DROP TABLE IF EXISTS temp_table")
    c.execute("CREATE TABLE temp_table as SELECT DISTINCT * FROM " + nome_tabela)
    c.execute("DELETE FROM " + nome_tabela)
