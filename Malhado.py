@@ -4,6 +4,7 @@ from Hush import *
 from datetime import datetime
 from datetime import timedelta
 from time import sleep
+from CorridaUtils import obtemDistanciaDaPista, obtemCaracteristicasDaCorrida
 
 class Malhado():
    def __init__(self, api=None):
@@ -95,15 +96,26 @@ if __name__ == "__main__":
       proxima_corrida = bot.corridasWin[idx_corrida]["marketStartTime"]   # Apenas a próxima corrida
       idMercado = bot.corridasWin[idx_corrida]['marketId']
       nomeEvento = bot.corridasWin[idx_corrida]['event']['name']
+      nomeMercado = bot.corridasWin[idx_corrida]['marketName']
       print("Proxima corrida=", proxima_corrida, ", Mkt=", idMercado)
       data_futura = datetime.strptime(proxima_corrida, '%Y-%m-%dT%H:%M:%S.%fZ')
-      data_futura_1h = data_futura - timedelta(minutes=85)   # Agente RMNCQLBS2E, agora com equio
+      data_futura_1h = data_futura - timedelta(minutes=26)   
       data_fuso_londres = data_futura_1h - timedelta(hours=3, minutes=0) # Três horas de fuso horário
       delta = data_fuso_londres - datetime.now()
       #print("Delta=", delta)
       if( data_fuso_londres < datetime.now() ): # Não tem Delorean
          print("Delta {0} negativo! Corrida Já foi".format(delta))
          continue   # Próxima corrida
+      dist = obtemDistanciaDaPista(nomeMercado)
+      if( dist >= 20 ):
+        print("Corrida fora dos padrões de distância - ", dist)
+        continue   # Próxima corrida
+      handicap, novice, hurdle, maiden, stakes, claiming, amateur, trotting, national_hunt_flat, steeplechase, hunt, nursery, listed, conditions, group1, group2, group3, selling, apprentice, tres_anos_ou_mais, tres_anos, quatro_anos_ou_mais, quatro_anos, cinco_anos_ou_mais, cinco_anos, charity, mare = obtemCaracteristicasDaCorrida(nomeMercado)
+      
+      json_saldo = api.obtemSaldo()
+      saldo = json_saldo['availableToBetBalance']
+      stack = saldo * 0.10 # Defino uma fração arbitrária por enquanto
+      
       print("Aguardarei {0} segundos. Até a data {1}".format(delta.seconds, data_fuso_londres))
       sleep(delta.seconds)
       print("Acordei! Agora sao->", datetime.now())
@@ -121,21 +133,27 @@ if __name__ == "__main__":
          continue
       nomeCavalo = [bot.corridasWin[idx_corrida]['runners'][idxRunner]["runnerName"] for idxRunner in range(len(bot.corridasWin[idx_corrida]['runners'])) if bot.corridasWin[idx_corrida]['runners'][idxRunner]["selectionId"]==selectionId][0]
       try:
-         odds_back = bot.OddsCorrida[idMercado][0]["runners"][idx_cavalo]['ex']['availableToBack'][0]['price']
+         #odds_back = bot.OddsCorrida[idMercado][0]["runners"][idx_cavalo]['ex']['availableToBack'][0]['price']
+         odds_lay = bot.OddsCorrida[idMercado][0]["runners"][idx_cavalo]['ex']['availableToLay'][0]['price']
       except IndexError:   # Sem SelectionId, sai fora
          print("Sem Odds Back")
          continue
       odds_lay = bot.OddsCorrida[idMercado][0]["runners"][idx_cavalo]['ex']['availableToLay'][0]['price']
-      stack_back_disp = bot.OddsCorrida[idMercado][0]["runners"][idx_cavalo]['ex']['availableToBack'][0]['size'] # Quantidade disponível para apostar
-      if( odds_back < 4.16 ):
-         print("Odds baixa demais!!", odds_back)
-         continue   # Pulo por conta das odds
-      if( odds_back > 6.7 ):
-         print("Odds alta demais!", odds_back)
-         continue   # Pulo por conta de odd sem lucro
-      stack_lay = 5.0 # O saldo esta baixo
+      #stack_back_disp = bot.OddsCorrida[idMercado][0]["runners"][idx_cavalo]['ex']['availableToBack'][0]['size'] # Quantidade disponível para apostar
+      stack_lay_disp = bot.OddsCorrida[idMercado][0]["runners"][idx_cavalo]['ex']['availableToLay'][0]['size'] # Quantidade disponível para apostar
+      
+      # Campos Reg
+      #['dist', 'qtd_cav', 'handicap', 'claiming', 'nursery', 'conditions', 'group1', 'group2', 'group3', 'tres_anos', 'quatro_anos_ou_mais', 'quatro_anos', 'cinco_anos_ou_mais', 'cinco_anos']
+      
+      #if( odds_back < 4.16 ):
+      #   print("Odds baixa demais!!", odds_back)
+      #   continue   # Pulo por conta das odds
+      #if( odds_back > 6.7 ):
+      #   print("Odds alta demais!", odds_back)
+      #   continue   # Pulo por conta de odd sem lucro
+      #stack_lay = 5.0 # O saldo esta baixo
       #stack_back = round(stack_lay/(odds_back-1),2)   # Retorno equilibrado com Lay
-      stack_back = stack_lay # Farei pois sim
+      #stack_back = stack_lay # Farei pois sim
       #if( stack_back > stack_back_disp ): 
       #   print("Sem liquidez no mercado! Tem {0} e é necessário {1}".format(stack_back_disp, stack_back) )
       #   continue   # Pulo por conta da aposta não ser correspondida de um lado
