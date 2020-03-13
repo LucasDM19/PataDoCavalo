@@ -106,11 +106,16 @@ if __name__ == "__main__":
       if( data_fuso_londres < datetime.now() ): # Não tem Delorean
          print("Delta {0} negativo! Corrida Já foi".format(delta))
          continue   # Próxima corrida
-      #print("Nome?", nomeMercado )
       dist = obtemDistanciaDaPista(nomeMercado)
       if( dist >= 20 ):
         print("Corrida fora dos padrões de distância - ", dist)
+        continue   # Próxima corrida
       handicap, novice, hurdle, maiden, stakes, claiming, amateur, trotting, national_hunt_flat, steeplechase, hunt, nursery, listed, conditions, group1, group2, group3, selling, apprentice, tres_anos_ou_mais, tres_anos, quatro_anos_ou_mais, quatro_anos, cinco_anos_ou_mais, cinco_anos, charity, mare = obtemCaracteristicasDaCorrida(nomeMercado)
+      
+      json_saldo = api.obtemSaldo()
+      saldo = json_saldo['availableToBetBalance']
+      stack = saldo * 0.10 # Defino uma fração arbitrária por enquanto
+      
       print("Aguardarei {0} segundos. Até a data {1}".format(delta.seconds, data_fuso_londres))
       sleep(delta.seconds)
       print("Acordei! Agora sao->", datetime.now())
