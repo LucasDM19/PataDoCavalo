@@ -15,8 +15,8 @@ def iniciaBanco(nome_banco):
    c.execute('create table if not exists odds (RunnerId, RaceId, LastTradedPrice, PublishedTime)')
    c.execute('create table if not exists races (RaceId, MarketTime, InplayTimestamp, MarketName, MarketVenue)')
    c.execute('create table if not exists afs (RunnerId, RaceId, AdjustmentFactor, PublishedTime)')
-   c.execute('create table if not exists runners (RunnerId, RaceId, RunnerName, WinLose, BSP)')
-   c.execute('create table if not exists odds_position (RunnerId, RaceId, CurrentPrice, MinutesUntillRace)') # Odds por minuto
+   c.execute('create table if not exists runners (RunnerId, RaceId, RunnerName, WinLose INTEGER, BSP INTEGER)')
+   c.execute('create table if not exists odds_position (RunnerId, RaceId, CurrentPrice , MinutesUntillRace INTEGER)') # Odds por minuto
    return c, conn
 
 def insere_bz2_sqlite(arquivo_bz2, arquivo):
