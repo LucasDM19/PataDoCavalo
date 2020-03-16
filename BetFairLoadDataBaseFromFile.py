@@ -105,6 +105,7 @@ def recriaIndices():
    c.execute("DROP INDEX IF EXISTS idx_races_RaceId_MarketTime")
    c.execute("CREATE INDEX idx_races_RaceId_MarketTime ON races (RaceId, MarketTime)")
    conn.commit() # Agora sim grava tudo
+   print("Índices recriados")
 
 def removeDuplicatas():
    global c, conn
@@ -135,10 +136,12 @@ def consolidaOdds():
     while True: 
         row = c.fetchone()
         if row == None: break  # Acabou o sqlite
-        race_id, runner_id, last_traded_price, published_time, dif_min = row
+        race_id, runner_id, l_t_p, published_time, d_m = row
+        dif_min = int(d_m) # converto para facilitar
+        last_traded_price = float(l_t_p) # converto para facilitar
         if( race_id not in dados_corridas ):
             lista_participantes = {}
-            if( race_id_ant is not None ): # ùblicar último minuto da corrida anterior
+            if( race_id_ant is not None ): # Publicar último minuto da corrida anterior
                 print("\n Aguenta1")
                 for c_id in odds_ordenadas:
                     print("Agora sim. Tome!", c_id, race_id_ant, odds_ordenadas[c_id], published_time, dif_min_ant  )
@@ -189,9 +192,9 @@ def fazLimpeza():
    conn.commit() # Agora sim grava tudo
 
 if __name__ == '__main__':   
-   c, conn = iniciaBanco('bf_gb_win_full.db')
+   c, conn = iniciaBanco('bf_gb_win_carna.db')
    #verificaDiretorios()
    #recriaIndices()
    #removeDuplicatas()
    consolidaOdds()
-   #fazLimpeza()
+   fazLimpeza()
