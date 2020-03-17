@@ -125,6 +125,7 @@ if __name__ == "__main__":
       idx_cavalo = 0   # 0 - primeiro, 1 segundo, etc
       try:
          selectionId = bot.OddsCorrida[idMercado][0]["runners"][idx_cavalo]['selectionId']
+         adjustment_factor = bot.OddsCorrida[idMercado][0]["runners"][idx_cavalo]['adjustmentFactor']
       except KeyError: # Sem SelectionId, sai fora
          print("Sem SelectionId ou sem Odds")
          continue
