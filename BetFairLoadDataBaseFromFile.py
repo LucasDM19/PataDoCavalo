@@ -122,9 +122,14 @@ def removeDuplicatas():
 
 def consolidaOdds():
     global c, conn
+    def chunks(data, rows=10000):
+        """ Divides the data into 10000 rows each """
+
+        for i in range(0, len(data), rows):
+            yield data[i:i+rows]
     print("Agora agrupando odds por minuto")
     dados_corridas = {} # Agrupa por todas as corridas, por precaução
-    lista_corridas = []
+    dados = []
     odds_ordenadas = None # Por questão de lógica
     race_id_ant = None # Para o último minuto da corrida anterior
     c_grava = conn.cursor() # Para inserir os dados
@@ -146,8 +151,9 @@ def consolidaOdds():
                 print("\n Aguenta1")
                 for c_id in odds_ordenadas:
                     print("Agora sim. Tome!", c_id, race_id_ant, odds_ordenadas[c_id], published_time, dif_min_ant  )
-                    c_grava.execute("insert or replace into odds_position values (?,?,?,?)", [c_id, race_id_ant, odds_ordenadas[c_id], dif_min_ant ])
-                conn.commit()
+                    #c_grava.execute("insert or replace into odds_position values (?,?,?,?)", [c_id, race_id_ant, odds_ordenadas[c_id], dif_min_ant ])
+                    dados.append( (c_id, race_id_ant, odds_ordenadas[c_id], dif_min_ant) )
+                #conn.commit()
             race_id_ant = race_id
             dif_min_ant = None # Salvo minuto anterior, para ver saltos
             #print("Zerou Ant=", dif_min_ant, race_id)
@@ -164,15 +170,17 @@ def consolidaOdds():
                 for min_silencio in range(dif_min_ant+1,dif_min): # Sem fluxo de odds novas - Tudo igual
                     for c_id in odds_ordenadas:
                         print("Agora sim. Silêncio...", c_id, race_id, odds_ordenadas[c_id], published_time, min_silencio, dif_min, dif_min_ant )
-                        c_grava.execute("insert or replace into odds_position values (?,?,?,?)", [c_id, race_id_ant, odds_ordenadas[c_id], min_silencio ])
+                        #c_grava.execute("insert or replace into odds_position values (?,?,?,?)", [c_id, race_id_ant, odds_ordenadas[c_id], min_silencio ])
+                        dados.append( (c_id, race_id_ant, odds_ordenadas[c_id], min_silencio) )
                         x = 1/0
-                    conn.commit()
+                    #conn.commit()
             if( odds_ordenadas is not None and dif_min_ant is not None):
                 print("\n Aguenta2")
                 for c_id in odds_ordenadas:
                     print("Agora sim. Tome!", c_id, race_id, odds_ordenadas[c_id], published_time, dif_min_ant  )
-                    c_grava.execute("insert or replace into odds_position values (?,?,?,?)", [c_id, race_id, odds_ordenadas[c_id], dif_min_ant ])
-                conn.commit()
+                    #c_grava.execute("insert or replace into odds_position values (?,?,?,?)", [c_id, race_id, odds_ordenadas[c_id], dif_min_ant ])
+                    dados.append( (c_id, race_id, odds_ordenadas[c_id], dif_min_ant) )
+                #conn.commit()
             dif_min_ant = dif_min
         #if(len(dados_corridas) ==2 ): x = 1/0
         dados_corridas[race_id][runner_id] = last_traded_price #Atualiza as odds dessa corrida
@@ -183,14 +191,24 @@ def consolidaOdds():
         print("\n Aguenta3")
         for c_id in odds_ordenadas:
             print("Agora sim. Tome!", c_id, race_id, odds_ordenadas[c_id], published_time, dif_min_ant  ) # O último minuto da última corrida
-            c_grava.execute("insert or replace into odds_position values (?,?,?,?)", [c_id, race_id, odds_ordenadas[c_id], dif_min_ant ])
-        conn.commit()    
+            #c_grava.execute("insert or replace into odds_position values (?,?,?,?)", [c_id, race_id, odds_ordenadas[c_id], dif_min_ant ])
+            dados.append( (c_id, race_id, odds_ordenadas[c_id], dif_min_ant) )
+        #conn.commit()    
+    print( len(dados) )
+    divData = chunks(dados) # divide into 10000 rows each
+
+    for chunk in divData:
+        c_grava.execute('BEGIN TRANSACTION')
+
+        for field1, field2, field3, field4 in chunk:
+            c_grava.execute('INSERT OR IGNORE INTO odds_position VALUES (?,?,?,?)', (field1, field2, field3, field4))
+
+        c_grava.execute('COMMIT')
 
 def consolidaAFs():
-    global c, conn
+    global c, conn 
     print("Agora agrupando Afs por minuto")
     dados_corridas = {} # Agrupa por todas as corridas, por precaução
-    lista_corridas = []
     afs_ordenadas = None # Por questão de lógica
     race_id_ant = None # Para o último minuto da corrida anterior
     c_grava = conn.cursor() # Para inserir os dados
@@ -240,7 +258,6 @@ def consolidaAFs():
                     c_grava.execute("insert or replace into afs_position values (?,?,?,?)", [c_id, race_id, afs_ordenadas[c_id], dif_min_ant ])
                 conn.commit()
             dif_min_ant = dif_min
-        #if(len(dados_corridas) ==2 ): x = 1/0
         dados_corridas[race_id][runner_id] = adjustment_factor #Atualiza os AFs dessa corrida
         afs_ordenadas = dict( sorted( dados_corridas[race_id].items(), key=operator.itemgetter(1),reverse=False ) ) # Para ficar igual no site
     if( afs_ordenadas is not None):
@@ -257,10 +274,10 @@ def fazLimpeza():
    conn.commit() # Agora sim grava tudo
 
 if __name__ == '__main__':   
-   c, conn = iniciaBanco('bf_gb_win_carna.db')
+   c, conn = iniciaBanco('bf_gb_win_full.db')
    #verificaDiretorios()
    #recriaIndices()
    #removeDuplicatas()
-   #consolidaOdds()
-   consolidaAFs()
+   consolidaOdds()
+   #consolidaAFs()
    fazLimpeza()
