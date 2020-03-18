@@ -127,6 +127,17 @@ def consolidaOdds():
 
         for i in range(0, len(data), rows):
             yield data[i:i+rows]
+    def gravaDados(dados, c_grava):        
+        print( len(dados) )
+        divData = chunks(dados) # divide into 10000 rows each
+        for chunk in divData:
+            c_grava.execute('BEGIN TRANSACTION')
+
+            for field1, field2, field3, field4 in chunk:
+                c_grava.execute('INSERT OR IGNORE INTO odds_position VALUES (?,?,?,?)', (field1, field2, field3, field4))
+
+            c_grava.execute('COMMIT')
+        
     print("Agora agrupando odds por minuto")
     dados_corridas = {} # Agrupa por todas as corridas, por precaução
     dados = []
@@ -151,12 +162,13 @@ def consolidaOdds():
                 print("\n Aguenta1")
                 for c_id in odds_ordenadas:
                     print("Agora sim. Tome!", c_id, race_id_ant, odds_ordenadas[c_id], published_time, dif_min_ant  )
-                    #c_grava.execute("insert or replace into odds_position values (?,?,?,?)", [c_id, race_id_ant, odds_ordenadas[c_id], dif_min_ant ])
                     dados.append( (c_id, race_id_ant, odds_ordenadas[c_id], dif_min_ant) )
-                #conn.commit()
             race_id_ant = race_id
             dif_min_ant = None # Salvo minuto anterior, para ver saltos
-            #print("Zerou Ant=", dif_min_ant, race_id)
+            if( len(dados_corridas) % 1000 == 0 ): # Hora de descarregar alguns dados
+                print("Gravando dados no banco de dados")
+                gravaDados(dados, c_grava)
+                dados = [] # Começa novo lote
             c2 = conn.cursor() # Quais são todos os cavalos participantes dessa corrida?
             c2.execute(""" SELECT * FROM runners WHERE runners.RaceId = ? """, (race_id,) )       
             while True: 
@@ -194,16 +206,6 @@ def consolidaOdds():
             #c_grava.execute("insert or replace into odds_position values (?,?,?,?)", [c_id, race_id, odds_ordenadas[c_id], dif_min_ant ])
             dados.append( (c_id, race_id, odds_ordenadas[c_id], dif_min_ant) )
         #conn.commit()    
-    print( len(dados) )
-    divData = chunks(dados) # divide into 10000 rows each
-
-    for chunk in divData:
-        c_grava.execute('BEGIN TRANSACTION')
-
-        for field1, field2, field3, field4 in chunk:
-            c_grava.execute('INSERT OR IGNORE INTO odds_position VALUES (?,?,?,?)', (field1, field2, field3, field4))
-
-        c_grava.execute('COMMIT')
 
 def consolidaAFs():
     global c, conn 
