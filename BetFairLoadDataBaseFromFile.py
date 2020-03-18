@@ -182,35 +182,43 @@ def consolidaOdds():
                 for min_silencio in range(dif_min_ant+1,dif_min): # Sem fluxo de odds novas - Tudo igual
                     for c_id in odds_ordenadas:
                         print("Agora sim. Silêncio...", c_id, race_id, odds_ordenadas[c_id], published_time, min_silencio, dif_min, dif_min_ant )
-                        #c_grava.execute("insert or replace into odds_position values (?,?,?,?)", [c_id, race_id_ant, odds_ordenadas[c_id], min_silencio ])
                         dados.append( (c_id, race_id_ant, odds_ordenadas[c_id], min_silencio) )
                         x = 1/0
-                    #conn.commit()
             if( odds_ordenadas is not None and dif_min_ant is not None):
                 print("\n Aguenta2")
                 for c_id in odds_ordenadas:
                     print("Agora sim. Tome!", c_id, race_id, odds_ordenadas[c_id], published_time, dif_min_ant  )
-                    #c_grava.execute("insert or replace into odds_position values (?,?,?,?)", [c_id, race_id, odds_ordenadas[c_id], dif_min_ant ])
                     dados.append( (c_id, race_id, odds_ordenadas[c_id], dif_min_ant) )
-                #conn.commit()
             dif_min_ant = dif_min
-        #if(len(dados_corridas) ==2 ): x = 1/0
         dados_corridas[race_id][runner_id] = last_traded_price #Atualiza as odds dessa corrida
         odds_ordenadas = dict( sorted( dados_corridas[race_id].items(), key=operator.itemgetter(1),reverse=False ) ) # Para ficar igual no site
-        #for c_id in odds_ordenadas:
-        #    print("Agora sim. Tome!", c_id, race_id, odds_ordenadas[c_id], published_time, dif_min  )
     if( odds_ordenadas is not None):
         print("\n Aguenta3")
         for c_id in odds_ordenadas:
             print("Agora sim. Tome!", c_id, race_id, odds_ordenadas[c_id], published_time, dif_min_ant  ) # O último minuto da última corrida
-            #c_grava.execute("insert or replace into odds_position values (?,?,?,?)", [c_id, race_id, odds_ordenadas[c_id], dif_min_ant ])
-            dados.append( (c_id, race_id, odds_ordenadas[c_id], dif_min_ant) )
-        #conn.commit()    
+            dados.append( (c_id, race_id, odds_ordenadas[c_id], dif_min_ant) )  
 
 def consolidaAFs():
-    global c, conn 
-    print("Agora agrupando Afs por minuto")
+    global c, conn
+    def chunks(data, rows=10000):
+        """ Divides the data into 10000 rows each """
+
+        for i in range(0, len(data), rows):
+            yield data[i:i+rows]
+    def gravaDados(dados, c_grava):        
+        print( len(dados) )
+        divData = chunks(dados) # divide into 10000 rows each
+        for chunk in divData:
+            c_grava.execute('BEGIN TRANSACTION')
+
+            for field1, field2, field3, field4 in chunk:
+                c_grava.execute('INSERT OR IGNORE INTO afs_position VALUES (?,?,?,?)', (field1, field2, field3, field4))
+
+            c_grava.execute('COMMIT')
+        
+    print("Agora agrupando afs por minuto")
     dados_corridas = {} # Agrupa por todas as corridas, por precaução
+    dados = []
     afs_ordenadas = None # Por questão de lógica
     race_id_ant = None # Para o último minuto da corrida anterior
     c_grava = conn.cursor() # Para inserir os dados
@@ -223,20 +231,22 @@ def consolidaAFs():
     while True: 
         row = c.fetchone()
         if row == None: break  # Acabou o sqlite
-        race_id, runner_id, a_f, published_time, d_m = row
+        race_id, runner_id, l_t_p, published_time, d_m = row
         dif_min = int(d_m) # converto para facilitar
-        adjustment_factor = float(a_f) # converto para facilitar
+        last_traded_price = float(l_t_p) # converto para facilitar
         if( race_id not in dados_corridas ):
             lista_participantes = {}
             if( race_id_ant is not None ): # Publicar último minuto da corrida anterior
                 print("\n Aguenta1")
                 for c_id in afs_ordenadas:
                     print("Agora sim. Tome!", c_id, race_id_ant, afs_ordenadas[c_id], published_time, dif_min_ant  )
-                    c_grava.execute("insert or replace into afs_position values (?,?,?,?)", [c_id, race_id_ant, afs_ordenadas[c_id], dif_min_ant ])
-                conn.commit()
+                    dados.append( (c_id, race_id_ant, afs_ordenadas[c_id], dif_min_ant) )
             race_id_ant = race_id
             dif_min_ant = None # Salvo minuto anterior, para ver saltos
-            #print("Zerou Ant=", dif_min_ant, race_id)
+            if( len(dados_corridas) % 1000 == 0 ): # Hora de descarregar alguns dados
+                print("Gravando dados no banco de dados")
+                gravaDados(dados, c_grava)
+                dados = [] # Começa novo lote
             c2 = conn.cursor() # Quais são todos os cavalos participantes dessa corrida?
             c2.execute(""" SELECT * FROM runners WHERE runners.RaceId = ? """, (race_id,) )       
             while True: 
@@ -250,28 +260,26 @@ def consolidaAFs():
                 for min_silencio in range(dif_min_ant+1,dif_min): # Sem fluxo de odds novas - Tudo igual
                     for c_id in afs_ordenadas:
                         print("Agora sim. Silêncio...", c_id, race_id, afs_ordenadas[c_id], published_time, min_silencio, dif_min, dif_min_ant )
-                        c_grava.execute("insert or replace into afs_position values (?,?,?,?)", [c_id, race_id_ant, afs_ordenadas[c_id], min_silencio ])
+                        dados.append( (c_id, race_id_ant, afs_ordenadas[c_id], min_silencio) )
                         x = 1/0
-                    conn.commit()
             if( afs_ordenadas is not None and dif_min_ant is not None):
                 print("\n Aguenta2")
                 for c_id in afs_ordenadas:
                     print("Agora sim. Tome!", c_id, race_id, afs_ordenadas[c_id], published_time, dif_min_ant  )
-                    c_grava.execute("insert or replace into afs_position values (?,?,?,?)", [c_id, race_id, afs_ordenadas[c_id], dif_min_ant ])
-                conn.commit()
+                    dados.append( (c_id, race_id, afs_ordenadas[c_id], dif_min_ant) )
             dif_min_ant = dif_min
-        dados_corridas[race_id][runner_id] = adjustment_factor #Atualiza os AFs dessa corrida
+        dados_corridas[race_id][runner_id] = last_traded_price #Atualiza as odds dessa corrida
         afs_ordenadas = dict( sorted( dados_corridas[race_id].items(), key=operator.itemgetter(1),reverse=False ) ) # Para ficar igual no site
     if( afs_ordenadas is not None):
         print("\n Aguenta3")
         for c_id in afs_ordenadas:
             print("Agora sim. Tome!", c_id, race_id, afs_ordenadas[c_id], published_time, dif_min_ant  ) # O último minuto da última corrida
-            c_grava.execute("insert or replace into afs_position values (?,?,?,?)", [c_id, race_id, afs_ordenadas[c_id], dif_min_ant ])
-        conn.commit()   
+            dados.append( (c_id, race_id, afs_ordenadas[c_id], dif_min_ant) )   
     
 def fazLimpeza():
    global c, conn
    # E ainda faz aquela limpeza geral
+   print("Hora do aspirador")
    c.execute("VACUUM")
    conn.commit() # Agora sim grava tudo
 
@@ -280,6 +288,6 @@ if __name__ == '__main__':
    #verificaDiretorios()
    #recriaIndices()
    #removeDuplicatas()
-   consolidaOdds()
+   #consolidaOdds()
    #consolidaAFs()
    fazLimpeza()
