@@ -164,10 +164,10 @@ def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_tr
                 else: 
                    pl_total += pl # Concatena
                    if( pl != 0 ): total_stack += stack_back
-             #print("Aposta Back retornou=", pl, ", minuto=", minuto, ", odds=", odds_cavalo_back, ", W/L=", banco.obtemWinLoseAtual(nome_melhor) )
+             #print("Aposta Back retornou=", pl, ", minuto=", minutos_back, ", odds=", odds_cavalo_back, ", W/L=", banco.obtemWinLoseAtual(nome_melhor) )
         
       #Vendo como estava o mercado nos minutos Back
-      retorno = banco.obtemOddsPorMinuto(minutos_back)
+      retorno = banco.obtemOddsPorMinuto(minutos_lay)
       if( retorno is not None ): # Tem realmente algo naqueles minutos
         lista_ordenada = retorno # Obtenho lista ordenada das odds dos cavalos participantes
         melhores_odds = list(lista_ordenada.items())
@@ -190,13 +190,16 @@ def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_tr
                 else: 
                    pl_total += pl # Concatena
                    if( pl != 0 ): total_stack += stack_lay
-             print("Aposta Lay retornou=", pl, ", minuto=", minuto, ", odds=", odds_cavalo_lay, ", W/L=", banco.obtemWinLoseAtual(nome_melhor), ", stack=", stack_lay )
+             print("Aposta Lay retornou=", pl, ", minuto=", minutos_lay, ", odds=", odds_cavalo_lay, ", W/L=", banco.obtemWinLoseAtual(nome_melhor), ", stack=", stack_lay )
       # Fim da corrida
       if(pl_total is not None): # Dados serão válidos para treino
          nome_mercado = banco.obtemNomeMercadoDaCorrida(corrida)
          handicap, novice, hurdle, maiden, stakes, claiming, amateur, trotting, national_hunt_flat, steeplechase, hunt, nursery, listed, conditions, group1, group2, group3, selling, apprentice, tres_anos_ou_mais, tres_anos, quatro_anos_ou_mais, quatro_anos, cinco_anos_ou_mais, cinco_anos, charity, mare = obtemCaracteristicasDaCorrida(nome_mercado)
          distancia = obtemDistanciaDaPista(nome_mercado)
+         qtd_cavalos_corrida = len(melhores_odds)
          if( distancia is None ): distancia = 0 # Sem distância fica como 0?
+         valores_afs_lay = banco.obtemAdjustmentFactorProximo(minutos_lay, qtd_cavalos_corrida)
+         af_favorito = valores_afs_lay[ list(valores_afs_lay.keys())[0] ]
          if(total_stack is None): pl_unitario = 0.0 # Aposta devolvida
          else: pl_unitario = 1.0*pl_total/total_stack # Retorno unitário da corrida
          if( odds_cavalo_back is not None ): 
@@ -205,10 +208,12 @@ def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_tr
          if( odds_cavalo_lay is not None ): 
             dados_corrida.append( odds_cavalo_lay )
             if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('odds_lay')
-         dados_corrida.append(distancia)
+         dados_corrida.append(distancia) # Distância
          if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('dist')
-         dados_corrida.append( len(melhores_odds) )
+         dados_corrida.append( qtd_cavalos_corrida ) 
          if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('qtd_cav')
+         dados_corrida.append(af_favorito) 
+         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('af')
          dados_corrida.append(handicap)
          if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('handicap')
          dados_corrida.append(novice)

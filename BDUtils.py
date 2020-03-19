@@ -244,6 +244,27 @@ class BaseDeDados:
          
       return lista_corridas_ordenado
    
+   def obtemAdjustmentFactorProximo(self, minuto, qtd_cavalos):
+      if( self.nomeBD is None ): return 1/0
+      if( self.idCorrida_minutos is None ): return 1/0
+      dict_adjustment_factors = {}
+      conn = sqlite3.connect(self.nomeBD)
+      c = conn.cursor()
+      c.execute("""SELECT afs_position.RaceId, afs_position.RunnerId, afs_position.CurrentAF, afs_position.MinutesUntillRace,
+                  runners.RunnerName
+                  FROM afs_position, runners
+                  WHERE runners.RaceId = afs_position.RaceId
+                    AND runners.RunnerId = afs_position.RunnerId
+                    AND runners.RaceId= ?
+                  ORDER BY ABS(MinutesUntillRace - ?)
+                  LIMIT ? """, (self.idCorrida_minutos, minuto, qtd_cavalos ) )
+      while True: 
+         row = c.fetchone()
+         if row == None: break  # Acabou o sqlite
+         self.race_id, runner_id, currentAF, minutes, nome_cavalo = row
+         dict_adjustment_factors[nome_cavalo] = currentAF
+      return dict_adjustment_factors
+   
    def obtemBSPAtual(self, nome_cavalo):
       return self.lista_bsp[self.race_id][nome_cavalo]
       
