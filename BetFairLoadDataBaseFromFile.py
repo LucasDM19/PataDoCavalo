@@ -103,6 +103,9 @@ def recriaIndices():
    c.execute("CREATE INDEX idx_odds_RunnerId ON odds ( RunnerId )")
    c.execute("DROP INDEX IF EXISTS idx_odds_RunnerId_PublishedTime")
    c.execute("CREATE INDEX idx_odds_RunnerId_PublishedTime ON odds (RunnerId, PublishedTime)")
+   c.execute("CREATE INDEX idx_odds_position_RaceId ON odds_position ( RaceId ASC )")
+   c.execute("DROP INDEX IF EXISTS idx_odds_position_RunnerId")
+   c.execute("CREATE INDEX idx_odds_position_RunnerId ON odds_position ( RunnerId )")
    c.execute("DROP INDEX IF EXISTS idx_races_RaceId_MarketTime")
    c.execute("CREATE INDEX idx_races_RaceId_MarketTime ON races (RaceId, MarketTime)")
    conn.commit() # Agora sim grava tudo
