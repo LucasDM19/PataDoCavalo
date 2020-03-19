@@ -139,56 +139,58 @@ def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_tr
       minutosCorrida = banco.obtemMinutosDaCorrida(corrida) # Quais minutos tem eventos registrado de odds
       if(len(minutosCorrida) != 0): todos_minutos = range(max(minutosCorrida),min(minutosCorrida)-1,-1) 
       else: todos_minutos = []
-      tempo_minimo = min(minutos_back, minutos_lay) # Vendo até onde precisa de ir
-      minutos_validos = [minuto for minuto in todos_minutos if minuto >= tempo_minimo ] # Minutos até o necessário
-      for minuto in minutos_validos:
-         if( minuto in minutosCorrida ): # Tem atualização
-            retorno = banco.obtemOddsPorMinuto(minuto) # Todas as odds consolidadas
-         if( retorno is not None ):
-            lista_ordenada = retorno # Obtenho lista ordenada das odds dos cavalos participantes
-            melhores_odds = list(lista_ordenada.items())
-            if( minutos_back == minuto ):
-               if( len(melhores_odds) > qtd_cavalos  ): # Não tem cavalo suficiente para essa estratégia
-                  for y in range(qtd_cavalos):
-                     nome_melhor = melhores_odds[y][0]
-                     odds_cavalo_back = melhores_odds[y][1]
-                     d = 0 # Deslocamento
-                     while( odds_cavalo_back == -1.01 and d < len(melhores_odds) ):
-                        nome_melhor = melhores_odds[y+d][0]
-                        odds_cavalo_back = melhores_odds[y+d][1]
-                        d += 1
-                        #print("Alternativo", nome_melhor, odds_cavalo_lay)
-                     stack_back = 20*round(1/(odds_cavalo_back-1),2) # Stack proporcional
-                     pl = fazApostaBack(odd_back=odds_cavalo_back, stack_back=odds_cavalo_back, wl_back=banco.obtemWinLoseAtual(nome_melhor), comissao = 0.065)                  
-                     if(pl is not None): 
-                        if( pl_total is None ): 
-                           pl_total = pl # Primeira vez
-                           if( pl != 0 ): total_stack = stack_back # Soma Stack apenas quando não devolve aposta
-                        else: 
-                           pl_total += pl # Concatena
-                           if( pl != 0 ): total_stack += stack_back
-                     #print("Aposta Back retornou=", pl, ", minuto=", minuto, ", odds=", odds_cavalo_back, ", W/L=", banco.obtemWinLoseAtual(nome_melhor) )
-            if( minutos_lay == minuto ): 
-               if( len(melhores_odds) > qtd_cavalos  ): # Não tem cavalo suficiente para essa estratégia
-                  for y in range(qtd_cavalos):
-                     nome_melhor = melhores_odds[y][0]
-                     odds_cavalo_lay = melhores_odds[y][1]
-                     d = 0 # Deslocamento
-                     while( odds_cavalo_lay == -1.01 and d < len(melhores_odds) ):
-                        nome_melhor = melhores_odds[y+d][0]
-                        odds_cavalo_lay = melhores_odds[y+d][1]
-                        d += 1
-                        #print("Alternativo", nome_melhor, odds_cavalo_lay)
-                     stack_lay = 20*round(1/(odds_cavalo_lay-1),2) # Stack proporcional
-                     pl = fazApostaLay(odd_lay=odds_cavalo_lay, stack_lay=stack_lay, wl_lay=banco.obtemWinLoseAtual(nome_melhor), comissao = 0.065)
-                     if(pl is not None): 
-                        if( pl_total is None ): 
-                           pl_total = pl # Primeira vez
-                           if( pl != 0 ): total_stack = stack_lay # Soma Stack apenas quando não devolve aposta
-                        else: 
-                           pl_total += pl # Concatena
-                           if( pl != 0 ): total_stack += stack_lay
-                     print("Aposta Lay retornou=", pl, ", minuto=", minuto, ", odds=", odds_cavalo_lay, ", W/L=", banco.obtemWinLoseAtual(nome_melhor), ", stack=", stack_lay )
+      
+      #Vendo como estava o mercado nos minutos Back
+      retorno = banco.obtemOddsPorMinuto(minutos_back)
+      if( retorno is not None ): # Tem realmente algo naqueles minutos
+        lista_ordenada = retorno # Obtenho lista ordenada das odds dos cavalos participantes
+        melhores_odds = list(lista_ordenada.items())
+        if( len(melhores_odds) > qtd_cavalos  ): # Não tem cavalo suficiente para essa estratégia
+          for y in range(qtd_cavalos):
+             nome_melhor = melhores_odds[y][0]
+             odds_cavalo_back = melhores_odds[y][1]
+             d = 0 # Deslocamento
+             while( odds_cavalo_back == -1.01 and d < len(melhores_odds) ):
+                nome_melhor = melhores_odds[y+d][0]
+                odds_cavalo_back = melhores_odds[y+d][1]
+                d += 1
+                #print("Alternativo", nome_melhor, odds_cavalo_lay)
+             stack_back = 20*round(1/(odds_cavalo_back-1),2) # Stack proporcional
+             pl = fazApostaBack(odd_back=odds_cavalo_back, stack_back=odds_cavalo_back, wl_back=banco.obtemWinLoseAtual(nome_melhor), comissao = 0.065)                  
+             if(pl is not None): 
+                if( pl_total is None ): 
+                   pl_total = pl # Primeira vez
+                   if( pl != 0 ): total_stack = stack_back # Soma Stack apenas quando não devolve aposta
+                else: 
+                   pl_total += pl # Concatena
+                   if( pl != 0 ): total_stack += stack_back
+             #print("Aposta Back retornou=", pl, ", minuto=", minuto, ", odds=", odds_cavalo_back, ", W/L=", banco.obtemWinLoseAtual(nome_melhor) )
+        
+      #Vendo como estava o mercado nos minutos Back
+      retorno = banco.obtemOddsPorMinuto(minutos_back)
+      if( retorno is not None ): # Tem realmente algo naqueles minutos
+        lista_ordenada = retorno # Obtenho lista ordenada das odds dos cavalos participantes
+        melhores_odds = list(lista_ordenada.items())
+        if( len(melhores_odds) > qtd_cavalos  ): # Não tem cavalo suficiente para essa estratégia
+          for y in range(qtd_cavalos):
+             nome_melhor = melhores_odds[y][0]
+             odds_cavalo_lay = melhores_odds[y][1]
+             d = 0 # Deslocamento
+             while( odds_cavalo_lay == -1.01 and d < len(melhores_odds) ):
+                nome_melhor = melhores_odds[y+d][0]
+                odds_cavalo_lay = melhores_odds[y+d][1]
+                d += 1
+                #print("Alternativo", nome_melhor, odds_cavalo_lay)
+             stack_lay = 20*round(1/(odds_cavalo_lay-1),2) # Stack proporcional
+             pl = fazApostaLay(odd_lay=odds_cavalo_lay, stack_lay=stack_lay, wl_lay=banco.obtemWinLoseAtual(nome_melhor), comissao = 0.065)
+             if(pl is not None): 
+                if( pl_total is None ): 
+                   pl_total = pl # Primeira vez
+                   if( pl != 0 ): total_stack = stack_lay # Soma Stack apenas quando não devolve aposta
+                else: 
+                   pl_total += pl # Concatena
+                   if( pl != 0 ): total_stack += stack_lay
+             print("Aposta Lay retornou=", pl, ", minuto=", minuto, ", odds=", odds_cavalo_lay, ", W/L=", banco.obtemWinLoseAtual(nome_melhor), ", stack=", stack_lay )
       # Fim da corrida
       if(pl_total is not None): # Dados serão válidos para treino
          nome_mercado = banco.obtemNomeMercadoDaCorrida(corrida)
