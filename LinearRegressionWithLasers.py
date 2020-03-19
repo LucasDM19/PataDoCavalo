@@ -118,7 +118,7 @@ def fazProspeccaoEstrategias(min_minutos_back = 1, max_minutos_back = 60, min_mi
 
 def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_treino):
    banco = BaseDeDados()
-   banco.conectaBaseDados('bf_gb_win_full.db')
+   banco.conectaBaseDados('bf_gb_win_47k.db')
    data_inicial, data_final, total_corridas = banco.obtemSumarioDasCorridas()
    nomes_mercados = banco.obtemNomesDosMercados()
    dist_maxima, dist_minima = obtemExtremosDistancias(nomes_mercados) # Extremos de distâncias (se precisar de normatizar)
@@ -375,14 +375,14 @@ def criterioDeKelly(df, campos_ignorar=[], comissao = 0.065):
 if __name__ == '__main__':   
    #fazProspeccaoEstrategias(min_minutos_back = 9999, max_minutos_back = 9999, min_minutos_lay = 26, max_minutos_lay = 26, max_cavalos = 1) # Demora cerca de 42 horas na configuração padrão
    
-   #df = obtemDadosTreinoDaEstrategia(minutos_back = 9999, minutos_lay=26, qtd_cavalos=1, frac_treino=1.0) # Estratégia vencedora, por enquanto
-   #df.to_csv('out_dev_full.csv', index=False) # Salvando para fuçar depois
+   df = obtemDadosTreinoDaEstrategia(minutos_back = 9999, minutos_lay=26, qtd_cavalos=1, frac_treino=1.0) # Estratégia vencedora, por enquanto
+   df.to_csv('out_dev_full_47.csv', index=False) # Salvando para fuçar depois
    
-   df = pd.read_csv('out_dev_full.csv') # Lendo para fazer a regressão
-   sem_esses = ['odds_lay', 'handicap', 'novice', 'hurdle', 'maiden', 'stakes', 'amateur', 'trotting', 'listed', 'national_hunt_flat', 'steeplechase', 'hunt', 'conditions', 'group1', 'group2', 'group3', 'selling', 'apprentice', 'tres_anos', 'quatro_anos_ou_mais', 'cinco_anos_ou_mais'] # Esse gerou 1.98 no antigo
+   #df = pd.read_csv('out_dev_full.csv') # Lendo para fazer a regressão
+   #sem_esses = ['odds_lay', 'handicap', 'novice', 'hurdle', 'maiden', 'stakes', 'amateur', 'trotting', 'listed', 'national_hunt_flat', 'steeplechase', 'hunt', 'conditions', 'group1', 'group2', 'group3', 'selling', 'apprentice', 'tres_anos', 'quatro_anos_ou_mais', 'cinco_anos_ou_mais'] # Esse gerou 1.98 no antigo
    #sem_esses = ['charity', 'cinco_anos_ou_mais', 'tres_anos_ou_mais', 'quatro_anos_ou_mais', 'hunt', 'selling', 'national_hunt_flat', 'steeplechase', 'hurdle', 'stakes', 'handicap', 'amateur', 'group1', 'novice', 'maiden', 'listed', 'group3', 'nursery', 'conditions', 'claiming', 'apprentice', 'group2', 'mare', ]
-   frac_banca = criterioDeKelly(df, campos_ignorar=sem_esses )
-   print("Hello, my Kelly!", frac_banca)
+   #frac_banca = criterioDeKelly(df, campos_ignorar=sem_esses )
+   #print("Hello, my Kelly!", frac_banca)
    #sl = calculaRegressaoLinear(df, campos_ignorar=sem_esses, percentil_ignora=0 )
    #print("Soma dos logs sem o valor", sem_esses,":", round(np.nanmean(sl),2)  ) #nanmean ignora valores Nan
    #randomWalkerParametros(df)

@@ -174,16 +174,16 @@ class BaseDeDados:
       conn = sqlite3.connect(self.nomeBD)
       c = conn.cursor()
       c.execute(""" SELECT  races.RaceId, 
-      Cast (( JulianDay(races.MarketTime) - JulianDay(odds.PublishedTime) ) * 24 * 60 As Integer ) as Dif_Min
-      FROM runners, races, odds
+      odds_position.MinutesUntillRace as Dif_Min
+      FROM runners, races, odds_position
       WHERE runners.RaceId = races.RaceId
-        AND odds.RaceId = races.RaceId
-        AND odds.RunnerId = runners.RunnerId
+        AND odds_position.RaceId = races.RaceId
+        AND odds_position.RunnerId = runners.RunnerId
         AND races.RaceId = ?
         AND runners.BSP <> -1
         AND runners.WinLose <> -1
       GROUP BY races.RaceId, Dif_Min
-      ORDER BY races.RaceId, odds.PublishedTime ASC """, (race_id,) )
+      ORDER BY races.RaceId, odds_position.MinutesUntillRace DESC """, (race_id,) )
       while True: 
          row = c.fetchone()
          if row == None: break  # Acabou o sqlite
@@ -219,30 +219,28 @@ class BaseDeDados:
       conn = sqlite3.connect(self.nomeBD)
       c = conn.cursor()
       c.execute(""" SELECT  races.RaceId, races.MarketTime, races.InplayTimestamp, races.MarketName, races.MarketVenue,  
-      Cast (( JulianDay(races.MarketTime) - JulianDay(odds.PublishedTime) ) * 24 * 60 As Integer ) as Dif_Min
+      odds_position.MinutesUntillRace as Dif_Min
       , runners.RunnerId, runners.RunnerName, runners.WinLose, runners.BSP,
-      odds.LastTradedPrice, odds.PublishedTime
-      FROM runners, races, odds
+      odds_position.CurrentPrice
+      FROM runners, races, odds_position
       WHERE runners.RaceId = races.RaceId
-        AND odds.RaceId = races.RaceId
-        AND odds.RunnerId = runners.RunnerId
+        AND odds_position.RaceId = races.RaceId
+        AND odds_position.RunnerId = runners.RunnerId
         AND races.RaceId = ?
         AND runners.BSP <> -1
         AND runners.WinLose <> -1
 		AND Dif_Min=?
-      ORDER BY races.RaceId, odds.PublishedTime ASC """, (self.idCorrida_minutos, minuto) )
+      ORDER BY races.RaceId, odds_position.MinutesUntillRace ASC """, (self.idCorrida_minutos, minuto) )
       while True: 
          row = c.fetchone()
          if row == None: break  # Acabou o sqlite
-         #runner_id, market_time, published_time, dif_min, odds runner_name, win_lose, bsp = row
-         self.race_id, market_time, inplay_timestamp, market_name, market_venue, dif_min, runner_id, nome_cavalo, win_lose, bsp, odd, data = row
+         self.race_id, market_time, inplay_timestamp, market_name, market_venue, dif_min, runner_id, nome_cavalo, win_lose, bsp, odd = row
          if( self.race_id not in self.lista_corridas ): 
             self.lista_corridas[self.race_id], self.lista_bsp[self.race_id], self.lista_wl[self.race_id] = self.obtemParticipantesDeCorrida(self.race_id)
          self.lista_corridas[self.race_id][nome_cavalo] = odd #Atualiza as odds dessa corrida
          self.lista_bsp[self.race_id][nome_cavalo] = bsp # Sabendo o BSP do cavalo
          self.lista_wl[self.race_id][nome_cavalo] = win_lose # Sabendo o Win/Lose do cavalo
          lista_corridas_ordenado = dict( sorted( self.lista_corridas[self.race_id].items(), key=operator.itemgetter(1),reverse=False ) ) # Mostra igual no site. Odds menores primeiro.
-         #self.melhores_odds = list(lista_corridas_ordenado.items())[0:3] # Top 3 odds
          
       return lista_corridas_ordenado
    
