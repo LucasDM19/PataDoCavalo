@@ -30,7 +30,10 @@ df['Q3']=np.log(1+df.Q2)
 #todas as colunas exceto a ultima, que o pl
 todas_colunas=df.loc[:, df.columns != 'pl'].columns
 
-
+qtd_registros = len(df)
+frac_treino = 0.5 # Qual a fracao para treino
+qtd_train = int(frac_treino * qtd_registros)
+qtd_test = qtd_registros - qtd_train
 
 #Nossa função fit recebe um um string tamanho 30 de 0s e 1s, e retorna a lucratividade da combinação
 def somaLog(codigo_genetico):
@@ -49,7 +52,9 @@ def somaLog(codigo_genetico):
         df_=df_.sample(frac=1, random_state=i)
 
         #Divide em 7 mil linhas para teste e o restante treinamento
-        df_train,df_test=df_[:22774],df_[22774:]
+        df_train,df_test=df_[:qtd_train],df_[qtd_test:]
+        print("train=", len(df_train), ", test=", len(df_test), qtd_train, qtd_test )
+        x = 1/0
 
         #Os Xs são todas as colunas exceto a PL que será o Y
         X_train,Y_train = df_train.loc[:,(df_train.columns!='pl') ], df_train.pl
@@ -83,7 +88,7 @@ for _ in range(TAM_POP):
 
 
 #Evolução da população
-for n_gera in range(100):
+for n_gera in range(200):
     codes=[]
     
     #Para cada 2 indivudos gera novos 2 codigos genéticos a através do cruzamentos dada taxa de reprodução
