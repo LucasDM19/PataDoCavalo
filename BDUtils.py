@@ -256,13 +256,24 @@ class BaseDeDados:
                   WHERE runners.RaceId = afs_position.RaceId
                     AND runners.RunnerId = afs_position.RunnerId
                     AND runners.RaceId= ?
+                    AND runners.BSP <> -1
+                    AND runners.WinLose <> -1
+                    AND MinutesUntillRace <= ?
                   ORDER BY ABS(MinutesUntillRace - ?)
-                  LIMIT ? """, (self.idCorrida_minutos, minuto, qtd_cavalos ) )
+                  LIMIT ? """, (self.idCorrida_minutos, minuto, minuto, qtd_cavalos ) )
       while True: 
          row = c.fetchone()
          if row == None: break  # Acabou o sqlite
          self.race_id, runner_id, currentAF, minutes, nome_cavalo = row
+         if( minutes > minuto ): 
+            print(self.race_id, runner_id, currentAF, minutes, nome_cavalo)
+            x = 1/0 # Não pode!
          dict_adjustment_factors[nome_cavalo] = currentAF
+      if( dict_adjustment_factors == {} ):
+         lista_participantes, lista_bsp, lista_wl = self.obtemParticipantesDeCorrida(self.idCorrida_minutos)
+         nomes_cavalos = lista_participantes.keys()
+         for cavalo in nomes_cavalos:
+            dict_adjustment_factors[cavalo] = 0.0 # Porcentagem fica zerada
       return dict_adjustment_factors
    
    def obtemBSPAtual(self, nome_cavalo):

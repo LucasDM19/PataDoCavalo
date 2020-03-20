@@ -199,6 +199,7 @@ def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_tr
          qtd_cavalos_corrida = len(melhores_odds)
          if( distancia is None ): distancia = 0 # Sem distância fica como 0?
          valores_afs_lay = banco.obtemAdjustmentFactorProximo(minutos_lay, qtd_cavalos_corrida)
+         print("AFs=", valores_afs_lay)
          af_favorito = valores_afs_lay[ list(valores_afs_lay.keys())[0] ]
          if(total_stack is None): pl_unitario = 0.0 # Aposta devolvida
          else: pl_unitario = 1.0*pl_total/total_stack # Retorno unitário da corrida
