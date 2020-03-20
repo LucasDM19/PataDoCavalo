@@ -31,7 +31,7 @@ df['Q3']=np.log(1+df.Q2)
 todas_colunas=df.loc[:, df.columns != 'pl'].columns
 
 qtd_registros = len(df)
-frac_treino = 0.5 # Qual a fracao para treino
+frac_treino = 0.75 # Qual a fracao para treino
 qtd_train = int(frac_treino * qtd_registros)
 qtd_test = qtd_registros - qtd_train
 
@@ -52,9 +52,7 @@ def somaLog(codigo_genetico):
         df_=df_.sample(frac=1, random_state=i)
 
         #Divide em 7 mil linhas para teste e o restante treinamento
-        df_train,df_test=df_[:qtd_train],df_[qtd_test:]
-        print("train=", len(df_train), ", test=", len(df_test), qtd_train, qtd_test )
-        x = 1/0
+        df_test, df_train =df_[:qtd_test],df_[qtd_test:]
 
         #Os Xs são todas as colunas exceto a PL que será o Y
         X_train,Y_train = df_train.loc[:,(df_train.columns!='pl') ], df_train.pl
