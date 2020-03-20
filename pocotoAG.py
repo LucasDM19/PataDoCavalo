@@ -8,7 +8,7 @@ MAX_BANCA=0.33
 COMISSAO=0.065
 
 
-df=pd.read_csv('out_dev_full.csv')
+df=pd.read_csv('out_dev_full_47.csv')
 
 #retira o pl zero
 df=df[df.pl!=0]
@@ -49,7 +49,7 @@ def somaLog(codigo_genetico):
         df_=df_.sample(frac=1, random_state=i)
 
         #Divide em 7 mil linhas para teste e o restante treinamento
-        df_train,df_test=df_[:7000],df_[7000:]
+        df_train,df_test=df_[:22774],df_[22774:]
 
         #Os Xs são todas as colunas exceto a PL que será o Y
         X_train,Y_train = df_train.loc[:,(df_train.columns!='pl') ], df_train.pl
@@ -83,7 +83,7 @@ for _ in range(TAM_POP):
 
 
 #Evolução da população
-for n_gera in range(500):
+for n_gera in range(100):
     codes=[]
     
     #Para cada 2 indivudos gera novos 2 codigos genéticos a através do cruzamentos dada taxa de reprodução
