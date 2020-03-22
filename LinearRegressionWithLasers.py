@@ -60,7 +60,7 @@ class Estrategia():
 
 def fazProspeccaoEstrategias(min_minutos_back = 1, max_minutos_back = 60, min_minutos_lay = 1, max_minutos_lay = 60, max_cavalos = 3): # Demora cerca de 42 horas na configuração padrão
    banco = BaseDeDados()
-   banco.conectaBaseDados('bf_gb_win_full.db')
+   banco.conectaBaseDados('bf_gb_win_47k.db')
    estrategias = []
    contador_id = 0
    for minutos1 in range(min_minutos_back,max_minutos_back+1):
@@ -75,43 +75,57 @@ def fazProspeccaoEstrategias(min_minutos_back = 1, max_minutos_back = 60, min_mi
    corridas = banco.obtemCorridas(qtd_corridas=total_corridas, ordem="ASC") # ASC - Antigas primeiro, DESC - Recentes primeiro
    #corridas = ['1.123344088',]
    for corrida in corridas:
-      print("Corrida=", corrida)
+      print("Corrida=", corrida, ", são=", datetime.now().time() )
       minutosCorrida = banco.obtemMinutosDaCorrida(corrida) # Quais minutos tem eventos registrado de odds
       if(len(minutosCorrida) != 0): todos_minutos = range(max(minutosCorrida),min(minutosCorrida)-1,-1) 
       else: todos_minutos = []
-      for minuto in todos_minutos:
-         if( minuto in minutosCorrida ): # Tem atualização
-            retorno = banco.obtemOddsPorMinuto(minuto) # Todas as odds consolidadas
+      melhores_odds = None # Reference before assinigment
+      for em in estrategias:
+         minuto = em.min_back
+         retorno = banco.obtemOddsPorMinuto(minuto) # Todas as odds consolidadas
          if( retorno is not None ):
             lista_ordenada = retorno # Obtenho lista ordenada das odds dos cavalos participantes
             melhores_odds = list(lista_ordenada.items())
-            #if( minuto in minutosCorrida ): print("Minuto", minuto, " tem atualização", ", Odds=", melhores_odds)
-            #else: print("Minuto=", minuto, ", Odds=", melhores_odds)
-            #print("Minuto=", minuto, ", Odds=", melhores_odds)
-            estrategias_com_minutos_back = [e for e in estrategias if e.min_back==minuto]
-            for em in estrategias_com_minutos_back:
-               #print("Odds=", len(melhores_odds), "cavalo=", em.max_cavalo)
-               if( len(melhores_odds) > em.max_cavalo  ): # Não tem cavalo suficiente para essa estratégia
-                  for y in range(em.max_cavalo+1):
-                     nome_melhor = melhores_odds[y][0]
-                     odds_cavalo = melhores_odds[y][1]
-                     pl = fazApostaBack(odd_back=odds_cavalo, stack_back=20, wl_back=banco.obtemWinLoseAtual(nome_melhor), comissao = 0.065)                  
-                     if(pl is not None): 
-                        em.total_back += 1
-                        em.saldo += pl
-                     #print("Aposta Back retornou=", pl, ", ", str(em), ", minuto=", minuto, ", odds=", odds_cavalo, ", W/L=", banco.obtemWinLoseAtual(nome_melhor) )
-            estrategias_com_minutos_lay = [e for e in estrategias if e.min_lay==minuto]
-            for em in estrategias_com_minutos_lay:
-               if( len(melhores_odds) > em.max_cavalo  ): # Não tem cavalo suficiente para essa estratégia
-                  for y in range(em.max_cavalo+1):
-                     nome_melhor = melhores_odds[y][0]
-                     odds_cavalo = melhores_odds[y][1]
-                     #pl = fazApostaLay(odd_lay=banco.obtemBSPAtual(nome_melhor), stack_lay=20, wl_lay=banco.obtemWinLoseAtual(nome_melhor), comissao = 0.065)
-                     pl = fazApostaLay(odd_lay=odds_cavalo, stack_lay=20, wl_lay=banco.obtemWinLoseAtual(nome_melhor), comissao = 0.065)
-                     if(pl is not None): 
-                        em.total_lay += 1
-                        em.saldo += pl  
-                     #print("Aposta Lay retornou=", pl, ", ", str(em), ", minuto=", minuto, ", odds=", odds_cavalo, ", W/L=", banco.obtemWinLoseAtual(nome_melhor) )                  
+            #print("Odds=", len(melhores_odds), "cavalo=", em.max_cavalo)
+            if( len(melhores_odds) > em.max_cavalo  ): # Não tem cavalo suficiente para essa estratégia
+               for y in range(em.max_cavalo+1):
+                  nome_melhor = melhores_odds[y][0]
+                  odds_cavalo_back = melhores_odds[y][1]
+                  d = 0 # Deslocamento
+                  while( odds_cavalo_back == -1.01 and d < len(melhores_odds) ):
+                     nome_melhor = melhores_odds[y+d][0]
+                     odds_cavalo_back = melhores_odds[y+d][1]
+                     d += 1
+                     #print("Alternativo", nome_melhor, odds_cavalo_back)
+                  #stack_back = 20*round(1/(odds_cavalo_back-1),2) # Stack proporcional, para lay?
+                  stack_back = 20
+                  pl = fazApostaBack(odd_back=odds_cavalo_back, stack_back=stack_back, wl_back=banco.obtemWinLoseAtual(nome_melhor), comissao = 0.065)                  
+                  if(pl is not None): 
+                     em.total_back += 1
+                     em.saldo += pl
+                  #print("Aposta Back retornou=", pl, ", ", str(em), ", minuto=", minuto, ", odds=", odds_cavalo, ", W/L=", banco.obtemWinLoseAtual(nome_melhor) )
+            
+         minuto = em.min_lay   
+         retorno = banco.obtemOddsPorMinuto(minuto) # Todas as odds consolidadas
+         if( retorno is not None ):
+            lista_ordenada = retorno # Obtenho lista ordenada das odds dos cavalos participantes
+            melhores_odds = list(lista_ordenada.items())
+            if( len(melhores_odds) > em.max_cavalo  ): # Não tem cavalo suficiente para essa estratégia
+               for y in range(em.max_cavalo+1):
+                  nome_melhor = melhores_odds[y][0]
+                  odds_cavalo_lay = melhores_odds[y][1]
+                  d = 0 # Deslocamento
+                  while( odds_cavalo_lay == -1.01 and d < len(melhores_odds) ):
+                     nome_melhor = melhores_odds[y+d][0]
+                     odds_cavalo_lay = melhores_odds[y+d][1]
+                     d += 1
+                     #print("Alternativo", nome_melhor, odds_cavalo_lay)
+                  stack_lay = 20*round(1/(odds_cavalo_lay-1),2) # Stack proporcional
+                  pl = fazApostaLay(odd_lay=odds_cavalo_lay, stack_lay=stack_lay, wl_lay=banco.obtemWinLoseAtual(nome_melhor), comissao = 0.065)
+                  if(pl is not None): 
+                     em.total_lay += 1
+                     em.saldo += pl  
+                  #print("Aposta Lay retornou=", pl, ", ", str(em), ", minuto=", minuto, ", odds=", odds_cavalo, ", W/L=", banco.obtemWinLoseAtual(nome_melhor) )                  
    newlist = sorted(estrategias, key=lambda x: x.saldo, reverse=True) # Ordeno a lista de acordo com o saldo
    for item_es in newlist: 
       print("Esse:", str(item_es) )
@@ -281,7 +295,7 @@ def calculaRegressaoLinear(df, campos_ignorar=[], percentil_ignora=0):
    SomaLogs=[] 
    qtd_colunas_x = len(df.columns)-1 # Tem apenas um Y
    qtd_registros = len(df)
-   prop_treino = 0.666 # Quanto fica para treino. O resto será teste
+   prop_treino = 0.9999 # Quanto fica para treino. O resto será teste
    qtd_treino = int(qtd_registros*prop_treino)
    qtd_teste = qtd_registros-qtd_treino
    colunas = [col for col in df.columns if col not in campos_ignorar]
@@ -381,14 +395,15 @@ def criterioDeKelly(df, campos_ignorar=[], comissao = 0.065):
    return kelly
 
 if __name__ == '__main__':   
-   #fazProspeccaoEstrategias(min_minutos_back = 9999, max_minutos_back = 9999, min_minutos_lay = 26, max_minutos_lay = 26, max_cavalos = 1) # Demora cerca de 42 horas na configuração padrão
+   fazProspeccaoEstrategias(min_minutos_back = 9999, max_minutos_back = 9999, min_minutos_lay = 26, max_minutos_lay = 26, max_cavalos = 1) # Demora cerca de 7 minutos na configuração padrão
    
-   df = obtemDadosTreinoDaEstrategia(minutos_back = 9999, minutos_lay=26, qtd_cavalos=1, frac_treino=1.0) # Estratégia vencedora, por enquanto
-   df.to_csv('out_dev_full_47.csv', index=False) # Salvando para fuçar depois
+   #df = obtemDadosTreinoDaEstrategia(minutos_back = 9999, minutos_lay=26, qtd_cavalos=1, frac_treino=1.0) # Estratégia vencedora, por enquanto
+   #df.to_csv('out_dev_full_47.csv', index=False) # Salvando para fuçar depois
    
    #df = pd.read_csv('out_dev_full_47.csv') # Lendo para fazer a regressão
    #sem_esses = ['odds_lay', 'handicap', 'novice', 'hurdle', 'maiden', 'stakes', 'amateur', 'trotting', 'listed', 'national_hunt_flat', 'steeplechase', 'hunt', 'conditions', 'group1', 'group2', 'group3', 'selling', 'apprentice', 'tres_anos', 'quatro_anos_ou_mais', 'cinco_anos_ou_mais'] # Esse gerou 1.98 no antigo
    #sem_esses = ['charity', 'cinco_anos_ou_mais', 'tres_anos_ou_mais', 'quatro_anos_ou_mais', 'hunt', 'selling', 'national_hunt_flat', 'steeplechase', 'hurdle', 'stakes', 'handicap', 'amateur', 'group1', 'novice', 'maiden', 'listed', 'group3', 'nursery', 'conditions', 'claiming', 'apprentice', 'group2', 'mare', ]
+   #sem_esses = ['odds_lay', 'dist', 'maiden', 'stakes', 'amateur', 'trotting', 'national_hunt_flat', 'hunt,nursery', 'listed', 'group2', 'selling', 'apprentice', 'tres_anos_ou_mais', 'tres_anos', 'quatro_anos_ou_mais', 'quatro_anos', 'cinco_anos', 'mare']
    #frac_banca = criterioDeKelly(df, campos_ignorar=sem_esses )
    #print("Hello, my Kelly!", frac_banca)
    #sl = calculaRegressaoLinear(df, campos_ignorar=sem_esses, percentil_ignora=0 )
