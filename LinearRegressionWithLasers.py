@@ -180,19 +180,39 @@ def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_tr
                    if( pl != 0 ): total_stack += stack_back
              #print("Aposta Back retornou=", pl, ", minuto=", minutos_back, ", odds=", odds_cavalo_back, ", W/L=", banco.obtemWinLoseAtual(nome_melhor) )
         
-      #Vendo como estava o mercado nos minutos Back
+      #Vendo como estava o mercado nos minutos Lay
+      retorno1h = banco.obtemOddsPorMinuto(60) # Mercado 1 hora atrás
+      if( retorno1h is not None ):
+         lista_ordenada1h = retorno1h
+         melhores_odds1h = list(lista_ordenada1h.items())
+         
       retorno = banco.obtemOddsPorMinuto(minutos_lay)
       if( retorno is not None ): # Tem realmente algo naqueles minutos
         lista_ordenada = retorno # Obtenho lista ordenada das odds dos cavalos participantes
         melhores_odds = list(lista_ordenada.items())
+        qtd_cavalos_corrida = len(melhores_odds)
         if( len(melhores_odds) > qtd_cavalos  ): # Não tem cavalo suficiente para essa estratégia
           for y in range(qtd_cavalos):
              nome_melhor = melhores_odds[y][0]
              odds_cavalo_lay = melhores_odds[y][1]
+             #print(melhores_odds1h, nome_melhor, qtd_cavalos_corrida, len(melhores_odds1h) )#, [melhores_odds1h[i][1] for i in range(qtd_cavalos_corrida) if melhores_odds1h[i][0]==nome_melhor])
+             res_pesq = [melhores_odds1h[i][1] for i in range(len(melhores_odds1h)) if melhores_odds1h[i][0]==nome_melhor]
+             if( len(res_pesq) >= 1 ): odds_cavalo_lay_1h = res_pesq[0] # Como estavam as odds 1 hora atrás
+             else: odds_cavalo_lay_1h = 0.0 # Não teve nada
+             frac_odds_1h = odds_cavalo_lay_1h / odds_cavalo_lay # Como evoluiu as odds             
              d = 0 # Deslocamento
              while( odds_cavalo_lay == -1.01 and d < len(melhores_odds) ):
                 nome_melhor = melhores_odds[y+d][0]
                 odds_cavalo_lay = melhores_odds[y+d][1]
+                
+                #for i in range(qtd_cavalos):
+                  #if melhores_odds1h[i][0]==nome_melhor: print("Sim", i)
+                  #else: print("Não", i)
+                #print(melhores_odds1h, nome_melhor, [melhores_odds1h[i][1] for i in range(qtd_cavalos_corrida) if melhores_odds1h[i][0]==nome_melhor])
+                res_pesq = [melhores_odds1h[i][1] for i in range(len(melhores_odds1h)) if melhores_odds1h[i][0]==nome_melhor]
+                if( len(res_pesq) >= 1 ): odds_cavalo_lay_1h = res_pesq[0] # Como estavam as odds 1 hora atrás
+                else: odds_cavalo_lay_1h = 0.0 # Não teve nada
+                frac_odds_1h = odds_cavalo_lay_1h / odds_cavalo_lay # Como evoluiu as odds  
                 d += 1
                 #print("Alternativo", nome_melhor, odds_cavalo_lay)
              stack_lay = 20*round(1/(odds_cavalo_lay-1),2) # Stack proporcional
@@ -210,7 +230,6 @@ def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_tr
          nome_mercado = banco.obtemNomeMercadoDaCorrida(corrida)
          handicap, novice, hurdle, maiden, stakes, claiming, amateur, trotting, national_hunt_flat, steeplechase, hunt, nursery, listed, conditions, group1, group2, group3, selling, apprentice, tres_anos_ou_mais, tres_anos, quatro_anos_ou_mais, quatro_anos, cinco_anos_ou_mais, cinco_anos, charity, mare = obtemCaracteristicasDaCorrida(nome_mercado)
          distancia = obtemDistanciaDaPista(nome_mercado)
-         qtd_cavalos_corrida = len(melhores_odds)
          if( distancia is None ): distancia = 0 # Sem distância fica como 0?
          valores_afs_lay = banco.obtemAdjustmentFactorProximo(minutos_lay, qtd_cavalos_corrida)
          print("AFs=", valores_afs_lay)
@@ -223,6 +242,9 @@ def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_tr
          if( odds_cavalo_lay is not None ): 
             dados_corrida.append( odds_cavalo_lay )
             if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('odds_lay')
+         if( frac_odds_1h is not None ):
+            dados_corrida.append( frac_odds_1h )
+            if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('f_odd_lay_1h')
          dados_corrida.append(distancia) # Distância
          if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('dist')
          dados_corrida.append( qtd_cavalos_corrida ) 
@@ -395,10 +417,10 @@ def criterioDeKelly(df, campos_ignorar=[], comissao = 0.065):
    return kelly
 
 if __name__ == '__main__':   
-   fazProspeccaoEstrategias(min_minutos_back = 9999, max_minutos_back = 9999, min_minutos_lay = 26, max_minutos_lay = 26, max_cavalos = 1) # Demora cerca de 7 minutos na configuração padrão
+   #fazProspeccaoEstrategias(min_minutos_back = 9999, max_minutos_back = 9999, min_minutos_lay = 1, max_minutos_lay = 60, max_cavalos = 3) # Demora cerca de 7 minutos na configuração padrão
    
-   #df = obtemDadosTreinoDaEstrategia(minutos_back = 9999, minutos_lay=26, qtd_cavalos=1, frac_treino=1.0) # Estratégia vencedora, por enquanto
-   #df.to_csv('out_dev_full_47.csv', index=False) # Salvando para fuçar depois
+   df = obtemDadosTreinoDaEstrategia(minutos_back = 9999, minutos_lay=26, qtd_cavalos=1, frac_treino=1.0) # Estratégia vencedora, por enquanto
+   df.to_csv('out_dev_full_47.csv', index=False) # Salvando para fuçar depois
    
    #df = pd.read_csv('out_dev_full_47.csv') # Lendo para fazer a regressão
    #sem_esses = ['odds_lay', 'handicap', 'novice', 'hurdle', 'maiden', 'stakes', 'amateur', 'trotting', 'listed', 'national_hunt_flat', 'steeplechase', 'hunt', 'conditions', 'group1', 'group2', 'group3', 'selling', 'apprentice', 'tres_anos', 'quatro_anos_ou_mais', 'cinco_anos_ou_mais'] # Esse gerou 1.98 no antigo

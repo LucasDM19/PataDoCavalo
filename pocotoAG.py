@@ -112,7 +112,7 @@ for n_gera in range(200):
     #Embaralha os individuos da população
     np.random.shuffle(pop)
     
-    print('Gera#:',n_gera,'Melhor fit:', max([ ind['fit'] for ind in pop ] ), 'Individuo:', [ [todas_colunas[i] for i,e in enumerate([int(c) for c in ind['code'] ]) if e] for ind in pop if ind['fit']==max([ ind['fit'] for ind in pop ]) ] )
+    print('Gera#:',n_gera,'Melhor fit:', max([ ind['fit'] for ind in pop ] ), 'Individuo:', [ [todas_colunas[i] for i,e in enumerate([int(c) for c in ind['code'] ]) if e] for ind in pop if ind['fit']==max([ ind['fit'] for ind in pop ]) ][0] )
 
 
 
