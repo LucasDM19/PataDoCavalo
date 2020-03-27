@@ -26,6 +26,11 @@ df['D3']=np.log(1+df.D2)
 df['Q1']=np.log(1+df.qtd_cav)
 df['Q2']=np.log(1+df.Q1)
 df['Q3']=np.log(1+df.Q2)
+df['A1']=np.log(1+abs(df.af) )
+df['A2']=np.log(1+df.A1)
+df['A3']=np.log(1+df.A2)
+
+#print([np.where(np.isnan(df))] ) # Para acessar o indice: df.iloc[[19289]]
 
 #todas as colunas exceto a ultima, que o pl
 todas_colunas=df.loc[:, df.columns != 'pl'].columns
