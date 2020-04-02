@@ -56,7 +56,7 @@ class Estrategia():
       self.total_back = 0
       self.total_lay = 0
    def __str__(self):
-      return "nome=" + str(self.nome)+ ", saldo=" + str(round(self.saldo,2)) + ", min_back=" + str(self.min_back) + ", min_lay=" + str(self.min_lay) + ", max_cavalo=" + str(self.max_cavalo) + ", qtd_back=" + str(self.total_back) + ", qtd_lay=" + str(self.total_lay)
+      return "nome=" + str(self.nome)+ ", ret_unit=" + str(round(self.ret_unit,6)) + ", saldo=" + str(round(self.saldo,2)) + ", min_back=" + str(self.min_back) + ", min_lay=" + str(self.min_lay) + ", max_cavalo=" + str(self.max_cavalo) + ", qtd_back=" + str(self.total_back) + ", qtd_lay=" + str(self.total_lay)
 
 def fazProspeccaoEstrategias(min_minutos_back = 1, max_minutos_back = 60, min_minutos_lay = 1, max_minutos_lay = 60, max_cavalos = 3): # Demora cerca de 42 horas na configuração padrão
    banco = BaseDeDados()
@@ -101,6 +101,7 @@ def fazProspeccaoEstrategias(min_minutos_back = 1, max_minutos_back = 60, min_mi
                if(pl_back is not None):
                   eb.total_back += qtd_apostada
                   eb.saldo += pl_back
+                  el.ret_unit = el.saldo/(el.total_back+el.total_lay)
          estrats_lay = [e for e in estrategias if e.min_lay == minuto] # Estratégias que fariam Lay nesse minuto
          for el in estrats_lay:
             comissao = 0.065
@@ -109,20 +110,21 @@ def fazProspeccaoEstrategias(min_minutos_back = 1, max_minutos_back = 60, min_mi
                soma_apostada = dic_winLose[wl_lay][0]
                qtd_apostada = dic_winLose[wl_lay][1]
                soma_stack = dic_winLose[wl_lay][2]
-               stack_lay = 1*round(soma_stack,2) # Stack proporcional
+               stack_lay = 1*round(soma_stack,2) # Stack proporcional, já somado
                if( wl_lay == -1 ): pl_lay = 0.0 # Cavalo eliminado, aposta devolvida
                elif( wl_lay == 0 ): 
-                  pl_lay = +1*stack_lay*qtd_apostada
+                  pl_lay = +1*stack_lay
                elif( wl_lay == 1 ): 
-                  pl_lay = (-1*(stack_lay*(soma_apostada-qtd_apostada)))
+                  pl_lay = (-1*(qtd_apostada)) # Se for stack proporcional. S*(o-1)=1, pois S=1/(o-1)
                if( pl_lay > 0 ): 
                   pl_lay = pl_lay*(1-comissao)
                if(pl_lay is not None):
                   el.total_lay += qtd_apostada
                   el.saldo += pl_lay
-               print("Lay=", wl_lay, dic_winLose[wl_lay], pl_lay, el.saldo, el.total_lay)
+                  el.ret_unit = el.saldo/(el.total_back+el.total_lay)
+               print("Lay=", wl_lay, dic_winLose[wl_lay], pl_lay, el.saldo, el.total_lay, el.ret_unit)
    
-   newlist = sorted(estrategias, key=lambda x: x.saldo, reverse=True) # Ordeno a lista de acordo com o saldo
+   newlist = sorted(estrategias, key=lambda x: x.ret_unit, reverse=True) # Ordeno a lista de acordo com o saldo
    with open('estrategias.txt', 'w') as f:
       for item_es in newlist: 
          f.write("%s\n" % str(item_es))
