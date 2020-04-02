@@ -277,6 +277,9 @@ class BaseDeDados:
       return dict_adjustment_factors
    
    def obtemRetornoDaCorrida(self, minuto):
+      if( self.nomeBD is None ): return 1/0
+      conn = sqlite3.connect(self.nomeBD)
+      dic_resultado = {}
       c = conn.cursor()
       c.execute("""SELECT tbl_mins.WinLose, SUM(tbl_mins.Odd) as Soma, COUNT(tbl_mins.Odd) as Total
                   FROM (SELECT tbl_mins_swl.RaceId, r.RunnerName, tbl_mins_swl.Odd, r.WinLose
@@ -286,8 +289,14 @@ class BaseDeDados:
                         GROUP BY o.RaceId) as tbl_mins_swl, runners as r
                      WHERE r.RaceId = tbl_mins_swl.RaceId
                        AND r.RunnerId = tbl_mins_swl.RunnerId) as tbl_mins
-                  GROUP BY tbl_mins.WinLose""", (minuto) )
-      return 
+                  GROUP BY tbl_mins.WinLose""", (minuto,) )
+      while True: 
+         row = c.fetchone()
+         if row == None: break  # Acabou o sqlite
+         win_lose, soma_odd, tot_odd = row
+         dic_resultado[win_lose] = [soma_odd, tot_odd] 
+      if(dic_resultado == {} ): return None
+      return dic_resultado
    
    def obtemBSPAtual(self, nome_cavalo):
       return self.lista_bsp[self.race_id][nome_cavalo]
