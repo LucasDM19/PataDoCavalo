@@ -73,7 +73,8 @@ def fazProspeccaoEstrategias(min_minutos_back = 1, max_minutos_back = 60, min_mi
    
    menor_valor = min(min_minutos_back, min_minutos_lay)
    maior_valor = max(max_minutos_back, max_minutos_lay)
-   valores_minuto = range(menor_valor, maior_valor+1)
+   #valores_minuto = range(menor_valor, maior_valor+1) 
+   valores_minuto = [26,]
    for minuto in valores_minuto:
       print("Minuto=", minuto, ", são=", datetime.now().time())
       retorno = banco.obtemRetornoDaCorrida(minuto)
@@ -88,7 +89,7 @@ def fazProspeccaoEstrategias(min_minutos_back = 1, max_minutos_back = 60, min_mi
                qtd_apostada = dic_winLose[wl_back][1]
                soma_stack = dic_winLose[wl_back][2]
                #stack_back = 20*round(soma_stack,2) # Stack proporcional, para lay?
-               stack_back = 20
+               stack_back = 1
                if( wl_back == -1 ): 
                   pl_back = 0.0 # Cavalo eliminado, aposta devolvida
                elif( wl_back == 0 ): 
@@ -105,10 +106,10 @@ def fazProspeccaoEstrategias(min_minutos_back = 1, max_minutos_back = 60, min_mi
             comissao = 0.065
             for wl_lay in dic_winLose.keys():
                pl_lay = None
-               soma_apostada = dic_winLose[wl_back][0]
-               qtd_apostada = dic_winLose[wl_back][1]
-               soma_stack = dic_winLose[wl_back][2]
-               stack_lay = 20*round(soma_stack,2) # Stack proporcional
+               soma_apostada = dic_winLose[wl_lay][0]
+               qtd_apostada = dic_winLose[wl_lay][1]
+               soma_stack = dic_winLose[wl_lay][2]
+               stack_lay = 1*round(soma_stack,2) # Stack proporcional
                if( wl_lay == -1 ): pl_lay = 0.0 # Cavalo eliminado, aposta devolvida
                elif( wl_lay == 0 ): 
                   pl_lay = +1*stack_lay*qtd_apostada
@@ -119,6 +120,7 @@ def fazProspeccaoEstrategias(min_minutos_back = 1, max_minutos_back = 60, min_mi
                if(pl_lay is not None):
                   el.total_lay += qtd_apostada
                   el.saldo += pl_lay
+               print("Lay=", wl_lay, dic_winLose[wl_lay], pl_lay, el.saldo, el.total_lay)
    
    newlist = sorted(estrategias, key=lambda x: x.saldo, reverse=True) # Ordeno a lista de acordo com o saldo
    with open('estrategias.txt', 'w') as f:
@@ -475,7 +477,7 @@ def criterioDeKelly(df, campos_ignorar=[], comissao = 0.065):
    return kelly
 
 if __name__ == '__main__':   
-   fazProspeccaoEstrategias(min_minutos_back = 1, max_minutos_back = 60, min_minutos_lay = 1, max_minutos_lay = 60, max_cavalos = 3) # Demora cerca de 7 minutos na configuração padrão
+   fazProspeccaoEstrategias(min_minutos_back = 999, max_minutos_back = 999, min_minutos_lay = 26, max_minutos_lay = 26, max_cavalos = 1) # Demora cerca de 7 minutos na configuração padrão
    
    #df = obtemDadosTreinoDaEstrategia(minutos_back = 9999, minutos_lay=26, qtd_cavalos=1, frac_treino=1.0) # Estratégia vencedora, por enquanto
    #df.to_csv('out_dev_full_47.csv', index=False) # Salvando para fuçar depois
