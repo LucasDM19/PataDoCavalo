@@ -81,38 +81,44 @@ def fazProspeccaoEstrategias(min_minutos_back = 1, max_minutos_back = 60, min_mi
          dic_winLose = retorno # dic_winLose[0] ou dic_winLose[1]. O -1 deixa para lá
          estrats_back = [e for e in estrategias if e.min_back == minuto] # Estratégias que fariam Back nesse minuto
          for eb in estrats_back:
-            #stack_back = 20*round(1/(odds_cavalo_back-1),2) # Stack proporcional, para lay?
-            stack_back = 20
             comissao = 0.065
             for wl_back in dic_winLose.keys():
                pl_back = None
+               soma_apostada = dic_winLose[wl_back][0]
+               qtd_apostada = dic_winLose[wl_back][1]
+               soma_stack = dic_winLose[wl_back][2]
+               #stack_back = 20*round(soma_stack,2) # Stack proporcional, para lay?
+               stack_back = 20
                if( wl_back == -1 ): 
                   pl_back = 0.0 # Cavalo eliminado, aposta devolvida
                elif( wl_back == 0 ): 
-                  pl_back = (-1*stack_back) 
+                  pl_back = (-1*stack_back*qtd_apostada ) 
                elif( wl_back == 1 ): 
-                  pl_back = stack_back*(odd_back)-stack_back
+                  pl_back = stack_back*(soma_apostada-qtd_apostada)
                if( pl_back > 0 ): 
                   pl_back = pl_back*(1-comissao)
                if(pl_back is not None):
                   eb.total_back += 1
-                  eb.saldo += pl
-         estrats_lay = [e for e in estrategias if e.lay == minuto] # Estratégias que fariam Lay nesse minuto
+                  eb.saldo += pl_back
+         estrats_lay = [e for e in estrategias if e.min_lay == minuto] # Estratégias que fariam Lay nesse minuto
          for el in estrats_lay:
-            stack_lay = 20*round(1/(odds_cavalo_lay-1),2) # Stack proporcional
             comissao = 0.065
             for wl_lay in dic_winLose.keys():
                pl_lay = None
+               soma_apostada = dic_winLose[wl_back][0]
+               qtd_apostada = dic_winLose[wl_back][1]
+               soma_stack = dic_winLose[wl_back][2]
+               stack_lay = 20*round(soma_stack,2) # Stack proporcional
                if( wl_lay == -1 ): pl_lay = 0.0 # Cavalo eliminado, aposta devolvida
                elif( wl_lay == 0 ): 
-                  pl_lay = (+1*stack_lay)
+                  pl_lay = +1*stack_lay*qtd_apostada
                elif( wl_lay == 1 ): 
-                  pl_lay = (-1*(stack_lay*(odd_lay-1)))
+                  pl_lay = (-1*(stack_lay*(soma_apostada-qtd_apostada)))
                if( pl_lay > 0 ): 
                   pl_lay = pl_lay*(1-comissao)
                if(pl_lay is not None):
                   el.total_lay += 1
-                  el.saldo += pl
+                  el.saldo += pl_lay
    
    newlist = sorted(estrategias, key=lambda x: x.saldo, reverse=True) # Ordeno a lista de acordo com o saldo
    for item_es in newlist: 

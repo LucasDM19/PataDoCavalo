@@ -281,9 +281,9 @@ class BaseDeDados:
       conn = sqlite3.connect(self.nomeBD)
       dic_resultado = {}
       c = conn.cursor()
-      c.execute("""SELECT tbl_mins.WinLose, SUM(tbl_mins.Odd) as Soma, COUNT(tbl_mins.Odd) as Total
-                  FROM (SELECT tbl_mins_swl.RaceId, r.RunnerName, tbl_mins_swl.Odd, r.WinLose
-                     FROM (SELECT o.RaceId, o.RunnerId, MIN(o.CurrentPrice) as Odd
+      c.execute("""SELECT tbl_mins.WinLose, SUM(tbl_mins.Odd) as Soma, COUNT(tbl_mins.Odd) as Total, SUM(tbl_mins.stack) as SomaStack
+                  FROM (SELECT tbl_mins_swl.RaceId, r.RunnerName, tbl_mins_swl.Odd, tbl_mins_swl.stack, r.WinLose
+                     FROM (SELECT o.RaceId, o.RunnerId, MIN(o.CurrentPrice) as Odd, 1/(MIN(o.CurrentPrice)-1) as stack
                         FROM odds_position as o
                         WHERE o.MinutesUntillRace = ?
                         GROUP BY o.RaceId) as tbl_mins_swl, runners as r
@@ -293,8 +293,8 @@ class BaseDeDados:
       while True: 
          row = c.fetchone()
          if row == None: break  # Acabou o sqlite
-         win_lose, soma_odd, tot_odd = row
-         dic_resultado[win_lose] = [soma_odd, tot_odd] 
+         win_lose, soma_odd, tot_odd, soma_stack = row
+         dic_resultado[win_lose] = [soma_odd, tot_odd, soma_stack] 
       if(dic_resultado == {} ): return None
       return dic_resultado
    
