@@ -98,7 +98,7 @@ def fazProspeccaoEstrategias(min_minutos_back = 1, max_minutos_back = 60, min_mi
                if( pl_back > 0 ): 
                   pl_back = pl_back*(1-comissao)
                if(pl_back is not None):
-                  eb.total_back += 1
+                  eb.total_back += qtd_apostada
                   eb.saldo += pl_back
          estrats_lay = [e for e in estrategias if e.min_lay == minuto] # Estratégias que fariam Lay nesse minuto
          for el in estrats_lay:
@@ -117,12 +117,15 @@ def fazProspeccaoEstrategias(min_minutos_back = 1, max_minutos_back = 60, min_mi
                if( pl_lay > 0 ): 
                   pl_lay = pl_lay*(1-comissao)
                if(pl_lay is not None):
-                  el.total_lay += 1
+                  el.total_lay += qtd_apostada
                   el.saldo += pl_lay
    
    newlist = sorted(estrategias, key=lambda x: x.saldo, reverse=True) # Ordeno a lista de acordo com o saldo
-   for item_es in newlist: 
-      print("Esse:", str(item_es) )
+   with open('estrategias.txt', 'w') as f:
+      for item_es in newlist: 
+         f.write("%s\n" % str(item_es))
+    
+   
 
    x = 1/0
    
