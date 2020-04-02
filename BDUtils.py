@@ -276,6 +276,19 @@ class BaseDeDados:
             dict_adjustment_factors[cavalo] = 0.0 # Porcentagem fica zerada
       return dict_adjustment_factors
    
+   def obtemRetornoDaCorrida(self, minuto):
+      c = conn.cursor()
+      c.execute("""SELECT tbl_mins.WinLose, SUM(tbl_mins.Odd) as Soma, COUNT(tbl_mins.Odd) as Total
+                  FROM (SELECT tbl_mins_swl.RaceId, r.RunnerName, tbl_mins_swl.Odd, r.WinLose
+                     FROM (SELECT o.RaceId, o.RunnerId, MIN(o.CurrentPrice) as Odd
+                        FROM odds_position as o
+                        WHERE o.MinutesUntillRace = ?
+                        GROUP BY o.RaceId) as tbl_mins_swl, runners as r
+                     WHERE r.RaceId = tbl_mins_swl.RaceId
+                       AND r.RunnerId = tbl_mins_swl.RunnerId) as tbl_mins
+                  GROUP BY tbl_mins.WinLose""", (minuto) )
+      return 
+   
    def obtemBSPAtual(self, nome_cavalo):
       return self.lista_bsp[self.race_id][nome_cavalo]
       

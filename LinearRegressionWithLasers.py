@@ -77,8 +77,8 @@ def fazProspeccaoEstrategias(min_minutos_back = 1, max_minutos_back = 60, min_mi
    for corrida in corridas:
       print("Corrida=", corrida, ", são=", datetime.now().time() )
       minutosCorrida = banco.obtemMinutosDaCorrida(corrida) # Quais minutos tem eventos registrado de odds
-      if(len(minutosCorrida) != 0): todos_minutos = range(max(minutosCorrida),min(minutosCorrida)-1,-1) 
-      else: todos_minutos = []
+      #if(len(minutosCorrida) != 0): todos_minutos = range(max(minutosCorrida),min(minutosCorrida)-1,-1) 
+      #else: todos_minutos = []
       melhores_odds = None # Reference before assinigment
       for em in estrategias:
          minuto = em.min_back
@@ -417,10 +417,10 @@ def criterioDeKelly(df, campos_ignorar=[], comissao = 0.065):
    return kelly
 
 if __name__ == '__main__':   
-   #fazProspeccaoEstrategias(min_minutos_back = 9999, max_minutos_back = 9999, min_minutos_lay = 1, max_minutos_lay = 60, max_cavalos = 3) # Demora cerca de 7 minutos na configuração padrão
+   fazProspeccaoEstrategias(min_minutos_back = 1, max_minutos_back = 60, min_minutos_lay = 1, max_minutos_lay = 60, max_cavalos = 3) # Demora cerca de 7 minutos na configuração padrão
    
-   df = obtemDadosTreinoDaEstrategia(minutos_back = 9999, minutos_lay=26, qtd_cavalos=1, frac_treino=1.0) # Estratégia vencedora, por enquanto
-   df.to_csv('out_dev_full_47.csv', index=False) # Salvando para fuçar depois
+   #df = obtemDadosTreinoDaEstrategia(minutos_back = 9999, minutos_lay=26, qtd_cavalos=1, frac_treino=1.0) # Estratégia vencedora, por enquanto
+   #df.to_csv('out_dev_full_47.csv', index=False) # Salvando para fuçar depois
    
    #df = pd.read_csv('out_dev_full_47.csv') # Lendo para fazer a regressão
    #sem_esses = ['odds_lay', 'handicap', 'novice', 'hurdle', 'maiden', 'stakes', 'amateur', 'trotting', 'listed', 'national_hunt_flat', 'steeplechase', 'hunt', 'conditions', 'group1', 'group2', 'group3', 'selling', 'apprentice', 'tres_anos', 'quatro_anos_ou_mais', 'cinco_anos_ou_mais'] # Esse gerou 1.98 no antigo
