@@ -286,6 +286,7 @@ class BaseDeDados:
                      FROM (SELECT o.RaceId, o.RunnerId, MIN(o.CurrentPrice) as Odd, 1/(MIN(o.CurrentPrice)-1) as stack
                         FROM odds_position as o
                         WHERE o.MinutesUntillRace = ?
+                          AND o.CurrentPrice >0
                         GROUP BY o.RaceId) as tbl_mins_swl, runners as r
                      WHERE r.RaceId = tbl_mins_swl.RaceId
                        AND r.RunnerId = tbl_mins_swl.RunnerId) as tbl_mins
