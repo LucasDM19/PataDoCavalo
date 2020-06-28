@@ -192,6 +192,12 @@ def fazProspeccaoEstrategias(min_minutos_back = 1, max_minutos_back = 60, min_mi
    for item_es in newlist: 
       print("Esse:", str(item_es) )
 
+def salvaRegistro(dados_corrida, nomes_colunas, campo, nome_campo):
+   dados_corrida.append(campo) # Distância
+   if(len(dados_corrida) > len(nomes_colunas) ): 
+      nomes_colunas.append(nome_campo) # Nome do campo
+   return dados_corrida, nomes_colunas
+
 def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_treino):
    banco = BaseDeDados()
    banco.conectaBaseDados('bf_gb_win_47k.db')
@@ -307,69 +313,39 @@ def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_tr
          if( frac_odds_1h is not None ):
             dados_corrida.append( frac_odds_1h )
             if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('f_odd_lay_1h')
-         dados_corrida.append(distancia) # Distância
-         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('dist')
-         dados_corrida.append( qtd_cavalos_corrida ) 
-         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('qtd_cav')
-         dados_corrida.append(af_favorito) 
-         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('af')
-         dados_corrida.append(handicap)
-         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('handicap')
-         dados_corrida.append(novice)
-         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('novice')
-         dados_corrida.append(hurdle)
-         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('hurdle')
-         dados_corrida.append(maiden)
-         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('maiden')
-         dados_corrida.append(stakes)
-         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('stakes')
-         dados_corrida.append(claiming)
-         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('claiming')
-         dados_corrida.append(amateur)
-         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('amateur')
-         dados_corrida.append(trotting)
-         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('trotting')
-         dados_corrida.append(national_hunt_flat)
-         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('national_hunt_flat')
-         dados_corrida.append(steeplechase)
-         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('steeplechase')
-         dados_corrida.append(hunt)
-         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('hunt')
-         dados_corrida.append(nursery)
-         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('nursery')
-         dados_corrida.append(listed)
-         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('listed')
-         dados_corrida.append(conditions)
-         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('conditions')
-         dados_corrida.append(group1)
-         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('group1')
-         dados_corrida.append(group2)
-         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('group2')
-         dados_corrida.append(group3)
-         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('group3')
-         dados_corrida.append(selling)
-         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('selling')
-         dados_corrida.append(apprentice)
-         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('apprentice')
-         dados_corrida.append(tres_anos_ou_mais)
-         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('tres_anos_ou_mais')
-         dados_corrida.append(tres_anos)
-         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('tres_anos')
-         dados_corrida.append(quatro_anos_ou_mais)
-         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('quatro_anos_ou_mais')
-         dados_corrida.append(quatro_anos)
-         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('quatro_anos')
-         dados_corrida.append(cinco_anos_ou_mais)
-         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('cinco_anos_ou_mais')
-         dados_corrida.append(cinco_anos)
-         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('cinco_anos')
-         dados_corrida.append(charity)
-         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('charity')
-         dados_corrida.append(mare)
-         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('mare')
-         dados_corrida.append(pl_unitario)
-         if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('pl')
-         print("Linha_corrida=", dados_corrida, ", colunas=", nomes_colunas, ", tam=", len(lista_treino) )
+         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, distancia, 'dist') # Distância
+         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, qtd_cavalos_corrida, 'qtd_cav')
+         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, af_favorito, 'af')
+         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, handicap, 'handicap')
+         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, novice, 'novice')
+         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, hurdle, 'hurdle')
+         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, maiden, 'maiden')
+         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, stakes, 'stakes')
+         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, claiming, 'claiming')
+         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, amateur, 'amateur')
+         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, trotting, 'trotting')
+         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, national_hunt_flat, 'national_hunt_flat')
+         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, steeplechase, 'steeplechase')
+         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, hunt, 'hunt')
+         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, nursery, 'nursery')
+         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, listed, 'listed')
+         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, conditions, 'conditions')
+         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, group1, 'group1')
+         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, group2, 'group2')
+         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, group3, 'group3')
+         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, selling, 'selling')
+         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, apprentice, 'apprentice')
+         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, tres_anos_ou_mais, 'tres_anos_ou_mais')
+         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, tres_anos, 'tres_anos')
+         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, quatro_anos_ou_mais, 'quatro_anos_ou_mais')
+         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, quatro_anos, 'quatro_anos')
+         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, cinco_anos_ou_mais, 'cinco_anos_ou_mais')
+         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, cinco_anos, 'cinco_anos')
+         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, charity, 'charity')
+         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, mare, 'mare')
+         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, pl_unitario, 'pl')
+
+         print("Linha_corrida=", dados_corrida, ", colunas=", nomes_colunas, ", tam=", len(lista_treino), ", col=", len(nomes_colunas) )
          lista_treino.append(dados_corrida) # Lista de lista
    df = pd.DataFrame(lista_treino, columns = nomes_colunas)
    print("Dados coletados")
@@ -479,9 +455,9 @@ def criterioDeKelly(df, campos_ignorar=[], comissao = 0.065):
    return kelly
 
 if __name__ == '__main__':   
-   fazProspeccaoEstrategias(min_minutos_back = 999, max_minutos_back = 999, min_minutos_lay = 26, max_minutos_lay = 26, max_cavalos = 1) # Demora cerca de 7 minutos na configuração padrão
+   #fazProspeccaoEstrategias(min_minutos_back = 999, max_minutos_back = 999, min_minutos_lay = 26, max_minutos_lay = 26, max_cavalos = 1) # Demora cerca de 7 minutos na configuração padrão
    
-   #df = obtemDadosTreinoDaEstrategia(minutos_back = 9999, minutos_lay=26, qtd_cavalos=1, frac_treino=1.0) # Estratégia vencedora, por enquanto
+   df = obtemDadosTreinoDaEstrategia(minutos_back = 9999, minutos_lay=26, qtd_cavalos=1, frac_treino=1.0) # Estratégia vencedora, por enquanto
    #df.to_csv('out_dev_full_47.csv', index=False) # Salvando para fuçar depois
    
    #df = pd.read_csv('out_dev_full_47.csv') # Lendo para fazer a regressão
