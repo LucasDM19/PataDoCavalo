@@ -193,6 +193,8 @@ def fazProspeccaoEstrategias(min_minutos_back = 1, max_minutos_back = 60, min_mi
       print("Esse:", str(item_es) )
 
 def salvaRegistro(dados_corrida, nomes_colunas, campo, nome_campo):
+   if( campo is None ):
+      return dados_corrida, nomes_colunas # Sem nada para fazer
    dados_corrida.append(campo) # Distância
    if(len(dados_corrida) > len(nomes_colunas) ): 
       nomes_colunas.append(nome_campo) # Nome do campo
@@ -304,15 +306,10 @@ def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_tr
          af_favorito = valores_afs_lay[ list(valores_afs_lay.keys())[0] ]
          if(total_stack is None): pl_unitario = 0.0 # Aposta devolvida
          else: pl_unitario = 1.0*pl_total/total_stack # Retorno unitário da corrida
-         if( odds_cavalo_back is not None ): 
-            dados_corrida.append( odds_cavalo_back )
-            if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('odds_back')
-         if( odds_cavalo_lay is not None ): 
-            dados_corrida.append( odds_cavalo_lay )
-            if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('odds_lay')
-         if( frac_odds_1h is not None ):
-            dados_corrida.append( frac_odds_1h )
-            if(len(dados_corrida) > len(nomes_colunas) ): nomes_colunas.append('f_odd_lay_1h')
+         
+         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, odds_cavalo_back, 'odds_back')
+         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, odds_cavalo_lay, 'odds_lay') 
+         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, frac_odds_1h, 'f_odd_lay_1h')
          dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, distancia, 'dist') # Distância
          dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, qtd_cavalos_corrida, 'qtd_cav')
          dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, af_favorito, 'af')
