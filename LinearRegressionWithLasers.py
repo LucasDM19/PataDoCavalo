@@ -200,6 +200,58 @@ def salvaRegistro(dados_corrida, nomes_colunas, campo, nome_campo):
       nomes_colunas.append(nome_campo) # Nome do campo
    return dados_corrida, nomes_colunas
 
+def avaliaLay(minutos_lay, qtd_cavalos, banco, pl_total, total_stack, minuto_antes, ret_odds_min):
+   frac_odds_1h = None # Um padrão
+   odds_cavalo_lay = None
+   #Vendo como estava o mercado nos minutos Lay
+   retorno1h = banco.obtemOddsPorMinuto(minuto_antes) # Mercado 1 hora atrás
+   if( retorno1h is not None ):
+      lista_ordenada1h = retorno1h
+      melhores_odds1h = list(lista_ordenada1h.items())
+   else:
+      return None, None, None, None
+      
+   #retorno = banco.obtemOddsPorMinuto(minutos_lay)
+   if( ret_odds_min is not None ): # Tem realmente algo naqueles minutos
+     lista_ordenada = ret_odds_min # Obtenho lista ordenada das odds dos cavalos participantes
+     melhores_odds = list(lista_ordenada.items())
+     #qtd_cavalos_corrida = len(melhores_odds)
+     if( len(melhores_odds) > qtd_cavalos  ): # Não tem cavalo suficiente para essa estratégia
+       for y in range(qtd_cavalos):
+          nome_melhor = melhores_odds[y][0]
+          odds_cavalo_lay = melhores_odds[y][1]
+          #print(melhores_odds1h, nome_melhor, qtd_cavalos_corrida, len(melhores_odds1h) )#, [melhores_odds1h[i][1] for i in range(qtd_cavalos_corrida) if melhores_odds1h[i][0]==nome_melhor])
+          res_pesq = [melhores_odds1h[i][1] for i in range(len(melhores_odds1h)) if melhores_odds1h[i][0]==nome_melhor]
+          if( len(res_pesq) >= 1 ): odds_cavalo_lay_1h = res_pesq[0] # Como estavam as odds 1 hora atrás
+          else: odds_cavalo_lay_1h = 0.0 # Não teve nada
+          frac_odds_1h = odds_cavalo_lay_1h / odds_cavalo_lay # Como evoluiu as odds             
+          d = 0 # Deslocamento
+          while( odds_cavalo_lay == -1.01 and d < len(melhores_odds) ):
+             nome_melhor = melhores_odds[y+d][0]
+             odds_cavalo_lay = melhores_odds[y+d][1]
+             
+             #for i in range(qtd_cavalos):
+               #if melhores_odds1h[i][0]==nome_melhor: print("Sim", i)
+               #else: print("Não", i)
+             #print(melhores_odds1h, nome_melhor, [melhores_odds1h[i][1] for i in range(qtd_cavalos_corrida) if melhores_odds1h[i][0]==nome_melhor])
+             res_pesq = [melhores_odds1h[i][1] for i in range(len(melhores_odds1h)) if melhores_odds1h[i][0]==nome_melhor]
+             if( len(res_pesq) >= 1 ): odds_cavalo_lay_1h = res_pesq[0] # Como estavam as odds 1 hora atrás
+             else: odds_cavalo_lay_1h = 0.0 # Não teve nada
+             frac_odds_1h = odds_cavalo_lay_1h / odds_cavalo_lay # Como evoluiu as odds  
+             d += 1
+             #print("Alternativo", nome_melhor, odds_cavalo_lay)
+          stack_lay = 20*round(1/(odds_cavalo_lay-1),2) # Stack proporcional
+          pl = fazApostaLay(odd_lay=odds_cavalo_lay, stack_lay=stack_lay, wl_lay=banco.obtemWinLoseAtual(nome_melhor), comissao = 0.065)
+          if(pl is not None): 
+             if( pl_total is None ): 
+                pl_total = pl # Primeira vez
+                if( pl != 0 ): total_stack = stack_lay # Soma Stack apenas quando não devolve aposta
+             else: 
+                pl_total += pl # Concatena
+                if( pl != 0 ): total_stack += stack_lay
+          print("Aposta Lay retornou=", pl, ", minuto=", minutos_lay, ", odds=", odds_cavalo_lay, ", W/L=", banco.obtemWinLoseAtual(nome_melhor), ", stack=", stack_lay) #, "q_c=", qtd_cavalos_corrida )
+   return pl_total, total_stack, frac_odds_1h, odds_cavalo_lay
+   
 def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_treino):
    banco = BaseDeDados()
    banco.conectaBaseDados('bf_gb_win_47k.db')
@@ -218,7 +270,6 @@ def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_tr
       total_stack = None # Soma o Stack, para fazer retorno unitário
       pl_unitario = None # Retorno por unidade (item a ser maximizado)
       odds_cavalo_back = None
-      odds_cavalo_lay = None
       print("Corrida=", corrida, ", são=", datetime.now().time() )
       minutosCorrida = banco.obtemMinutosDaCorrida(corrida) # Quais minutos tem eventos registrado de odds
       if(len(minutosCorrida) != 0): todos_minutos = range(max(minutosCorrida),min(minutosCorrida)-1,-1) 
@@ -250,51 +301,11 @@ def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_tr
                    if( pl != 0 ): total_stack += stack_back
              #print("Aposta Back retornou=", pl, ", minuto=", minutos_back, ", odds=", odds_cavalo_back, ", W/L=", banco.obtemWinLoseAtual(nome_melhor) )
         
-      #Vendo como estava o mercado nos minutos Lay
-      retorno1h = banco.obtemOddsPorMinuto(60) # Mercado 1 hora atrás
-      if( retorno1h is not None ):
-         lista_ordenada1h = retorno1h
-         melhores_odds1h = list(lista_ordenada1h.items())
-         
       retorno = banco.obtemOddsPorMinuto(minutos_lay)
-      if( retorno is not None ): # Tem realmente algo naqueles minutos
-        lista_ordenada = retorno # Obtenho lista ordenada das odds dos cavalos participantes
-        melhores_odds = list(lista_ordenada.items())
-        qtd_cavalos_corrida = len(melhores_odds)
-        if( len(melhores_odds) > qtd_cavalos  ): # Não tem cavalo suficiente para essa estratégia
-          for y in range(qtd_cavalos):
-             nome_melhor = melhores_odds[y][0]
-             odds_cavalo_lay = melhores_odds[y][1]
-             #print(melhores_odds1h, nome_melhor, qtd_cavalos_corrida, len(melhores_odds1h) )#, [melhores_odds1h[i][1] for i in range(qtd_cavalos_corrida) if melhores_odds1h[i][0]==nome_melhor])
-             res_pesq = [melhores_odds1h[i][1] for i in range(len(melhores_odds1h)) if melhores_odds1h[i][0]==nome_melhor]
-             if( len(res_pesq) >= 1 ): odds_cavalo_lay_1h = res_pesq[0] # Como estavam as odds 1 hora atrás
-             else: odds_cavalo_lay_1h = 0.0 # Não teve nada
-             frac_odds_1h = odds_cavalo_lay_1h / odds_cavalo_lay # Como evoluiu as odds             
-             d = 0 # Deslocamento
-             while( odds_cavalo_lay == -1.01 and d < len(melhores_odds) ):
-                nome_melhor = melhores_odds[y+d][0]
-                odds_cavalo_lay = melhores_odds[y+d][1]
-                
-                #for i in range(qtd_cavalos):
-                  #if melhores_odds1h[i][0]==nome_melhor: print("Sim", i)
-                  #else: print("Não", i)
-                #print(melhores_odds1h, nome_melhor, [melhores_odds1h[i][1] for i in range(qtd_cavalos_corrida) if melhores_odds1h[i][0]==nome_melhor])
-                res_pesq = [melhores_odds1h[i][1] for i in range(len(melhores_odds1h)) if melhores_odds1h[i][0]==nome_melhor]
-                if( len(res_pesq) >= 1 ): odds_cavalo_lay_1h = res_pesq[0] # Como estavam as odds 1 hora atrás
-                else: odds_cavalo_lay_1h = 0.0 # Não teve nada
-                frac_odds_1h = odds_cavalo_lay_1h / odds_cavalo_lay # Como evoluiu as odds  
-                d += 1
-                #print("Alternativo", nome_melhor, odds_cavalo_lay)
-             stack_lay = 20*round(1/(odds_cavalo_lay-1),2) # Stack proporcional
-             pl = fazApostaLay(odd_lay=odds_cavalo_lay, stack_lay=stack_lay, wl_lay=banco.obtemWinLoseAtual(nome_melhor), comissao = 0.065)
-             if(pl is not None): 
-                if( pl_total is None ): 
-                   pl_total = pl # Primeira vez
-                   if( pl != 0 ): total_stack = stack_lay # Soma Stack apenas quando não devolve aposta
-                else: 
-                   pl_total += pl # Concatena
-                   if( pl != 0 ): total_stack += stack_lay
-             print("Aposta Lay retornou=", pl, ", minuto=", minutos_lay, ", odds=", odds_cavalo_lay, ", W/L=", banco.obtemWinLoseAtual(nome_melhor), ", stack=", stack_lay )
+      lista_participantes, lista_bsp, lista_wl = banco.obtemParticipantesDeCorrida(corrida)
+      qtd_cavalos_corrida = len(lista_participantes)
+      pl_total, total_stack, frac_odds_1h, odds_cavalo_lay = avaliaLay(minutos_lay=minutos_lay, qtd_cavalos=qtd_cavalos, banco=banco, pl_total=pl_total, total_stack=total_stack, minuto_antes=60, ret_odds_min=retorno)
+      
       # Fim da corrida
       if(pl_total is not None): # Dados serão válidos para treino
          nome_mercado = banco.obtemNomeMercadoDaCorrida(corrida)
