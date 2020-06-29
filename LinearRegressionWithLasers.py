@@ -194,8 +194,8 @@ def fazProspeccaoEstrategias(min_minutos_back = 1, max_minutos_back = 60, min_mi
 
 def salvaRegistro(dados_corrida, nomes_colunas, campo, nome_campo):
    if( campo is None ):
-      return dados_corrida, nomes_colunas # Sem nada para fazer
-   dados_corrida.append(campo) # Distância
+      campo = 0.0 # Valor padrão #return dados_corrida, nomes_colunas # Sem nada para fazer
+   dados_corrida.append(campo)
    if(len(dados_corrida) > len(nomes_colunas) ): 
       nomes_colunas.append(nome_campo) # Nome do campo
    return dados_corrida, nomes_colunas

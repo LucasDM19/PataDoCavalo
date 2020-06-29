@@ -31,6 +31,7 @@ df['A2']=np.log(1+df.A1)
 df['A3']=np.log(1+df.A2)
 
 #print([np.where(np.isnan(df))] ) # Para acessar o indice: df.iloc[[19289]]
+#print( df.iloc[[4]] )
 
 #todas as colunas exceto a ultima, que o pl
 todas_colunas=df.loc[:, df.columns != 'pl'].columns
