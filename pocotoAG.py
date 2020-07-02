@@ -76,8 +76,9 @@ def somaLog(codigo_genetico):
 
 
 #Configurações
-TAM_POP=30  #Tamano da população (número para para não zuar o barraco, ok :)
+TAM_POP=50  #Tamano da população (número para para não zuar o barraco, ok :)
 N_BITS=len(todas_colunas)  #Qtd de 0s e 1s do cromossomo
+QTD_GERACOES = 800
 TAXA_DE_REPRODUCAO=0.95
 TAXA_DE_MUTACAO=0.05
 
@@ -92,7 +93,7 @@ for _ in range(TAM_POP):
 
 
 #Evolução da população
-for n_gera in range(500):
+for n_gera in range(QTD_GERACOES):
     codes=[]
     
     #Para cada 2 indivudos gera novos 2 codigos genéticos a através do cruzamentos dada taxa de reprodução
