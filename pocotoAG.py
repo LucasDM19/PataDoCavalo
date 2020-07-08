@@ -56,7 +56,7 @@ df['F51c']=np.log(1+df.F51b)
 df['F56a']=np.log(1+df.f_odd_lay_56m)
 df['F56b']=np.log(1+df.F56a)
 df['F56c']=np.log(1+df.F56b)
-df['F60a']=np.log(1+df.f_odd_lay_60m)
+df['F60a']=np.log(1+df.f_odd_lay_1h)
 df['F60b']=np.log(1+df.F60a)
 df['F60c']=np.log(1+df.F60b)
 
