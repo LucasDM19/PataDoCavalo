@@ -310,17 +310,13 @@ def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_tr
       lista_participantes, lista_bsp, lista_wl = banco.obtemParticipantesDeCorrida(corrida)
       qtd_cavalos_corrida = len(lista_participantes)
       pl_total, total_stack, odds_cavalo_lay, nome_melhor = avaliaLay(minutos_lay=minutos_lay, qtd_cavalos=qtd_cavalos, banco=banco, pl_total=pl_total, total_stack=total_stack)
-      frac_odds_1h = obtemOddsLay1Hora(nome_melhor, odds_cavalo_lay, qtd_cavalos, banco, minuto_antes=60)
-      frac_odds_45m = obtemOddsLay1Hora(nome_melhor, odds_cavalo_lay, qtd_cavalos, banco, minuto_antes=45)
-      frac_odds_35m = obtemOddsLay1Hora(nome_melhor, odds_cavalo_lay, qtd_cavalos, banco, minuto_antes=35)
-      frac_odds_30m = obtemOddsLay1Hora(nome_melhor, odds_cavalo_lay, qtd_cavalos, banco, minuto_antes=30)
-      frac_odds_31m = obtemOddsLay1Hora(nome_melhor, odds_cavalo_lay, qtd_cavalos, banco, minuto_antes=31) # 5 minutos antes da aposta
-      frac_odds_36m = obtemOddsLay1Hora(nome_melhor, odds_cavalo_lay, qtd_cavalos, banco, minuto_antes=36) # 10 minutos antes da aposta
-      frac_odds_41m = obtemOddsLay1Hora(nome_melhor, odds_cavalo_lay, qtd_cavalos, banco, minuto_antes=41) # 15 minutos antes da aposta
-      frac_odds_46m = obtemOddsLay1Hora(nome_melhor, odds_cavalo_lay, qtd_cavalos, banco, minuto_antes=46) # 20 minutos antes da aposta
-      frac_odds_51m = obtemOddsLay1Hora(nome_melhor, odds_cavalo_lay, qtd_cavalos, banco, minuto_antes=51) # 25 minutos antes da aposta
-      frac_odds_56m = obtemOddsLay1Hora(nome_melhor, odds_cavalo_lay, qtd_cavalos, banco, minuto_antes=56) # 30 minutos antes da aposta
       
+      frac_odds = {}
+      MAX_MIN_LAY = 60 # Não passo de uma hora
+      lista_minutos_lay = [y for y in range(minutos_lay+1, MAX_MIN_LAY+1)]
+      for mmm in lista_minutos_lay:
+         frac_odds[mmm] = obtemOddsLay1Hora(nome_melhor, odds_cavalo_lay, qtd_cavalos, banco, minuto_antes=mmm)
+
       # Fim da corrida
       if(pl_total is not None): # Dados serão válidos para treino
          nome_mercado = banco.obtemNomeMercadoDaCorrida(corrida)
@@ -335,16 +331,8 @@ def obtemDadosTreinoDaEstrategia(minutos_back, minutos_lay, qtd_cavalos, frac_tr
          
          dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, odds_cavalo_back, 'odds_back')
          dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, odds_cavalo_lay, 'odds_lay') 
-         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, frac_odds_1h, 'f_odd_lay_1h')
-         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, frac_odds_45m, 'f_odd_lay_45m')
-         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, frac_odds_35m, 'f_odd_lay_35m')
-         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, frac_odds_30m, 'f_odd_lay_30m')
-         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, frac_odds_31m, 'f_odd_lay_31m')
-         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, frac_odds_36m, 'f_odd_lay_36m')
-         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, frac_odds_41m, 'f_odd_lay_41m')
-         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, frac_odds_46m, 'f_odd_lay_46m')
-         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, frac_odds_51m, 'f_odd_lay_51m')
-         dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, frac_odds_56m, 'f_odd_lay_56m')
+         for mmm in lista_minutos_lay:
+            dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, frac_odds[mmm], 'f_odd_lay_' + str(mmm) + 'm' )
          dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, distancia, 'dist') # Distância
          dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, qtd_cavalos_corrida, 'qtd_cav')
          dados_corrida, nomes_colunas = salvaRegistro(dados_corrida, nomes_colunas, af_favorito, 'af')
