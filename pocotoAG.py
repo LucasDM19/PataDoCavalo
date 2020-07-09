@@ -81,7 +81,6 @@ def somaLog(codigo_genetico):
     #Fitra o df baseado nas colunas
     df_=df[(colunas+',pl').split(',')]
 
-
     SLs=[] 
     for i in range(100):
         #Embaralha o dataframe baseado no random_state i 
@@ -104,6 +103,33 @@ def somaLog(codigo_genetico):
     #Mostra a lucrativida média e colunas selecionadas que deram origem a essa lucratividade
     return np.mean(SLs)
 
+def exibeCoeficientes(campos_inclui):
+   global df
+   SomaLogs=[] 
+   qtd_colunas_x = len(df.columns)-1 # Tem apenas um Y
+   qtd_registros = len(df)
+   prop_treino = 0.9999 # Quanto fica para treino. O resto será teste
+   qtd_treino = int(qtd_registros*prop_treino)
+   qtd_teste = qtd_registros-qtd_treino
+   colunas = [col for col in df.columns if col in campos_inclui]
+
+   #Fitra o df baseado nas colunas
+   df=df[colunas]
+   
+   for i in range(100):
+      #Embaralha o dataframe, apartir de um estado predefindo
+      df=df.sample(frac=1.0, random_state=i)
+      df_teste, df_treino = df[:qtd_teste], df[qtd_teste:]
+      
+      #Os Xs são todas as colunas exceto a PL que será o Y
+      X_treino, Y_treino = df_treino.loc[:,(df_treino.columns!='pl')], df_treino.pl
+      X_teste, Y_teste = df_teste.loc[:,(df_teste.columns!='pl')], df_teste.pl
+      
+      # Treina a regressão com os dados de treinamento
+      reg=LinearRegression().fit(X_treino, Y_treino)
+      print('\n Coeficientes #'+str(i)+':')
+      for idx_c in range(len(reg.coef_)): 
+         print("Coef do campo", df.columns[idx_c], ":", reg.coef_[idx_c] )
 
 #Configurações
 TAM_POP=50  #Tamano da população (número para para não zuar o barraco, ok :)
@@ -151,7 +177,6 @@ for n_gera in range(QTD_GERACOES):
     
     print('Gera#:',n_gera,'Melhor fit:', max([ ind['fit'] for ind in pop ] ), 'Individuo:', [ [todas_colunas[i] for i,e in enumerate([int(c) for c in ind['code'] ]) if e] for ind in pop if ind['fit']==max([ ind['fit'] for ind in pop ]) ][0] )
 
-
-
 #Verifica a melhor combinação
 print('Melhor combinação de colunas:', ','.join([ todas_colunas[i] for i,e in enumerate([int(c) for c in sorted(pop, key=lambda x: -x['fit'])[0]['code']]) if e]))
+exibeCoeficientes(campos_inclui=[ todas_colunas[i] for i,e in enumerate([int(c) for c in sorted(pop, key=lambda x: -x['fit'])[0]['code']]) if e]) # Exibo coeficientes
