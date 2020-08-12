@@ -209,14 +209,15 @@ def avaliaLay(minutos_lay, qtd_cavalos, banco, pl_total, total_stack):
      lista_ordenada = retorno # Obtenho lista ordenada das odds dos cavalos participantes
      melhores_odds = list(lista_ordenada.items())
      #qtd_cavalos_corrida = len(melhores_odds)
-     if( len(melhores_odds) > qtd_cavalos  ): # Não tem cavalo suficiente para essa estratégia
+     pos=1 #0 - fav, 1 - seg. fav.
+     if( len(melhores_odds) > qtd_cavalos+pos  ): # Não tem cavalo suficiente para essa estratégia
        for y in range(qtd_cavalos):
-          nome_melhor = melhores_odds[y][0]
-          odds_cavalo_lay = melhores_odds[y][1]
+          nome_melhor = melhores_odds[y+pos][0]
+          odds_cavalo_lay = melhores_odds[y+pos][1]
           d = 0 # Deslocamento
           while( odds_cavalo_lay == -1.01 and d < len(melhores_odds) ):
-             nome_melhor = melhores_odds[y+d][0]
-             odds_cavalo_lay = melhores_odds[y+d][1]
+             nome_melhor = melhores_odds[y+pos+d][0]
+             odds_cavalo_lay = melhores_odds[y+pos+d][1]
              d += 1
           stack_lay = 20*round(1/(odds_cavalo_lay-1),2) # Stack proporcional
           pl = fazApostaLay(odd_lay=odds_cavalo_lay, stack_lay=stack_lay, wl_lay=banco.obtemWinLoseAtual(nome_melhor), comissao = 0.065)
@@ -478,7 +479,7 @@ if __name__ == '__main__':
    #fazProspeccaoEstrategias(min_minutos_back = 999, max_minutos_back = 999, min_minutos_lay = 26, max_minutos_lay = 26, max_cavalos = 1) # Demora cerca de 7 minutos na configuração padrão
    
    df = obtemDadosTreinoDaEstrategia(minutos_back = 9999, minutos_lay=26, qtd_cavalos=1, frac_treino=1.0) # Estratégia vencedora, por enquanto
-   df.to_csv('out_dev_full_47.csv', index=False) # Salvando para fuçar depois
+   df.to_csv('out_dev_full_47_p2.csv', index=False) # Salvando para fuçar depois
    
    #df = pd.read_csv('out_dev_full_47.csv') # Lendo para fazer a regressão
    #sem_esses = ['odds_lay', 'handicap', 'novice', 'hurdle', 'maiden', 'stakes', 'amateur', 'trotting', 'listed', 'national_hunt_flat', 'steeplechase', 'hunt', 'conditions', 'group1', 'group2', 'group3', 'selling', 'apprentice', 'tres_anos', 'quatro_anos_ou_mais', 'cinco_anos_ou_mais'] # Esse gerou 1.98 no antigo

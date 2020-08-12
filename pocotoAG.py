@@ -8,7 +8,9 @@ MAX_BANCA=0.33
 COMISSAO=0.065
 
 
-df=pd.read_csv('out_dev_full_47.csv')
+df1=pd.read_csv('out_dev_full_47.csv')
+df2=pd.read_csv('out_dev_full_47_p2.csv')
+df=pd.concat([df1, df2])
 
 #retira o pl zero
 df=df[df.pl!=0]
@@ -106,9 +108,9 @@ def exibeCoeficientes(campos_inclui):
          print("Coef do campo", df.columns[idx_c], ":", reg.coef_[idx_c] )
 
 #Configurações
-TAM_POP=50  #Tamano da população (número para para não zuar o barraco, ok :)
+TAM_POP=10  #Tamano da população (número para para não zuar o barraco, ok :)
 N_BITS=len(todas_colunas)  #Qtd de 0s e 1s do cromossomo
-QTD_GERACOES = 800
+QTD_GERACOES = 500
 TAXA_DE_REPRODUCAO=0.95
 TAXA_DE_MUTACAO=0.05
 

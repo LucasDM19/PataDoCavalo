@@ -103,6 +103,7 @@ def recriaIndices():
    c.execute("CREATE INDEX idx_odds_RunnerId ON odds ( RunnerId )")
    c.execute("DROP INDEX IF EXISTS idx_odds_RunnerId_PublishedTime")
    c.execute("CREATE INDEX idx_odds_RunnerId_PublishedTime ON odds (RunnerId, PublishedTime)")
+   c.execute("DROP INDEX IF EXISTS idx_odds_position_RaceId") # Sem
    c.execute("CREATE INDEX idx_odds_position_RaceId ON odds_position ( RaceId ASC )")
    c.execute("DROP INDEX IF EXISTS idx_odds_position_RunnerId")
    c.execute("CREATE INDEX idx_odds_position_RunnerId ON odds_position ( RunnerId )")
@@ -287,7 +288,7 @@ def fazLimpeza():
    conn.commit() # Agora sim grava tudo
 
 if __name__ == '__main__':   
-   c, conn = iniciaBanco('bf_gb_win_full.db')
+   c, conn = iniciaBanco('bf_gb_win_47k.db')
    #verificaDiretorios()
    #recriaIndices()
    #removeDuplicatas()
